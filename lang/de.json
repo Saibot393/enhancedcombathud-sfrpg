@@ -1,0 +1,72 @@
+{
+	"enhancedcombathud-vaesen" : {
+		"Titles" : {
+			"SlowAction"				: "LANGSAME AKTIONEN",
+			"FastAction"				: "SCHNELLE AKTIONEN",
+			"ReAction"					: "REAKTIONEN",
+			"Flee"						: "Flüchten",
+			"WPG"						: "Ringen",
+			"Survey"					: "Überblicken",
+			"TreatInjuries"				: "Behandeln",
+			"DrawWeapon"				: "Waffe ziehen",
+			"Standup"					: "Aufstehen",
+			"Move"						: "Bewegen",
+			"TakeCover"					: "Deckung",
+			"Dodge"						: "Ausweichen",
+			"Parry"						: "Parieren",
+			"BreakFree"					: "Losreißen",
+			"Chase"						: "Verfolgen"
+		},
+		
+		"Descriptions" : {
+			"Flee"						: "Siehe Vasesen Regelbuch S.62",
+			"WPG"						: "Siehe Vasesen Regelbuch S.62",
+			"Survey"					: "Siehe Vasesen Regelbuch S.62",
+			"TreatInjuries"				: "Siehe Vasesen Regelbuch S.71",
+			"DrawWeapon"				: "Siehe Vasesen Regelbuch S.60",
+			"Standup"					: "Siehe Vasesen Regelbuch S.60",
+			"Move"						: "Siehe Vasesen Regelbuch S.60",
+			"TakeCover"					: "Siehe Vasesen Regelbuch S.73",
+			"Dodge"						: "Siehe Vasesen Regelbuch S.61",
+			"Parry"						: "Siehe Vasesen Regelbuch S.61",
+			"BreakFree"					: "Siehe Vasesen Regelbuch S.62",
+			"Chase"						: "Siehe Vasesen Regelbuch S.62"
+		},
+		
+		"Settings" : {
+			"MentalInjurieTable" : {
+				"name"					: "Mentale Verletzungen Tabelle",
+				"descrp"				: "Die Tabelle auf welche gewürfelt wird wenn eine mentale Verletzung erlitten wird (ID der Tabelle)"
+			},
+			"PhysicalInjurieTable" : {
+				"name"					: "Physische Verletzungen Tabelle",
+				"descrp"				: "Die Tabelle auf welche gewürfelt wird wenn eine physische Verletzung erlitten wird (ID der Tabelle)"
+			},
+			"TreatType" : {
+				"name"					: "Behandeln Typ",
+				"descrp"				: "Welche art von Behandlung gewürfelt werden soll, wenn der Aktions Knopf gedrückt wird"
+			},
+			"ShowTalents" : {
+				"name"					: "Zeige Talente Knopf",
+				"descrp"				: "Ob ein Knopf für Talente angezeigt werden soll"				
+			},
+			"UseDiceCircles" : {
+				"name"					: "Nutze Würfel Symbole",
+				"descrp"				: "Ob Würfel Symbole anstatt Zahlen für Attribute und Fertigkeiten angezeigt werden sollen"				
+			},
+			"AutoRollInjuries" : {
+				"name"					: "Verletzungen automatisch Würfeln",
+				"descrp"				: "Ob kritische Verletzungen automatisch gewürfelt werden sollen, wenn \"Gebrochen\" angewandt wird"				
+			},
+			"AutoApplyBroken" : {
+				"name"					: "Gebrochen automatisch anwenden",
+				"descrp"				: "Ob der \"Gebrochen\" Zustand automatisch hinzugefügt werden soll, wenn alle anderen mentalen/physischen Zustände angewandt wurden"				
+			}
+		}
+	},
+	
+    "enhancedcombathud.themeOptions.mainAction" : "Farben langsame Aktion",
+    "enhancedcombathud.themeOptions.bonusAction" : "Farben schnelle Aktion",
+    "enhancedcombathud.themeOptions.freeAction" : "Nicht von Argon Vaesen genutzt",
+    "enhancedcombathud.themeOptions.reaction" : "Farben Reaktion"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "enhancedcombathud-sfrpg",
+  "title": "Argon - Combat HUD (STARFINDER)",
+  "description": "An Argon version for the Starfinder System",
+  "authors": [
+    {
+    "name": "saibot"
+    }
+  ],
+  "version": "1.2.1",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11"
+  },
+  "socket": "true",
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json",
+      "flags": {}
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json",
+      "flags": {}
+    }
+  ],
+  "esmodules": [
+	"scripts/settings.js",
+	"scripts/starfinderui.js"
+  ],
+  "relationships": {
+	"requires": [
+		{
+			"id": "enhancedcombathud",
+			"type": "module",
+			"compatibility": {}
+		}
+	],
+	"systems": [
+		{
+			"id": "sfrpg",
+			"type": "system",
+			"compatibility": {}
+		}
+	]
+  },
+  "compatibility": {
+	"minimum": "11",
+	"verified": "11"
+  },
+  "url": "https://github.com/Saibot393/enhancedcombathud-sfrpg",
+  "download": "https://github.com/Saibot393/enhancedcombathud-sfrpg/archive/refs/tags/v1.2.1.zip",
+  "manifest": "https://github.com/Saibot393/enhancedcombathud-sfrpg/releases/latest/download/module.json",
+  "readme": "https://github.com/Saibot393/enhancedcombathud-sfrpg/blob/main/README.md",
+  "changelog": "https://github.com/Saibot393/enhancedcombathud-sfrpg/blob/main/CHANGELOG.md",
+  "allowBugReporter": true
+}

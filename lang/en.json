@@ -1,0 +1,72 @@
+{
+	"enhancedcombathud-vaesen" : {
+		"Titles" : {
+			"SlowAction"				: "SLOW ACTIONS",
+			"FastAction"				: "FAST ACTIONS",
+			"ReAction"					: "REACTIONS",
+			"Flee"						: "Flee",
+			"WPG"						: "Wrestle",
+			"Survey"					: "Survey",
+			"TreatInjuries"				: "Treat injuries",
+			"DrawWeapon"				: "Draw weapon",
+			"Standup"					: "Stand up",
+			"Move"						: "Move",
+			"TakeCover"					: "Take cover",
+			"Dodge"						: "Dodge",
+			"Parry"						: "Parry",
+			"BreakFree"					: "Break free",
+			"Chase"						: "Chase"
+		},
+		
+		"Descriptions" : {
+			"Flee"						: "See Vaesen core rules book p.62",
+			"WPG"						: "See Vaesen core rules book p.62",
+			"Survey"					: "See Vaesen core rules book p.62",
+			"TreatInjuries"				: "See Vaesen core rules book p.71",
+			"DrawWeapon"				: "See Vaesen core rules book p.60",
+			"Standup"					: "See Vaesen core rules book p.60",
+			"Move"						: "See Vaesen core rules book p.60",
+			"TakeCover"					: "See Vaesen core rules book p.73",
+			"Dodge"						: "See Vaesen core rules book p.61",
+			"Parry"						: "See Vaesen core rules book p.61",
+			"BreakFree"					: "See Vaesen core rules book p.62",
+			"Chase"						: "See Vaesen core rules book p.62"
+		},
+		
+		"Settings" : {
+			"MentalInjurieTable" : {
+				"name"					: "Mental injuries roll table",
+				"descrp"				: "The table rolled for mental injuries (ID of table)"
+			},
+			"PhysicalInjurieTable" : {
+				"name"					: "Physical injuries roll table",
+				"descrp"				: "The table rolled for physical injuries (ID of table)"
+			},
+			"TreatType" : {
+				"name"					: "Treat injuries type",
+				"descrp"				: "Which type of injuries treatment should be rolled when the action button is clicked"
+			},
+			"ShowTalents" : {
+				"name"					: "Show talents button",
+				"descrp"				: "If a button for talents should be shown"				
+			},
+			"UseDiceCircles" : {
+				"name"					: "Use dice symbols",
+				"descrp"				: "If dice symbols instead of numbers should be used for Skills and Attributes"				
+			},
+			"AutoRollInjuries" : {
+				"name"					: "Automatically roll injuries",
+				"descrp"				: "If critical injuries should be rolled automatically when \"broken\" is applied"				
+			},
+			"AutoApplyBroken" : {
+				"name"					: "Automatically apply broken",
+				"descrp"				: "If the broken condition should automatically be applied when all other mental/physical conditions are active"				
+			}
+		}
+	},
+	
+    "enhancedcombathud.themeOptions.mainAction" : "Slow Action Colors",
+    "enhancedcombathud.themeOptions.bonusAction" : "Fast Action Colors",
+    "enhancedcombathud.themeOptions.freeAction" : "Not used by Argon Vaesen",
+    "enhancedcombathud.themeOptions.reaction" : "Reaction Colors"
+}
