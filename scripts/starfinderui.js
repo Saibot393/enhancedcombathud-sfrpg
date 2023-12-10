@@ -9,11 +9,6 @@ Hooks.on("argonInit", (CoreHUD) => {
     class StarfinderPortraitPanel extends ARGON.PORTRAIT.PortraitPanel {
 		constructor(...args) {
 			super(...args);
-
-			Hooks.on("deleteActiveEffect", this.onEffectUpdate.bind(this));
-			Hooks.on("createActiveEffect", this.onEffectUpdate.bind(this));
-			
-			this.wasDead = false;
 		}
 
 		get description() {
@@ -55,128 +50,15 @@ Hooks.on("argonInit", (CoreHUD) => {
 			
 			isDead = mental || physical;
 			
-			if (isDead && !this.wasDead) {
-				if (game.settings.get(ModuleName, "AutoRollInjuries")) {
-					if (mental) {
-						this.rollMental();
-					}
-					
-					if (physical) {
-						this.rollPhysical();
-					}
-				}
-			}
-			
-			this.wasDead = isDead;
-			
 			return isDead;
-		}
-		
-		async getConditions() {
-			let LeftIcons = [];
-			let RightIcons = [];
-			
-			switch (this.actor.type) {
-				case "player":
-					const playerConditions = this.actor.system.condition;
-					
-					const PhysicalConditions = Object.keys(playerConditions.physical.states).filter(Key => playerConditions.physical.states[Key].isChecked);
-					const MentalConditions = Object.keys(playerConditions.mental.states).filter(Key => playerConditions.mental.states[Key].isChecked);
-			
-					LeftIcons = PhysicalConditions.map((Condition) => {	const ConditionInfo = CONFIG.Starfinder.allConditions.find(ConditionInfo => ConditionInfo.id == Condition);
-					
-																		return {img : ConditionInfo.icon, description : ConditionInfo.label, key : Condition, click : () => {this.removeCondtion(Condition)}}});
-																			
-					RightIcons = MentalConditions.map((Condition) => {	const ConditionInfo = CONFIG.Starfinder.allConditions.find(ConditionInfo => ConditionInfo.id == Condition);
-					
-																		return {img : ConditionInfo.icon, description : ConditionInfo.label, key : Condition, click : () => {this.removeCondtion(Condition)}}});
-												
-					/*
-					if (game.settings.get(ModuleName, "AutoApplyBroken")) {
-						if (MentalConditions.length == 3) {
-							if (!this.actor.system.condition.mental.isBroken) {
-								this.actor.createEmbeddedDocuments("ActiveEffect", [CONFIG.Starfinder.allConditions.find(condition => condition.id == "mental")]);
-							}
-						}
-						
-						if (PhysicalConditions.length == 3) {
-							if (!this.actor.system.condition.physical.isBroken) {
-								this.actor.createEmbeddedDocuments("ActiveEffect", [CONFIG.Starfinder.allConditions.find(condition => condition.id == "physical")]);
-							}
-						}
-					}
-					*/
-					break;
-				case "Starfinder":
-					const StarfinderConditions = this.actor.items.filter(item => item.type == "condition" && item.system.active);
-					
-					let ConditionImages = []
-					
-					for (let i = 0; i < StarfinderConditions.length; i++) {
-						if (StarfinderConditions[i].img == "icons/svg/item-bag.svg" && i <= 10) {
-							ConditionImages[i] = `systems/Starfinder/asset/counter_tokens/${i+1}.png`; //nicer than a simple bag
-						}
-						else {
-							ConditionImages[i] = StarfinderConditions[i].img;
-						}
-					}
-					
-					LeftIcons = StarfinderConditions.map((Condition, i) => {return {
-						img : ConditionImages[i], 
-						description : Condition.name, 
-						key : Condition.id, 
-						click : async () => {
-							await this.actor.items.filter(item => item.type == "condition").reverse().find(item => item.system.active)?.update({system : {active : false}});
-							this.render()
-						}}});
-					break;
-			}
-						
-			return {left : LeftIcons, right : RightIcons}
 		}
 
 		async getStatBlocks() {
 			let ActiveArmor;
-			
-			switch (this.actor.type) {
-				case "player" :
-					ActiveArmor = this.actor.items.find(Item => Item.type == "armor" && Item.system.isFav); //serach for favoured armor
-					break;
-				case "npc" :
-				case "Starfinder" :
-					ActiveArmor = this.actor.items.find(Item => Item.type == "armor"); //serach for favoured armor
-					break;				
-			}
 
 			const ArmorText = game.i18n.localize("ARMOR.NAME");
 			
-			let physical;
-			let mental;
-			
-			if (this.actor.type == "npc") {
-				physical = this.actor.system.condition.physical;
-				
-				mental = this.actor.system.condition.mental;
-			}
-			
 			let Blocks = [];
-			
-			if (physical) {
-				Blocks.push([
-					{
-						text: game.i18n.localize("CONDITION.PHYSICAL"),
-					},
-					{
-						text: physical.value,
-					},
-					{
-						text: "/",
-					},
-					{
-						text: physical.max
-					},
-				]);				
-			}
 			
 			if (ActiveArmor) {
 				Blocks.push([
@@ -190,90 +72,108 @@ Hooks.on("argonInit", (CoreHUD) => {
 				]);
 			}
 			
-			if (mental) {
-				Blocks.push([
-					{
-						text: game.i18n.localize("CONDITION.MENTAL"),
-					},
-					{
-						text: mental.value,
-					},
-					{
-						text: "/",
-					},
-					{
-						text: mental.max
-					},
-				]);				
-			}
-			
 			return Blocks;
+		}
+		
+		async getBars() {
+			const bars = document.createElement("div");
+			bars.style.width = "160px";
+			bars.style.height = "50px";
+			bars.style.position = "absolute";
+			
+			let hp = this.actor.system.attributes.hp;
+			let sp = this.actor.system.attributes.sp;
+			
+			//stamina
+			const spbar = document.createElement("div");
+			spbar.style.width = "75%";
+			spbar.style.height = "40%";
+			spbar.style.position = "relative";
+			spbar.style.backgroundColor = "grey";
+			spbar.style.clipPath = "polygon(0% 0%, 100% 0%, 80% 100%, 0% 100%)";
+			
+			const spsubbar = document.createElement("div");
+			spsubbar.style.width = `${sp.value/sp.max*100}%`;
+			spsubbar.style.height = "100%";
+			spsubbar.style.backgroundColor = "darkOrange";
+			spsubbar.style.position = "absolute";
+			spsubbar.style.top = "0";
+			spsubbar.style.left = "0";
+			
+			spbar.appendChild(spsubbar);
+			
+			//hp
+			const hpbar = document.createElement("div");
+			hpbar.style.width = "100%";
+			hpbar.style.height = "60%";
+			hpbar.style.position = "relative";
+			hpbar.style.backgroundColor = "grey";
+			hpbar.style.clipPath = "polygon(0% 0%, 100% 0%, 80% 100%, 0% 100%)";
+			
+			const hpsubbar = document.createElement("div");
+			hpsubbar.style.width = `${hp.value/hp.max*100}%`;
+			hpsubbar.style.height = "100%";
+			hpsubbar.style.backgroundColor = "red";
+			hpsubbar.style.position = "absolute";
+			hpsubbar.style.top = "0";
+			hpsubbar.style.left = "0";
+			
+			const tempsubbar = document.createElement("div");
+			tempsubbar.style.width = `${hp.temp/hp.max*100}%`;
+			tempsubbar.style.height = "70%";
+			tempsubbar.style.backgroundColor = "blue";
+			tempsubbar.style.position = "absolute";
+			tempsubbar.style.bot = "0";
+			tempsubbar.style.left = "0";
+			tempsubbar.style.opacity  = "0.5";
+			
+			hpbar.appendChild(hpsubbar);
+			hpbar.appendChild(tempsubbar);
+			
+			bars.appendChild(spbar);
+			bars.appendChild(hpbar);
+			
+			const splabel = document.createElement("span");
+			splabel.innerHTML = `${sp.value}/${sp.max} SP`;
+			splabel.style.position = "absolute";
+			splabel.style.zIndex = "20";
+			splabel.style.width = "70%";
+			splabel.style.height = "100%";
+			splabel.style.textAlign = "left";
+			splabel.style.fontSize = "1.2em";
+			splabel.style.color = "white";
+			
+			spbar.appendChild(splabel);
+			
+			const hplabel = document.createElement("span");
+			if (hp.temp <= 0) {
+				hplabel.innerHTML = `${hp.value}/${hp.max} HP`;
+			}
+			else{
+				hplabel.innerHTML = `${hp.temp} TEMP`;
+			}
+			hplabel.style.position = "absolute";
+			hplabel.style.zIndex = "20";
+			hplabel.style.width = "70%";
+			hplabel.style.height = "100%";
+			hplabel.style.textAlign = "left";
+			hplabel.style.fontSize = "1.4em";
+			hplabel.style.color = "white";
+			
+			hpbar.appendChild(hplabel);
+			
+			return bars;
 		}
 		
 		async _renderInner(data) {
 			await super._renderInner(data);
 			
-			//this.element.querySelector(".death-save-success").style.visibility = "hidden";
-			//this.element.querySelector(".death-save-fail").style.visibility = "hidden";
-			
-			const ConditionIcons = await this.getConditions();
-			
-			if (ConditionIcons) {
-				for (const Side of ["left", "right"]) {
-					const SideIcons = ConditionIcons[Side];
-					
-					if (SideIcons) {
-						const SideIconsBar = document.createElement("div");
-						SideIconsBar.classList.add("status-effects");
-						//top:50%;transform:translateY(-50%)
-						SideIconsBar.setAttribute("style", `position:absolute;${Side}:0;display:flex;flex-direction:column`);
-						
-						for (const Icon of SideIcons) {
-							const IconImage =  document.createElement("img");
-							IconImage.classList.add("effect-control");
-							
-							IconImage.setAttribute("src", Icon.img);
-							IconImage.setAttribute("style", "width: 50px;border-width:0px");
-							IconImage.onclick = () => {Icon.click()};
-							IconImage.setAttribute("data-tooltip", Icon.description);
-							
-							SideIconsBar.appendChild(IconImage);
-						}
-						
-						this.element.appendChild(SideIconsBar);
-					}
-				}
-			}
-			
-			this.element.querySelector(".player-buttons").style.right = "0%";
-		}
-		
-		async removeCondtion(ConditionKey) {
-			const currentEffect = this.actor.effects.find(Effect => Effect.name == ConditionKey.toUpperCase());
-			
-			if (currentEffect) {
-				this.actor.deleteEmbeddedDocuments('ActiveEffect', [currentEffect.id]);
-			}
-		}
-		
-		async onEffectUpdate(Effect) {
-			if (this.actor == Effect.parent) {
-				this.render();
-			}
-		}
-		
-		async rollMental() {
-			let table = await fromUuid("RollTable." + game.settings.get(ModuleName, "MentalInjurieTable"));
-			if (table) {
-				table.draw({roll: true, displayChat: true});
-			}
-		}
-		
-		async rollPhysical() {
-			let table = await fromUuid("RollTable." + game.settings.get(ModuleName, "PhysicalInjurieTable"));
-			if (table) {
-				table.draw({roll: true, displayChat: true});
-			}
+			const bars = await this.getBars();
+			console.log(bars);
+			this.element.appendChild(bars);
+			bars.style.left = "0px";
+			bars.style.bottom = "0px";
+			bars.style.zIndex = "10"; //to front
 		}
 	}
 	
@@ -283,144 +183,104 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 
 		get categories() {
-			const attributes = {...this.actor.system.attribute};
-			const skills = this.actor.system.skill;
+			const abilities = this.actor.system.abilities;
+			const saves = Object.fromEntries(["fort", "reflex", "will"].map(key => [key, this.actor.system.attributes[key]]));
+			const skills = this.actor.system.skills;
 			
-			var allowedattributes = [];
+			let validskills = {};
 			
-			switch (this.actor.type) {
-				case "player":
-					allowedattributes = Object.keys(attributes).filter(key => key != "magic");
-					break;
-				default:
-					allowedattributes = Object.keys(attributes);
-					break;
-			}
-			
-			for (let key of Object.keys(attributes)) {
-				if (!allowedattributes.includes(key)) {
-					delete attributes[key];
+			for (const key of Object.keys(skills)) {
+				if (!skills[key].isTrainedOnly || skills[key].ranks > 0) {
+					validskills[key] = skills[key]
 				}
 			}
-			
-			let maxAttribute = Math.max(...Object.values(attributes).map(content => content.value));
 
-			const attributesButtons = Object.keys(attributes).map((attribute) => {
-				const attributeData = attributes[attribute];
+			const abilitiesbuttons = Object.keys(abilities).map((ability) => {
+				const abilitiedata = abilities[ability];
 				
-				let valueLabel = attributeData.value;
-				
-				if (game.settings.get(ModuleName, "UseDiceCircles")) {
-					valueLabel = "";
-					
-					valueLabel = valueLabel + `<div style="display:flex">`;
-					
-					valueLabel = valueLabel + "</div>";
-					
-					valueLabel = valueLabel + `<div style="display:flex">`;
-					
-					for (let i = 0; i < attributeData.value; i++) {
-						valueLabel = valueLabel + `<i class="fa-regular fa-circle"></i>`;
-					}
-					
-					valueLabel = valueLabel + "</div>";
-				}
+			let valueLabel = `+${abilitiedata.mod}`;
+
 				
 				return new ARGON.DRAWER.DrawerButton([
 					{
-						label: game.i18n.localize(attributes[attribute].label),
-						onClick: () => {this.actor.sheet.rollAttribute(attribute)}
+						label: CONFIG.SFRPG.abilities[ability],
+						onClick: () => {this.actor.rollAbility(ability)}
 					},
 					{
 						label: valueLabel,
-						onClick: () => {this.actor.sheet.rollAttribute(attribute)},
+						onClick: () => {this.actor.rollAbility(ability)},
 						style: "display: flex; justify-content: flex-end;"
 					}
 				]);
 			});
 			
-			let skillsButtons = [];
-			
-			if (skills) {
-				skillsButtons = Object.keys(skills).map((skill) => {
-					const skillData = skills[skill];
-					
-					let valueLabel = `${skillData.value}<span style="margin: 0 1rem; filter: brightness(0.8)">(+${attributes[skills[skill].attribute].value})</span>`;
-					
-					
-					if (game.settings.get(ModuleName, "UseDiceCircles")) {
-						valueLabel = "";
-						
-						valueLabel = valueLabel + `<div style="display:flex">`;
-						
-						for (let i = 0; i < skillData.value; i++) {
-							valueLabel = valueLabel + `<i class="fa-solid fa-circle"></i>`;
-						}
-						
-						valueLabel = valueLabel + "</div>";
-						
-						valueLabel = valueLabel + `<div style="display:flex">`;
-						
-						for (let i = 0; i < maxAttribute; i++) {
-							if (i < attributes[skills[skill].attribute].value) {
-								valueLabel = valueLabel + `<i class="fa-regular fa-circle"></i>`;
-							}
-							else {
-								valueLabel = valueLabel + `<i class="fa-regular fa-circle" style="visibility:hidden"></i>`;
-							}
-						}
-						
-						valueLabel = valueLabel + "</div>";
+			const savesbuttons = Object.keys(saves).map((save) => {
+				const savedata = saves[save];
+				
+				let valueLabel = `+${savedata.bonus}`;
+				
+				return new ARGON.DRAWER.DrawerButton([
+					{
+						label: CONFIG.SFRPG.saves[save],
+						onClick: () => {this.actor.rollSave(save)}
+					},
+					{
+						label: valueLabel,
+						onClick: () => {this.actor.rollSave(save)},
+						style: "display: flex; justify-content: flex-end;"
 					}
-					
-					return new ARGON.DRAWER.DrawerButton([
-						{
-							label: game.i18n.localize(CONFIG.Starfinder.skills[skill]),
-							onClick: () => {this.actor.sheet.rollSkill(skill)}
-						},
-						{
-							label: valueLabel,
-							onClick: () => {this.actor.sheet.rollSkill(skill)},
-							style: "display: flex; justify-content: flex-end;"
-						},
-					]);
-				});
-			}
+				]);
+			});
+			
+			
+			let skillsButtons = Object.keys(validskills).map((skill) => {
+				const skillData = validskills[skill];
+				
+				let valueLabel = `+${skillData.mod}<span style="margin: 0 1rem; filter: brightness(0.8)">(${validskills[skill].ranks})</span>`;
+				
+				return new ARGON.DRAWER.DrawerButton([
+					{
+						label: CONFIG.SFRPG.skills[skill],
+						onClick: () => {this.actor.rollSkill(skill)}
+					},
+					{
+						label: valueLabel,
+						onClick: () => {this.actor.rollSkill(skill)},
+						style: "display: flex; justify-content: flex-end;"
+					},
+				]);
+			});
 
 			let returncategories = [];
 
-			if (attributesButtons.length) {
-				if (!game.settings.get(ModuleName, "UseDiceCircles")) {
-					returncategories.push({
-						gridCols: "7fr 2fr 2fr",
-						captions: [
-							{
-								label: game.i18n.localize("HEADER.ATTRIBUTES"),
-							},
-							{
-								label: "", //looks nicer
-							},
-							{
-								label: game.i18n.localize("ROLL.ROLL"),
-							},
-						],
-						buttons: attributesButtons
-					});
-				}
-				else {
-					returncategories.push({
-						gridCols: "7fr 2fr",
-						captions: [
-							{
-								label: game.i18n.localize("HEADER.ATTRIBUTES"),
-							},
-							{
-								label: game.i18n.localize("ROLL.ROLL"),
-							},
-						],
-						buttons: attributesButtons
-					});
-				}
+			if (abilitiesbuttons.length) {
+				returncategories.push({
+					gridCols: "7fr 2fr",
+					captions: [
+						{
+							label: game.i18n.localize("HEADER.ATTRIBUTES"),
+						},
+						{
+							label: game.i18n.localize("ROLL.ROLL"),
+						},
+					],
+					buttons: abilitiesbuttons
+				});
+			}
+			
+			if (savesbuttons.length) {
+				returncategories.push({
+					gridCols: "7fr 2fr",
+					captions: [
+						{
+							label: game.i18n.localize("HEADER.SAVES"),
+						},
+						{
+							label: "",
+						},
+					],
+					buttons: savesbuttons
+				});
 			}
 			
 			if (skillsButtons.length) {
