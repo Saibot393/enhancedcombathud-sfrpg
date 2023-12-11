@@ -27,24 +27,14 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 
 		get description() {
-			const { type, system } = this.actor;
-			const actor = this.actor;
-			
-			switch (type) {
-				case "player":
-					return `${system.bio.archetype}`;
-					break;
-				case "npc":
-					break;
-				case "Starfinder":
-					break;
-				case "headquater":
-					return `${system.bio.building}, ${system.bio.location}`;
-					break;
-				default:
-					return "";
+			switch (this.actor.type) {
+				case "character":
+					const classes = this.actor.items.filter(item => item.type == "class");
+					
+					return classes.map(characterclass => `${characterclass.name} ${game.i18n.localize("SFRPG.LevelLabelText")} ${characterclass.system.levels}`).join("/");
 					break;
 			}
+			return `${this.actor.name}`;
 		}
 
 		get isDead() {
@@ -494,6 +484,20 @@ Hooks.on("argonInit", (CoreHUD) => {
 			return  this.item || this.isWeaponSet;
 		}
 		
+		get quantity() {
+			if (this.item?.type == "weapon") {
+				return null;
+			}
+			
+			if (this.item?.type == "spell") {
+				if (this.item?.system.uses && this.item?.system.uses.max != null) {
+					return this.item.system.uses.value;
+				}
+			}
+			
+			return this.item?.system.quantity;
+		}
+		
 		async _onSetChange({sets, active}) {
 			const activeSet = sets[active];
 
@@ -521,45 +525,26 @@ Hooks.on("argonInit", (CoreHUD) => {
 			var used = false;
 			
 			if (this.item.type == "weapon") {
-				this.actor.sheet.rollWeapon(this.item.id);
+				this.item?.roll();
 				
 				used = true;
 			}
 			
-			if (this.item.type == "attack") {
-				const testName = this.item.name;
-				let bonus = this.actor.sheet.computeInfoFromConditions();
-				let attribute = this.actor.system.attribute[this.item.system.attribute];
-
-				let info = [
-				  { name: game.i18n.localize(attribute.label + "_ROLL"), value: attribute.value },
-				  bonus
-				];
-
-				prepareRollNewDialog(this.actor.sheet, testName, info, this.item.system.damage, null, null);
+			if (this.item.type == "consumable") {
+				this.item?.roll();
 				
 				used = true;
 			}
 			
-			if (this.item.type == "gear" || this.item.type == "magic" || this.item.type == "talent") {
-				const data = this.item.data;
-				const type = data.type;
-				/*
-				const skill = this.item.system.skill;
+			if (this.item.type == "feat") {
+				this.item?.roll();
 				
-				if (skill instanceof Array) {
-					if (skill.length == 1) {
-						skill = skill[0];
-					}
-					else {
-						skill = undefined;
-					}
-				}
-				*/
-				
-				let chatData = buildChatCard(type, data);
-				ChatMessage.create(chatData, {});;
-			}			
+				used = true;
+			}
+			
+			if (this.item.type == "spell") {
+				this.actor.useSpell(this.item, {configureDialog: true});
+			}				
 			
 			if (used) {
 				StarfinderItemButton.consumeActionEconomy(this.item);
@@ -642,15 +627,62 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 		
 		async _renderInner() {
-			if (this.visible) {
-				await super._renderInner();
-			}
+			await super._renderInner();
 		}
     }
 	
 	class StarfinderSplitButton extends ARGON.MAIN.BUTTONS.SplitButton {
 		get isvalid() {
 			return this.button1?.isvalid || this.button2?.isvalid;
+		}
+	}
+	
+	class StarfinderMovementHud extends ARGON.MovementHud {
+		constructor (...args) {
+			super(...args);
+		}
+
+		get visible() {
+			return game.combat?.started;
+		}
+
+		get movementMax() {
+			return this.actor.system.attributes.speed[this.movementtype].value / canvas.scene.dimensions.distance;
+		}
+		
+		get movementtype() {
+			const movementselect = this.element.querySelector("#movementselect");
+			
+			if (movementselect) {
+				return movementselect.value;
+			}
+			else {
+				return "land"
+			}
+		}
+		
+		async _renderInner() {
+			await super._renderInner();
+			
+			const movementselect = document.createElement("select");
+			movementselect.id = "movementselect";
+			movementselect.style.width = "100%";
+			movementselect.style.color = "white";
+			
+			for (const movementtype of Object.keys(this.actor.system.attributes.speed).filter(key => this.actor.system.attributes.speed[key]?.value)) {
+				const typeoption = document.createElement("option");
+				typeoption.value = movementtype;
+				typeoption.innerHTML = CONFIG.SFRPG.speeds[movementtype];
+				typeoption.checked = (movementtype == "land");
+				typeoption.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+				typeoption.style.width = "200px";
+				typeoption.style.height = "20px";
+				typeoption.style.backgroundColor = "grey";
+				
+				movementselect.appendChild(typeoption);
+			}
+			
+			this.element.appendChild(movementselect);
 		}
 	}
 	
@@ -764,12 +796,12 @@ Hooks.on("argonInit", (CoreHUD) => {
 			const activeSet = sets[active];
 			const activeItems = Object.values(activeSet).filter((item) => item);
 			const inactiveSets = Object.values(sets).filter((set) => set !== activeSet);
-			const inactiveItems = inactiveSets.flatMap((set) => Object.values(set)).filter((item) => item);
-			activeItems.forEach((item) => {
-				if(!item.system?.equipped) updates.push({_id: item.id, "system.equipped": true});
-			});
+			const inactiveItems = inactiveSets.flatMap((set) => Object.values(set)).filter((item) => item && !activeItems.includes(item));
 			inactiveItems.forEach((item) => {
 				if(item.system?.equipped) updates.push({_id: item.id, "system.equipped": false});
+			});
+			activeItems.forEach((item) => {
+				if(!item.system?.equipped) updates.push({_id: item.id, "system.equipped": true});
 			});
 			return await this.actor.updateEmbeddedDocuments("Item", updates);
 		}
@@ -872,7 +904,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 		StarfinderReactionActionPanel,
 		ARGON.PREFAB.PassTurnPanel
     ]);  
-	CoreHUD.defineMovementHud(null);
+	CoreHUD.defineMovementHud(StarfinderMovementHud);
     CoreHUD.defineWeaponSets(StarfinderWeaponSets);
 	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2", "starship", "vehicle"]);
 });
