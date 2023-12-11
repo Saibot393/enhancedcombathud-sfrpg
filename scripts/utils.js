@@ -1,4 +1,4 @@
-const ModuleName = "sfrpg";
+const ModuleName = "enhancedcombathud-sfrpg";
 
 async function getTooltipDetails(item, actortype) {
 	let title, description, effect, itemType, skill, vaesenattribute, category, subtitle, range, damage, bonus, bonusType;

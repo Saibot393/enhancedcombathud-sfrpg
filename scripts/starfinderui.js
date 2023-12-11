@@ -5,6 +5,23 @@ Hooks.on("argonInit", (CoreHUD) => {
     const ARGON = CoreHUD.ARGON;
   
 	registerStarfinderECHSItems();
+	
+	function useAction(actionType) {
+		switch (actionType) {
+			case "standard":
+				break;
+			case "standard":
+				break;
+			case "move":
+				break;
+			case "swift":
+				break;
+			case "full":
+				break;
+			case "reaction":
+				break;
+		}
+	}
   
     class StarfinderPortraitPanel extends ARGON.PORTRAIT.PortraitPanel {
 		constructor(...args) {
@@ -54,20 +71,22 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 
 		async getStatBlocks() {
-			let ActiveArmor;
-
-			const ArmorText = game.i18n.localize("ARMOR.NAME");
-			
 			let Blocks = [];
 			
-			if (ActiveArmor) {
+			const colors = {
+				eac: "DeepSkyBlue",
+				kac: "LightSteelBlue"
+			};
+			
+			for (const key of ["eac", "kac"]) {
 				Blocks.push([
 					{
-						text: ArmorText,
+						text: CONFIG.SFRPG.modifierArmorClassAffectedValues[key],
+						id : key
 					},
 					{
-						text: ActiveArmor.system.protection,
-						color: "var(--ech-movement-baseMovement-background)",
+						text: this.actor.system.attributes[key].value,
+						color: colors[key],
 					},
 				]);
 			}
@@ -169,11 +188,22 @@ Hooks.on("argonInit", (CoreHUD) => {
 			await super._renderInner(data);
 			
 			const bars = await this.getBars();
-			console.log(bars);
 			this.element.appendChild(bars);
 			bars.style.left = "0px";
 			bars.style.bottom = "0px";
 			bars.style.zIndex = "10"; //to front
+			
+			const height = 1.6;
+			let bottom = 0;
+			for (const key of ["eac", "kac"]) {
+				let armorblock = this.element.querySelector(`#${key}`)?.parentElement;
+				
+				armorblock.style.right = "0";
+				armorblock.style.position = "absolute";
+				armorblock.style.bottom = `${bottom}em`;
+				armorblock.style.height = `${height}em`;
+				bottom = bottom + height;
+			}
 		}
 	}
 	
@@ -198,8 +228,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			const abilitiesbuttons = Object.keys(abilities).map((ability) => {
 				const abilitiedata = abilities[ability];
 				
-			let valueLabel = `+${abilitiedata.mod}`;
-
+				let valueLabel = `<span style="margin: 0 1rem">+${abilitiedata.mod}</span>`;
 				
 				return new ARGON.DRAWER.DrawerButton([
 					{
@@ -217,7 +246,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			const savesbuttons = Object.keys(saves).map((save) => {
 				const savedata = saves[save];
 				
-				let valueLabel = `+${savedata.bonus}`;
+				let valueLabel = `<span style="margin: 0 1rem">+${savedata.bonus}</span>`;
 				
 				return new ARGON.DRAWER.DrawerButton([
 					{
@@ -225,6 +254,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 						onClick: () => {this.actor.rollSave(save)}
 					},
 					{
+						label: valueLabel,
 						label: valueLabel,
 						onClick: () => {this.actor.rollSave(save)},
 						style: "display: flex; justify-content: flex-end;"
@@ -335,9 +365,8 @@ Hooks.on("argonInit", (CoreHUD) => {
 			
 			buttons.push(new StarfinderItemButton({ item: null, isWeaponSet: true, isPrimary: true }));
 			buttons.push(new ARGON.MAIN.BUTTONS.SplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
-			
-			if (this.actor.type == "Starfinder" || this.actor.type == "npc" && this.actor.items.find(item => item.type == "magic")) {
-				buttons.push(new StarfinderButtonPanelButton({type: "magic", color: 0}));
+			if (this.actor.items.find(item => item.type == "spell")) {
+				buttons.push(new StarfinderButtonPanelButton({type: "spell", color: 0}));
 			}
 			
 			buttons.push(new StarfinderButtonPanelButton({type: "gear", color: 0}));
@@ -514,9 +543,32 @@ Hooks.on("argonInit", (CoreHUD) => {
 				case "talent": return "icons/svg/book.svg";
 			}
 		}
+		
+		validSpells () {
+			let spellCategories = [];
+			let spells = this.actor.items.filter(item => item.type == "spell");
+			
+			for (let i = 0; i <= 6; i++) {
+				let usesvalue = i == 0 ? Infinity : Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass].value).reduce((summ, value) => {return summ = summ+value}, 0);
+				let usesmax = i == 0 ? Infinity : this.actor.system.spells["spell" + i].max;
+				
+				spellCategories.push({
+					label: CONFIG.SFRPG.spellLevels[i],
+					buttons: spells.filter(spell => spell.system.level == i).map(spell => new StarfinderItemButton({item : spell})),
+					uses: { max: usesmax, value: usesvalue }
+				});
+			}
+			
+			return spellCategories.filter(category => category.buttons.length > 0);
+		}
   
 		async _getPanel() {
-			return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.actor.items.filter(item => item.type == this.type).map(item => new StarfinderItemButton({item}))});
+			if (this.type == "spell") {
+				return new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanel({accordionPanelCategories: this.validSpells().map(({ label, buttons, uses }) => new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanelCategory({ label, buttons, uses })) });
+			}
+			else {
+				return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.actor.items.filter(item => item.type == this.type).map(item => new StarfinderItemButton({item}))});
+			}
 		}
     }
 	
