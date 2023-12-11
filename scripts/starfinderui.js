@@ -108,17 +108,27 @@ Hooks.on("argonInit", (CoreHUD) => {
 			spbar.style.width = "75%";
 			spbar.style.height = "40%";
 			spbar.style.position = "relative";
-			spbar.style.backgroundColor = "grey";
+			//spbar.style.backgroundColor = "grey";
 			spbar.style.clipPath = "polygon(0% 0%, 100% 0%, 80% 100%, 0% 100%)";
+
+			const spbackground = document.createElement("div");
+			spbackground.style.width = "100%";
+			spbackground.style.height = "100%";
+			spbackground.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+			spbackground.style.opacity = "0.7";
+			spbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
 			
 			const spsubbar = document.createElement("div");
-			spsubbar.style.width = `${sp.value/sp.max*100}%`;
+			spsubbar.style.width = "100%"//`${sp.value/sp.max*100}%`;
 			spsubbar.style.height = "100%";
 			spsubbar.style.backgroundColor = "darkOrange";
+			spsubbar.style.clipPath = `polygon(0% 0%, ${sp.value/sp.max*100}% 0%, ${(sp.value/sp.max*100) - 20}% 100%, 0% 100%)`;
+			spsubbar.style.opacity = "0.9";
 			spsubbar.style.position = "absolute";
 			spsubbar.style.top = "0";
 			spsubbar.style.left = "0";
 			
+			spbar.appendChild(spbackground);
 			spbar.appendChild(spsubbar);
 			
 			//hp
@@ -126,34 +136,48 @@ Hooks.on("argonInit", (CoreHUD) => {
 			hpbar.style.width = "100%";
 			hpbar.style.height = "60%";
 			hpbar.style.position = "relative";
-			hpbar.style.backgroundColor = "grey";
+			//hpbar.style.backgroundColor = "grey";
 			hpbar.style.clipPath = "polygon(0% 0%, 100% 0%, 80% 100%, 0% 100%)";
 			
+			const hpbackground = document.createElement("div");
+			hpbackground.style.width = "100%";
+			hpbackground.style.height = "100%";
+			hpbackground.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+			hpbackground.style.opacity = "0.7";
+			hpbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
+			
 			const hpsubbar = document.createElement("div");
-			hpsubbar.style.width = `${hp.value/hp.max*100}%`;
+			hpsubbar.style.width = "100%"//`${hp.value/hp.max*100}%`;
 			hpsubbar.style.height = "100%";
 			hpsubbar.style.backgroundColor = "red";
+			hpsubbar.style.clipPath = `polygon(0% 0%, ${hp.value/hp.max*100}% 0%, ${(hp.value/hp.max*100) - 20}% 100%, 0% 100%)`;
+			hpsubbar.style.opacity = "0.9";
 			hpsubbar.style.position = "absolute";
 			hpsubbar.style.top = "0";
 			hpsubbar.style.left = "0";
 			
 			const tempsubbar = document.createElement("div");
-			tempsubbar.style.width = `${hp.temp/hp.max*100}%`;
+			tempsubbar.style.width = "100%"//`${hp.temp/hp.max*100}%`;
 			tempsubbar.style.height = "70%";
 			tempsubbar.style.backgroundColor = "blue";
+			tempsubbar.style.clipPath = `polygon(0% 0%, ${hp.temp/hp.max*100}% 0%, ${(hp.temp/hp.max*100) - 20*0.7}% 100%, 0% 100%)`;
+			tempsubbar.style.opacity = "0.9";
 			tempsubbar.style.position = "absolute";
-			tempsubbar.style.bot = "0";
+			tempsubbar.style.top = "0";
 			tempsubbar.style.left = "0";
 			tempsubbar.style.opacity  = "0.5";
 			
+			hpbar.appendChild(hpbackground);
 			hpbar.appendChild(hpsubbar);
 			hpbar.appendChild(tempsubbar);
 			
 			bars.appendChild(spbar);
 			bars.appendChild(hpbar);
 			
+			//labels
 			const splabel = document.createElement("span");
 			splabel.innerHTML = `${sp.value}/${sp.max} SP`;
+			splabel.style.top = "0";
 			splabel.style.position = "absolute";
 			splabel.style.zIndex = "20";
 			splabel.style.width = "70%";
@@ -171,6 +195,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			else{
 				hplabel.innerHTML = `${hp.temp} TEMP`;
 			}
+			hplabel.style.top = "0";
 			hplabel.style.position = "absolute";
 			hplabel.style.zIndex = "20";
 			hplabel.style.width = "70%";
