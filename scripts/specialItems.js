@@ -6,22 +6,21 @@ var StarfinderECHReactionItems = {};
 
 var StarfinderECHActionItems = {};
 var StarfinderECHMoveItems = {};
-var StarfinderECHSwiftItems = {};
 var StarfinderECHFullItems = {};
-var StarfinderECHReactionItems = {};
+var StarfinderManeuvers = {};
 
-function registerStarfinderECHSItems () {
+async function registerStarfinderECHSItems () {
 	StarfinderECHActionItems = {
 		groupflags : {
-			actiontype : "action"
+			actiontype : "action",
+			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
 		},
 		CombatManeuver : {
 			img: "modules/enhancedcombathud-sfrpg/icons/high-kick.svg",
 			name: game.i18n.localize(ModuleName+".Titles.CombatManeuver"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.CombatManeuver"),
-				skill : "agility"
+				descriptionHeader : "Combat Maneuver"
 			}
 		},
 		CoveringFire : {
@@ -29,8 +28,7 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.CoveringFire"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.CoveringFire"),
-				skill : "agility"
+				descriptionHeader : "Covering Fire"
 			}
 		},
 		Feint : {
@@ -38,8 +36,7 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.Feint"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Feint"),
-				skill : "blu"
+				descriptionHeader : "Feint"
 			}
 		},
 		FightDefensively : {
@@ -47,8 +44,7 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.FightDefensively"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.FightDefensively"),
-				skill : "observation"
+				descriptionHeader : "Fight Defensively"
 			}
 		},
 		HarryingFire : {
@@ -56,9 +52,7 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.HarryingFire"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.HarryingFire"),
-				skill : "",
-				Starfinderattribute : "bodyControl"
+				descriptionHeader : "Harrying Fire"
 			}
 		},
 		TotalDefense : {
@@ -66,23 +60,22 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.TotalDefense"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.TotalDefense"),
-				skill : "",
-				Starfinderattribute : "bodyControl"
+				descriptionHeader : "Total Defense"
 			}
 		}
 	}
 	
 	StarfinderECHMoveItems = {
 		groupflags : {
-			actiontype : "move"
+			actiontype : "move",
+			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.SKgwxeMd2gB1g2W8",
 		},
 		DrawSheathe : {
 			img: "modules/enhancedcombathud-sfrpg/icons/cowboy-holster.svg",
 			name: game.i18n.localize(ModuleName+".Titles.DrawSheathe"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.DrawSheathe")
+				descriptionHeader : "Draw or Sheathe a Weapon"
 			}
 		},
 		GuardedStep : {
@@ -90,7 +83,7 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.GuardedStep"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.GuardedStep")
+				descriptionHeader : "Guarded Step"
 			}
 		},
 		Reload : {
@@ -98,9 +91,7 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.Reload"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Reload"),
-				skill : "observation",
-				Starfinderattribute : "bodyControl"
+				descriptionHeader : "Reload"
 			}
 		},
 		StandUp : {
@@ -108,70 +99,140 @@ function registerStarfinderECHSItems () {
 			name: game.i18n.localize(ModuleName+".Titles.StandUp"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.StandUp"),
-				skill : "",
-				Starfinderattribute : "bodyControl"
+				descriptionHeader : "Stand Up"
 			}
 		}
 	}
 	
-	StarfinderECHReactionItems = {
+	StarfinderECHFullItems = {
 		groupflags : {
-			actiontype : "react"
+			actiontype : "full",
+			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.Fu5eDR99bGo9WdUU",
 		},
-		Dodge : {
-			img: "modules/enhancedcombathud/icons/svg/dodging.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Dodge"),
+		Charge : {
+			img: "modules/enhancedcombathud-sfrpg/icons/run.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Charge"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Dodge"),
-				skill : "agility",
-				Starfinderattribute : "bodyControl"
+				descriptionHeader : "Charge"
 			}
 		},
-		Parry : {
-			img: "modules/enhancedcombathud/icons/svg/crossed-swords.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Parry"),
+		CoupdeGrace : {
+			img: "modules/enhancedcombathud-sfrpg/icons/backstab.svg",
+			name: game.i18n.localize(ModuleName+".Titles.CoupdeGrace"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Parry"),
-				skill : ["closeCombat", "force"],
-				Starfinderattribute : "might"
+				descriptionHeader : "Coup de Grace"
 			}
 		},
-		BreakFree : {
-			img: "modules/enhancedcombathud/icons/svg/mighty-force.svg",
-			name: game.i18n.localize(ModuleName+".Titles.BreakFree"),
+		FightDefensively : {
+			img: "modules/enhancedcombathud-sfrpg/icons/armor-upgrade.svg",
+			name: game.i18n.localize(ModuleName+".Titles.FightDefensively"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.BreakFree"),
-				skill : "force",
-				Starfinderattribute : "might"
+				descriptionHeader : "Fight Defensively"
 			}
 		},
-		Chase : {
-			img: "modules/enhancedcombathud/icons/svg/walking-boot.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Chase"),
+		Withdraw : {
+			img: "modules/enhancedcombathud-sfrpg/icons/exit-door.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Withdraw"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Chase"),
-				skill : "agility",
-				Starfinderattribute : "bodyControl"
+				descriptionHeader : "Withdraw"
 			}
 		}
 	}
 	
+	StarfinderManeuvers = {
+		groupflags : {
+			actiontype : "action",
+			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
+			ismaneuver : "true"
+		},
+		BullRush : {
+			img: "modules/enhancedcombathud-sfrpg/icons/bull.svg",
+			name: game.i18n.localize(ModuleName+".Titles.BullRush"),
+			type : "base",
+			system : {
+				descriptionHeader : "Bull Rush"
+			}
+		},
+		DirtyTrick : {
+			img: "modules/enhancedcombathud-sfrpg/icons/cloak-dagger.svg",
+			name: game.i18n.localize(ModuleName+".Titles.DirtyTrick"),
+			type : "base",
+			system : {
+				descriptionHeader : "Dirty Trick"
+			}
+		},
+		Disarm : {
+			img: "modules/enhancedcombathud-sfrpg/icons/drop-weapon.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Disarm"),
+			type : "base",
+			system : {
+				descriptionHeader : "Disarm"
+			}
+		},
+		Grapple : {
+			img: "modules/enhancedcombathud-sfrpg/icons/grab.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Grapple"),
+			type : "base",
+			system : {
+				descriptionHeader : "Grapple"
+			}
+		},
+		Reposition : {
+			img: "modules/enhancedcombathud-sfrpg/icons/move.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Reposition"),
+			type : "base",
+			system : {
+				descriptionHeader : "Reposition"
+			}
+		},
+		Sunder : {
+			img: "modules/enhancedcombathud-sfrpg/icons/hammer-break.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Sunder"),
+			type : "base",
+			system : {
+				descriptionHeader : "Sunder"
+			}
+		},
+		Trip : {
+			img: "modules/enhancedcombathud-sfrpg/icons/falling.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Trip"),
+			type : "base",
+			system : {
+				descriptionHeader : "Trip"
+			}
+		}
+	}
+	
+	const actionJournal = await fromUuid("Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl.IvGviTIPp5SVY7pp");
+	console.log(actionJournal);
+	console.log(findTextunderHeader(actionJournal.text.content, "Bull Rush"));
 	//some preparation
-	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHReactionItems]) {
+	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers]) {
+		const actionJournal = await fromUuid(itemset.groupflags.journalid);
+		
 		for (let itemkey of Object.keys(itemset)) {
 			if (itemkey != "groupflags") {
 				itemset[itemkey].flags = {};
-				itemset[itemkey].flags[ModuleName] = {...itemset.groupflags, ...itemset[itemkey].flags[ModuleName]};
+				itemset[itemkey].flags[ModuleName] = {...itemset.groupflags, ...itemset[itemkey].flags[ModuleName], specialaction : true};
 				
 				let ReplacementItem = game.items.find(item => item.name == ItemReplacementID + itemkey);
 				
 				if (ReplacementItem) {
 					itemset[itemkey].system.description = ReplacementItem.system.description;
+				}
+				else {
+					//load descriptions from journal
+					if (actionJournal && itemset[itemkey].system.descriptionHeader) {
+						const text = findTextunderHeader(actionJournal.text.content, itemset[itemkey].system.descriptionHeader);
+						
+						if (text) {
+							itemset[itemkey].system.description = text;
+						}
+					}
 				}
 			}
 		}
@@ -180,4 +241,22 @@ function registerStarfinderECHSItems () {
 	}
 }
 
-export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHReactionItems}
+function findTextunderHeader(htmlText, header) {
+	let headerposition = htmlText.search(header);
+	
+	if (headerposition >= 0) {
+		let cuttext = htmlText.substr(headerposition + header.length); //remove header
+		
+		cuttext = cuttext.substr(cuttext.search(">")+1); //remove closing of header
+		
+		if (cuttext.search("<h") > 0) {
+			cuttext = cuttext.substr(0, cuttext.search("<h")); //remove everything after next header
+		}
+		
+		return cuttext;
+	}
+	
+	return "";
+}
+
+export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers}

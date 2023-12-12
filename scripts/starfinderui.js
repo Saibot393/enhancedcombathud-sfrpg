@@ -1,10 +1,10 @@
-import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHReactionItems} from "./specialItems.js";
+import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers} from "./specialItems.js";
 import {ModuleName, getTooltipDetails} from "./utils.js";
 
-Hooks.on("argonInit", (CoreHUD) => {
+Hooks.on("argonInit", async (CoreHUD) => {
     const ARGON = CoreHUD.ARGON;
   
-	registerStarfinderECHSItems();
+	await registerStarfinderECHSItems();
 	
 	function useAction(actionType) {
 		switch (actionType) {
@@ -174,6 +174,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			splabel.style.textAlign = "left";
 			splabel.style.fontSize = "1.2em";
 			splabel.style.color = "white";
+			splabel.style.textShadow = "grey 1px 1px 10px";
 			
 			spbar.appendChild(splabel);
 			
@@ -192,6 +193,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			hplabel.style.textAlign = "left";
 			hplabel.style.fontSize = "1.4em";
 			hplabel.style.color = "white";
+			hplabel.style.textShadow = "grey 1px 1px 10px";
 			
 			hpbar.appendChild(hplabel);
 			
@@ -367,7 +369,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			return this.isActionUsed ? 0 : 1;
 		}
 		
-		get actiontype() {
+		get actionType() {
 			return "action";
 		}
 		
@@ -388,15 +390,15 @@ Hooks.on("argonInit", (CoreHUD) => {
 			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isPrimary: true }));
 			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isSecondary: true }));
 			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+			buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver"}), new StarfinderSpecialActionButton(specialActions[1])));
 			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell", color: 0}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat", color: 0}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation", color: 0}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
 			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable", color: 0}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[4]), new StarfinderSpecialActionButton(specialActions[5])));
 			
@@ -412,7 +414,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 
 		get label() {
-			return ModuleName+".Titles.FastAction";
+			return ModuleName+".Titles.MoveAction";
 		}
 		
 		get maxActions() {
@@ -423,7 +425,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			return this.isActionUsed ? 0 : 1;
 		}
 		
-		get actiontype() {
+		get actionType() {
 			return "move";
 		}
 		
@@ -443,12 +445,55 @@ Hooks.on("argonInit", (CoreHUD) => {
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
 			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat", color: 0}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation", color: 0}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable", color: 0}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
 			 
+			return buttons.filter(button => button.isvalid);
+		}
+    }
+	
+    class StarfinderSwiftActionPanel extends ARGON.MAIN.ActionPanel {
+		constructor(...args) {
+			super(...args);
+		}
+
+		get label() {
+			return ModuleName+".Titles.SwiftAction";
+		}
+		
+		get maxActions() {
+            return 1;
+        }
+		
+		get currentActions() {
+			return this.isActionUsed ? 0 : 1;
+		}
+		
+		get actionType() {
+			return "swift";
+		}
+		
+		get colorScheme() {
+			return 1;
+		}
+		
+		_onNewRound(combat) {
+			this.isActionUsed = false;
+			this.updateActionUse();
+		}
+		
+		async _getButtons() {
+			let buttons = [];
+			
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			
 			return buttons.filter(button => button.isvalid);
 		}
     }
@@ -462,18 +507,87 @@ Hooks.on("argonInit", (CoreHUD) => {
 			return ModuleName+".Titles.ReAction";
 		}
 		
+		get maxActions() {
+            return 1;
+        }
+		
+		get currentActions() {
+			return this.isActionUsed ? 0 : 1;
+		}
+		
+		get actionType() {
+			return "reaction";
+		}
+		
 		get colorScheme() {
 			return 2;
 		}
 		
+		_onNewRound(combat) {
+			this.isActionUsed = false;
+			this.updateActionUse();
+		}
+		
 		async _getButtons() {
-			const specialActions = Object.values(StarfinderECHReactionItems);
+			let buttons = [];
+			
+			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isPrimary: true }));
+			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isSecondary: true }));
+			
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			
+			return buttons.filter(button => button.isvalid);
+		}
+    }
+	
+    class StarfinderFullActionPanel extends ARGON.MAIN.ActionPanel {
+		constructor(...args) {
+			super(...args);
+		}
 
-			const buttons = [
-			  new ARGON.MAIN.BUTTONS.SplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])),
-			  new ARGON.MAIN.BUTTONS.SplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3]))
-			];
-			return buttons.filter(button => button.items == undefined || button.items.length);
+		get label() {
+			return ModuleName+".Titles.FullAction";
+		}
+		
+		get maxActions() {
+            return 1;
+        }
+		
+		get currentActions() {
+			return this.isActionUsed ? 0 : 1;
+		}
+		
+		get actionType() {
+			return "full";
+		}
+		
+		get colorScheme() {
+			return 3;
+		}
+		
+		_onNewRound(combat) {
+			this.isActionUsed = false;
+			this.updateActionUse();
+		}
+		
+		async _getButtons() {
+			let buttons = [];
+			
+			const specialActions = Object.values(StarfinderECHFullItems);
+			
+			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+			
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			
+			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+			
+			return buttons.filter(button => button.isvalid);
 		}
     }
 	
@@ -543,7 +657,12 @@ Hooks.on("argonInit", (CoreHUD) => {
 				}
 			}
 			
-			console.log();
+			if (this.actionType == "reaction") {
+				if (!["mwak", "msak"].includes(item?.system.actionType)) {
+					item = null;
+				}
+			}
+			
 			this.setItem(item);    
 		}
 		
@@ -584,9 +703,23 @@ Hooks.on("argonInit", (CoreHUD) => {
 
 		async render(...args) {
 			await super.render(...args);
-			if (this.item?.system.consumableType === "ammo") {
-				const weapons = this.actor.items.filter((item) => item.system.consume?.target === this.item.id);
-				ui.ARGON.updateItemButtons(weapons);
+			
+			if (this.item?.flags[ModuleName]?.specialaction) {
+				switch (this.colorScheme) {
+					case 1:
+						this.element.style.backgroundColor = "var(--ech-bonusAction-base-background)";
+						break;
+					case 2:
+						this.element.style.backgroundColor = "var(--ech-freeAction-base-background)";
+						break;
+					case 3:
+						this.element.style.backgroundColor = "var(--ech-reaction-base-background)";
+						break;
+					case 0:
+					default:
+						this.element.style.backgroundColor = "var(--ech-mainAction-base-background)";
+						break;
+				}
 			}
 		}
 	}
@@ -608,6 +741,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 
 		get icon() {
 			switch (this.type) {
+				case "maneuver": return "modules/enhancedcombathud-sfrpg/icons/high-kick.svg";
 				case "spell": return "modules/enhancedcombathud/icons/svg/spell-book.svg";
 				case "consumable": return "modules/enhancedcombathud-sfrpg/icons/vial.svg";
 				case "feat": return "modules/enhancedcombathud/icons/svg/mighty-force.svg";
@@ -615,16 +749,34 @@ Hooks.on("argonInit", (CoreHUD) => {
 			}
 		}
 		
-		get actiontype() {
-			return this.parent?.actiontype;
+		get actionType() {
+			return this.parent?.actionType;
 		}
 		
 		get validitems() {
-			return  this.actor.items.filter(item => item.type == this.type && item.system.activation.type == this.actiontype);
+			if (this.type == "maneuver") {
+				return Object.values(StarfinderManeuvers);
+			}
+			
+			let items = this.actor.items.filter(item => item.type == this.type);
+			
+			let validactions = [this.actionType];
+			
+			if (!game.combat?.started) {
+				if (this.actionType == "action") {
+					validactions.push("round"); 
+					validactions.push("min"); 
+					validactions.push("hour");
+					validactions.push("day");
+					validactions.push("special");
+				}
+			}
+			
+			return items.filter(item => validactions.includes(item.system.activation.type))
 		}
 		
 		get isvalid() {
-			return  this.actor.items.find(item => item.type == this.type && item.system.activation.type == this.actiontype);
+			return  this.actor.items.find(item => item.type == this.type && item.system.activation.type == this.actionType);
 		}
 		
 		sortedSpells() {
@@ -646,6 +798,19 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
   
 		async _getPanel() {
+			switch (this.type) {
+				case "spell":
+					return new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanel({accordionPanelCategories: this.sortedSpells().map(({ label, buttons, uses }) => new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanelCategory({ label, buttons, uses })) });
+					break;
+				/*
+				case "maneuver":
+					return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.validitems.map(item => new StarfinderSpecialActionButton(item))});
+					break;
+				*/
+				default:
+					return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.validitems.map(item => new StarfinderItemButton({item}))});
+					break;
+			}
 			if (this.type == "spell") {
 				return new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanel({accordionPanelCategories: this.sortedSpells().map(({ label, buttons, uses }) => new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanelCategory({ label, buttons, uses })) });
 			}
@@ -715,6 +880,32 @@ Hooks.on("argonInit", (CoreHUD) => {
 			}
 			
 			this.element.appendChild(movementselect);
+		}
+	}
+	
+	class StarfinderButtonHud extends ARGON.ButtonHud {
+
+		constructor (...args) {
+			super(...args);
+		}
+
+		get visible() {
+			return !game.combat?.started;
+		}
+
+		async _getButtons() {
+			return [
+				{
+					label: "SFRPG.Rest.Long.Title",
+					onClick: (event) => this.actor.longRest(),
+					icon: "fas fa-bed",
+				},
+				{
+					label: "SFRPG.Rest.Short.Title",
+					onClick: (event) => this.actor.shortRest(),
+					icon: "fas fa-coffee",
+				}
+			]
 		}
 	}
 	
@@ -927,10 +1118,13 @@ Hooks.on("argonInit", (CoreHUD) => {
     CoreHUD.defineMainPanels([
 		StarfinderStandardActionPanel,
 		StarfinderMovementActionPanel,
+		StarfinderSwiftActionPanel,
 		StarfinderReactionActionPanel,
+		StarfinderFullActionPanel,
 		ARGON.PREFAB.PassTurnPanel
     ]);  
 	CoreHUD.defineMovementHud(StarfinderMovementHud);
+	CoreHUD.defineButtonHud(StarfinderButtonHud);
     CoreHUD.defineWeaponSets(StarfinderWeaponSets);
 	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2", "starship", "vehicle"]);
 });
