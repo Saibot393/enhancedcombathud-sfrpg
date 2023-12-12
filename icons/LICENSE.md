@@ -9,6 +9,7 @@ The following icons are included
 	- reload-gun-barrel.svg
 	- cowboy-holster.svg
 	- shield-bash.svg
+	- cyborg-face.svg
 - By [John Colburn](https://ninmunanmu.com/)
 - By [Skoll](https://game-icons.net/)
 	- machine-gun.svg

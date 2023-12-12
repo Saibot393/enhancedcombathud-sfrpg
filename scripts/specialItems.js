@@ -115,44 +115,6 @@ function registerStarfinderECHSItems () {
 		}
 	}
 	
-	StarfinderECHFastItems = {
-		groupflags : {
-			actiontype : "fast"
-		},
-		DrawWeapon : {
-			img: "icons/svg/sword.svg",
-			name: game.i18n.localize(ModuleName+".Titles.DrawWeapon"),
-			type : "base",
-			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.DrawWeapon")
-			}
-		},
-		Standup : {
-			img: "icons/svg/up.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Standup"),
-			type : "base",
-			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Standup")
-			}
-		},
-		Move : {
-			img: "modules/enhancedcombathud/icons/svg/journey.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Move"),
-			type : "base",
-			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Move")
-			}
-		},
-		TakeCover : {
-			img: "modules/enhancedcombathud/icons/svg/armor-upgrade.svg",
-			name: game.i18n.localize(ModuleName+".Titles.TakeCover"),
-			type : "base",
-			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.TakeCover")
-			}
-		}
-	}
-	
 	StarfinderECHReactionItems = {
 		groupflags : {
 			actiontype : "react"

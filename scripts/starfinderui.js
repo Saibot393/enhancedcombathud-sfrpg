@@ -392,6 +392,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 			
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell", color: 0}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat", color: 0}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation", color: 0}));
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
 			
@@ -443,6 +444,8 @@ Hooks.on("argonInit", (CoreHUD) => {
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
 			
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat", color: 0}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation", color: 0}));
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable", color: 0}));
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
 			 
@@ -497,17 +500,33 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 		
 		get quantity() {
-			if (this.item?.type == "weapon") {
-				return null;
+			switch (this.item?.type) {
+				case "weapon":
+				case "augmentation":
+				case "magic":
+				case "hybrid":
+				case "technological":
+					if (this.item.system?.container?.contents[0]?.id) {
+						const ammunition = this.actor.items.get(this.item.system.container.contents[0].id);
+						
+						if (ammunition) {
+							return ammunition.system.capacity?.value;
+						}
+					}
+					
+					return null;
+					break;
+				
+				case "spell":
+					if (this.item?.system.uses && this.item?.system.uses.max != null) {
+						return this.item.system.uses.value;
+					}
+					break;
+					
+				default :
+					return this.item?.system.quantity;
+					break;
 			}
-			
-			if (this.item?.type == "spell") {
-				if (this.item?.system.uses && this.item?.system.uses.max != null) {
-					return this.item.system.uses.value;
-				}
-			}
-			
-			return this.item?.system.quantity;
 		}
 		
 		async _onSetChange({sets, active}) {
@@ -592,6 +611,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 				case "spell": return "modules/enhancedcombathud/icons/svg/spell-book.svg";
 				case "consumable": return "modules/enhancedcombathud-sfrpg/icons/vial.svg";
 				case "feat": return "modules/enhancedcombathud/icons/svg/mighty-force.svg";
+				case "augmentation" : return "modules/enhancedcombathud-sfrpg/icons/cyborg-face.svg";
 			}
 		}
 		
@@ -851,14 +871,19 @@ Hooks.on("argonInit", (CoreHUD) => {
 			
 			let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
 			
+			if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
+				items[slot] = null;
+				slots[slot] = null;
+			}
+			
 			if (items.secondary == items.primary) {
-				if (items.primary && !items.primary.system.properties.two) {
+				if (items.primary && !items.primary.system.properties?.two) {
 					items.secondary = null;
 					slots.secondary = null;
 				}
 			}
 			
-			if (items[slot]?.system.properties.two) {
+			if (items[slot]?.system.properties?.two) {
 				switch (slot) {
 					case "primary":
 						slots.secondary = slots.primary;
@@ -871,12 +896,12 @@ Hooks.on("argonInit", (CoreHUD) => {
 			else {
 				switch (slot) {
 					case "primary":
-						if (items.secondary?.system.properties.two) {
+						if (items.secondary?.system.properties?.two) {
 							slots.secondary = null;
 						}
 						break;
 					case "secondary":
-						if (items.primary?.system.properties.two) {
+						if (items.primary?.system.properties?.two) {
 							slots.primary = null;
 						}
 						break;
