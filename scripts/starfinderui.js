@@ -7,19 +7,63 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	await registerStarfinderECHSItems();
 	
 	function useAction(actionType) {
-		switch (actionType) {
+		switch (actionType, fallback = true) {
 			case "action":
+				if (!ui.ARGON.components.main[0].isActionUsed) {
+					ui.ARGON.components.main[0].isActionUsed = true;
+					ui.ARGON.components.main[0].updateActionUse();
+				}
+				else {
+					if (fallback) {
+						useAction("full");
+					}
+				}
 				break;
 			case "move":
+				if (!ui.ARGON.components.main[1].isActionUsed) {
+					ui.ARGON.components.main[1].isActionUsed = true;
+					ui.ARGON.components.main[1].updateActionUse();
+				}
+				else {
+					if (fallback) {
+						useAction("action");
+					}
+				}
 				break;
 			case "swift":
+				if (!ui.ARGON.components.main[2].isActionUsed) {
+					ui.ARGON.components.main[2].isActionUsed = true;
+					ui.ARGON.components.main[2].updateActionUse();
+				}
+				else {
+					if (fallback) {
+						useAction("move");
+					}
+				}
 				break;
 			case "full":
+				for (let i = 0; i <= 2; i++) {
+					ui.ARGON.components.main[i].isActionUsed = true;
+					ui.ARGON.components.main[i].updateActionUse();
+				}
 				break;
 			case "reaction":
+				ui.ARGON.components.main[3].isActionUsed = true;
+                ui.ARGON.components.main[3].updateActionUse();
 				break;
 		}
 	}
+	
+	//for ammunition updates
+	function onUpdateItemadditional(item) {
+		console.log(this);
+		console.log(this._actor);
+		if (item.parent !== ui.ARGON._actor) return;
+		for (const itemButton of ui.ARGON.itemButtons) {
+			if (itemButton.item?.system?.container?.contents[0]?.id == item.id) itemButton.render();
+		}
+	}
+	Hooks.on("updateItem", onUpdateItemadditional.bind(CoreHUD));
   
     class StarfinderPortraitPanel extends ARGON.PORTRAIT.PortraitPanel {
 		constructor(...args) {
@@ -550,14 +594,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 
 		get label() {
 			return ModuleName+".Titles.FullAction";
-		}
-		
-		get maxActions() {
-            return 1;
-        }
-		
-		get currentActions() {
-			return this.isActionUsed ? 0 : 1;
 		}
 		
 		get actionType() {
