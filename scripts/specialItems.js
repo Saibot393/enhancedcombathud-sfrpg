@@ -2,66 +2,117 @@ import { ModuleName } from "./utils.js";
 
 const ItemReplacementID = "_argonUI_";
 
-var StarfinderECHSlowItems = {};
+var StarfinderECHReactionItems = {};
 
-var StarfinderECHFastItems = {};
-
+var StarfinderECHActionItems = {};
+var StarfinderECHMoveItems = {};
+var StarfinderECHSwiftItems = {};
+var StarfinderECHFullItems = {};
 var StarfinderECHReactionItems = {};
 
 function registerStarfinderECHSItems () {
-	StarfinderECHSlowItems = {
+	StarfinderECHActionItems = {
 		groupflags : {
-			actiontype : "slow"
+			actiontype : "action"
 		},
-		Flee : {
-			img: "modules/enhancedcombathud/icons/svg/run.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Flee"),
+		CombatManeuver : {
+			img: "modules/enhancedcombathud-sfrpg/icons/high-kick.svg",
+			name: game.i18n.localize(ModuleName+".Titles.CombatManeuver"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Flee"),
-				skill : "agility",
+				description : game.i18n.localize(ModuleName+".Descriptions.CombatManeuver"),
+				skill : "agility"
+			}
+		},
+		CoveringFire : {
+			img: "modules/enhancedcombathud-sfrpg/icons/machine-gun.svg",
+			name: game.i18n.localize(ModuleName+".Titles.CoveringFire"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.CoveringFire"),
+				skill : "agility"
+			}
+		},
+		Feint : {
+			img: "modules/enhancedcombathud-sfrpg/icons/return-arrow.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Feint"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.Feint"),
+				skill : "blu"
+			}
+		},
+		FightDefensively : {
+			img: "modules/enhancedcombathud-sfrpg/icons/shield-reflect.svg",
+			name: game.i18n.localize(ModuleName+".Titles.FightDefensively"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.FightDefensively"),
+				skill : "observation"
+			}
+		},
+		HarryingFire : {
+			img: "modules/enhancedcombathud-sfrpg/icons/distraction.svg",
+			name: game.i18n.localize(ModuleName+".Titles.HarryingFire"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.HarryingFire"),
+				skill : "",
 				Starfinderattribute : "bodyControl"
 			}
 		},
-		WPG : {
-			img: "modules/enhancedcombathud/icons/svg/shield-bash.svg",
-			name: game.i18n.localize(ModuleName+".Titles.WPG"),
+		TotalDefense : {
+			img: "modules/enhancedcombathud-sfrpg/icons/shield.svg",
+			name: game.i18n.localize(ModuleName+".Titles.TotalDefense"),
 			type : "base",
 			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.WPG"),
-				skill : "force",
-				Starfinderattribute : "might"
-			}
-		},
-		Survey : {
-			img: "icons/svg/eye.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Survey"),
-			type : "base",
-			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.Survey"),
-				skill : "observation",
-				Starfinderattribute : "bodyControl"
-			}
-		},
-		TreatInjuries : {
-			img: "icons/svg/heal.svg",
-			name: game.i18n.localize(ModuleName+".Titles.TreatInjuries"),
-			type : "base",
-			system : {
-				description : game.i18n.localize(ModuleName+".Descriptions.TreatInjuries"),
+				description : game.i18n.localize(ModuleName+".Descriptions.TotalDefense"),
 				skill : "",
 				Starfinderattribute : "bodyControl"
 			}
 		}
 	}
 	
-	switch(game.settings.get(ModuleName, "TreatType")) {
-		case "physical" :
-			StarfinderECHSlowItems.TreatInjuries.system.skill = "medicine";
-			break;
-		case "mental" :
-			StarfinderECHSlowItems.TreatInjuries.system.skill = "inspiration";
-			break;
+	StarfinderECHMoveItems = {
+		groupflags : {
+			actiontype : "move"
+		},
+		DrawSheathe : {
+			img: "modules/enhancedcombathud-sfrpg/icons/cowboy-holster.svg",
+			name: game.i18n.localize(ModuleName+".Titles.DrawSheathe"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.DrawSheathe")
+			}
+		},
+		GuardedStep : {
+			img: "modules/enhancedcombathud-sfrpg/icons/shield-bash.svg",
+			name: game.i18n.localize(ModuleName+".Titles.GuardedStep"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.GuardedStep")
+			}
+		},
+		Reload : {
+			img: "modules/enhancedcombathud-sfrpg/icons/reload-gun-barrel.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Reload"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.Reload"),
+				skill : "observation",
+				Starfinderattribute : "bodyControl"
+			}
+		},
+		StandUp : {
+			img: "icons/svg/up.svg",
+			name: game.i18n.localize(ModuleName+".Titles.StandUp"),
+			type : "base",
+			system : {
+				description : game.i18n.localize(ModuleName+".Descriptions.StandUp"),
+				skill : "",
+				Starfinderattribute : "bodyControl"
+			}
+		}
 	}
 	
 	StarfinderECHFastItems = {
@@ -149,7 +200,7 @@ function registerStarfinderECHSItems () {
 	}
 	
 	//some preparation
-	for (let itemset of [StarfinderECHSlowItems, StarfinderECHFastItems, StarfinderECHReactionItems]) {
+	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHReactionItems]) {
 		for (let itemkey of Object.keys(itemset)) {
 			if (itemkey != "groupflags") {
 				itemset[itemkey].flags = {};
@@ -167,4 +218,4 @@ function registerStarfinderECHSItems () {
 	}
 }
 
-export {registerStarfinderECHSItems, StarfinderECHSlowItems, StarfinderECHFastItems, StarfinderECHReactionItems}
+export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHReactionItems}

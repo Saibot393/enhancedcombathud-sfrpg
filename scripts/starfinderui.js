@@ -1,4 +1,4 @@
-import {registerStarfinderECHSItems, StarfinderECHSlowItems, StarfinderECHFastItems, StarfinderECHReactionItems} from "./specialItems.js";
+import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHReactionItems} from "./specialItems.js";
 import {ModuleName, getTooltipDetails} from "./utils.js";
 
 Hooks.on("argonInit", (CoreHUD) => {
@@ -381,7 +381,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 		
 		async _getButtons() {
-			const specialActions = Object.values(StarfinderECHSlowItems);
+			const specialActions = Object.values(StarfinderECHActionItems);
 
 			let buttons = [];
 			
@@ -391,17 +391,21 @@ Hooks.on("argonInit", (CoreHUD) => {
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
 			
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell", color: 0}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable", color: 0}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat", color: 0}));
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+			
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable", color: 0}));
+			
+			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[4]), new StarfinderSpecialActionButton(specialActions[5])));
+			
 			
 			return buttons.filter(button => button.isvalid);
 		}
 		
     }
 	
-    class StarfinderFastActionPanel extends ARGON.MAIN.ActionPanel {
+    class StarfinderMovementActionPanel extends ARGON.MAIN.ActionPanel {
 		constructor(...args) {
 			super(...args);
 		}
@@ -418,6 +422,10 @@ Hooks.on("argonInit", (CoreHUD) => {
 			return this.isActionUsed ? 0 : 1;
 		}
 		
+		get actiontype() {
+			return "move";
+		}
+		
 		get colorScheme() {
 			return 1;
 		}
@@ -428,13 +436,17 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 		
 		async _getButtons() {
-			const specialActions = Object.values(StarfinderECHFastItems);
+			const specialActions = Object.values(StarfinderECHMoveItems);
 
-			const buttons = [
-			  new ARGON.MAIN.BUTTONS.SplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])),
-			  new ARGON.MAIN.BUTTONS.SplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3]))
-			];
-			return buttons.filter(button => button.items == undefined || button.items.length);
+			let buttons = [];
+			
+			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+			
+			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat", color: 0}));
+			
+			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+			 
+			return buttons.filter(button => button.isvalid);
 		}
     }
 	
@@ -572,18 +584,14 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 
 		get label() {
-			switch (this.type) {
-				case "gear": return "GEAR.NAME";
-				case "magic": return "MAGIC.NAME";
-				case "talent": return "TALENT.NAME";
-			}
+			return game.i18n.localize("TYPES.Item." + this.type);
 		}
 
 		get icon() {
 			switch (this.type) {
-				case "gear": return "modules/enhancedcombathud/icons/svg/backpack.svg";
-				case "magic": return "modules/enhancedcombathud/icons/svg/spell-book.svg";
-				case "talent": return "icons/svg/book.svg";
+				case "spell": return "modules/enhancedcombathud/icons/svg/spell-book.svg";
+				case "consumable": return "modules/enhancedcombathud-sfrpg/icons/vial.svg";
+				case "feat": return "modules/enhancedcombathud/icons/svg/mighty-force.svg";
 			}
 		}
 		
@@ -634,6 +642,10 @@ Hooks.on("argonInit", (CoreHUD) => {
 	class StarfinderSplitButton extends ARGON.MAIN.BUTTONS.SplitButton {
 		get isvalid() {
 			return this.button1?.isvalid || this.button2?.isvalid;
+		}
+		
+		get colorScheme() {
+			return this.parent.colorScheme;
 		}
 	}
 	
@@ -711,18 +723,7 @@ Hooks.on("argonInit", (CoreHUD) => {
 		}
 
 		get colorScheme() {
-			switch (this.item?.flags[ModuleName]?.actiontype) {
-				case "slow":
-					return 0;
-					break;
-				case "fast":
-					return 1;
-					break;
-				case "react":
-					return 3;
-					break;
-			}
-			return 0;
+			return this.parent.colorScheme;
 		}
 
 		async getTooltipData() {
@@ -900,7 +901,7 @@ Hooks.on("argonInit", (CoreHUD) => {
     CoreHUD.defineDrawerPanel(StarfinderDrawerPanel);
     CoreHUD.defineMainPanels([
 		StarfinderStandardActionPanel,
-		StarfinderFastActionPanel,
+		StarfinderMovementActionPanel,
 		StarfinderReactionActionPanel,
 		ARGON.PREFAB.PassTurnPanel
     ]);  
