@@ -757,10 +757,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			if (item?.flags[ModuleName]?.specialaction) {
 				if (item?.flags[ModuleName]?.onclick) {
 					used = item.flags[ModuleName].onclick(item);
-					
-					console.log(used);
-					console.log(this.parent);
-					console.log(this.actionType);
 				}
 				else {
 					used = true;
@@ -825,7 +821,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async consumeSpellSlot(level) {
 			const consumelevel = this.actor.system.spells["spell" + level];
 			
-			console.log(consumelevel);
 			if (consumelevel) {
 				const consumeclass = Object.keys(consumelevel.perClass).find(key => consumelevel.perClass[key].value > 0);
 				
@@ -1188,7 +1183,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				event.preventDefault();
 				event.stopPropagation();
 				const data = JSON.parse(event.dataTransfer.getData("text/plain"));
-				console.log(data);
 				if(data?.type !== "Item") return;
 				const set = event.currentTarget.dataset.set;
 				const slot = event.currentTarget.dataset.slot;
