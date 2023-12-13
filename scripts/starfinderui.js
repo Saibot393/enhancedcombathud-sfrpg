@@ -6,8 +6,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
   
 	await registerStarfinderECHSItems();
 	
-	function useAction(actionType) {
-		switch (actionType, fallback = true) {
+	function useAction(actionType, fallback = true) {
+		switch (actionType) {
 			case "action":
 				if (!ui.ARGON.components.main[0].isActionUsed) {
 					ui.ARGON.components.main[0].isActionUsed = true;
@@ -56,8 +56,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	
 	//for ammunition updates
 	function onUpdateItemadditional(item) {
-		console.log(this);
-		console.log(this._actor);
 		if (item.parent !== ui.ARGON._actor) return;
 		for (const itemButton of ui.ARGON.itemButtons) {
 			if (itemButton.item?.system?.container?.contents[0]?.id == item.id) itemButton.render();
@@ -301,11 +299,17 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const abilitiesbuttons = Object.keys(abilities).map((ability) => {
 				const abilitiedata = abilities[ability];
 				
-				let valueLabel = `<span style="margin: 0 1rem">+${abilitiedata.mod}</span>`;
+				let valueLabel = `<span style="margin: 0 1rem">${abilitiedata.mod > 0 ? "+" : "" }${abilitiedata.mod}</span>`;
+				
+				let icon = "";
+				
+				if (this.actor.system.classes && Object.values(this.actor.system.classes).find(value => value.keyAbilityScore == ability)) {
+					icon = ` <i class="fa-solid fa-star"></i>`;
+				}
 				
 				return new ARGON.DRAWER.DrawerButton([
 					{
-						label: CONFIG.SFRPG.abilities[ability],
+						label: CONFIG.SFRPG.abilities[ability] + icon,
 						onClick: () => {this.actor.rollAbility(ability)}
 					},
 					{
@@ -319,7 +323,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const savesbuttons = Object.keys(saves).map((save) => {
 				const savedata = saves[save];
 				
-				let valueLabel = `<span style="margin: 0 1rem">+${savedata.bonus}</span>`;
+				let valueLabel = `<span style="margin: 0 1rem">${savedata.bonus > 0 ? "+" : "" }${savedata.bonus}</span>`;
 				
 				return new ARGON.DRAWER.DrawerButton([
 					{
@@ -339,7 +343,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			let skillsButtons = Object.keys(validskills).map((skill) => {
 				const skillData = validskills[skill];
 				
-				let valueLabel = `+${skillData.mod}<span style="margin: 0 1rem; filter: brightness(0.8)">(${validskills[skill].ranks})</span>`;
+				let valueLabel = `${skillData.mod > 0 ? "+" : "" }${skillData.mod}<span style="margin: 0 1rem; filter: brightness(0.8)">(${validskills[skill].ranks})</span>`;
 				
 				return new ARGON.DRAWER.DrawerButton([
 					{
@@ -447,7 +451,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isPrimary: true }));
 			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isSecondary: true }));
 			
-			buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver"}), new StarfinderSpecialActionButton(specialActions[1])));
+			buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver", item : specialActions[0]}), new StarfinderSpecialActionButton(specialActions[1])));
 			
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
@@ -644,6 +648,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		constructor(args) {
 			super(args);
 			this._parent = args.parent;
+			
+			if (this.item?.flags[ModuleName]?.specialaction) {
+				this._item = new CONFIG.Item.documentClass(this.item, {
+					parent: this.actor,
+				});
+			}
 		}
 
 		get hasTooltip() {
@@ -725,38 +735,50 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async getTooltipData() {
-			const tooltipData = await getTooltipDetails(this.item, this.actor.type);
+			const tooltipData = await getTooltipDetails(this.item);
 			return tooltipData;
 		}
 
 		async _onLeftClick(event) {
 			var used = false;
 			
-			if (this.item.type == "weapon") {
-				this.item?.roll();
-				
-				used = true;
+			const item = this.item;
+			console.log(item);
+			if (item?.flags[ModuleName]?.specialaction) {
+				if (item?.flags[ModuleName]?.onclick) {
+					used = item.flags[ModuleName].onclick(item);
+				}
+				else {
+					used = true;
+				}
 			}
-			
-			if (this.item.type == "consumable") {
-				this.item?.roll();
+			else {
+				if (item.type == "weapon") {
+					item?.roll();
+					
+					used = true;
+				}
 				
-				used = true;
-			}
-			
-			if (this.item.type == "feat") {
-				this.item?.roll();
+				if (item.type == "consumable") {
+					item?.roll();
+					
+					used = true;
+				}
 				
-				used = true;
+				if (item.type == "feat") {
+					item?.roll();
+					
+					used = true;
+				}
+				
+				if (item.type == "spell") {
+					this.actor.useSpell(item, {configureDialog: false});
+					this.consumeSpellSlot(item.system.level);
+				}	
 			}
-			
-			if (this.item.type == "spell") {
-				this.actor.useSpell(this.item, {configureDialog: false});
-				this.consumeSpellSlot(this.item.system.level);
-			}				
 			
 			if (used) {
-				//StarfinderItemButton.consumeActionEconomy(this.item);
+				useAction(this.actionType);
 			}
 		}
 
@@ -797,16 +819,70 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 		}
 	}
+	
+	
+	class StarfinderSpecialActionButton extends ARGON.MAIN.BUTTONS.ActionButton {
+        constructor(specialItem) {
+			super();
+			this.item = new CONFIG.Item.documentClass(specialItem, {
+				parent: this.actor,
+			});
+		}
+
+		get label() {
+			return this.item.name;
+		}
+
+		get icon() {
+			return this.item.img;
+		}
+		
+		get isvalid() {
+			return true;
+		}
+
+		get hasTooltip() {
+			return true;
+		}
+
+		get colorScheme() {
+			return this.parent.colorScheme;
+		}
+		
+		get actionType() {
+			return this.parent.actionType;
+		}
+
+		async getTooltipData() {
+			const tooltipData = await getTooltipDetails(this.item);
+			return tooltipData;
+		}
+
+		async _onLeftClick(event) {
+			var used = false;
+			
+			const item = this.item;
+			console.log(item);
+			if (item?.flags[ModuleName]?.onclick) {
+				used = item?.flags[ModuleName]?.onclick(item);
+			}
+			else {
+				used = true;
+			}
+			
+			if (used) {
+				useAction(this.actionType);
+			}
+		}
+    }
   
     class StarfinderButtonPanelButton extends ARGON.MAIN.BUTTONS.ButtonPanelButton {
-		constructor({parent, type, color}) {
+		constructor({parent, type, color, item}) {
 			super();
 			this.type = type;
 			this._parent = parent;
 			
-			if (this.type == "spell") {
-				
-			}
+			this.replacementItem = item;
 		}
 
 		get colorScheme() {
@@ -815,6 +891,15 @@ Hooks.on("argonInit", async (CoreHUD) => {
 
 		get label() {
 			return game.i18n.localize("TYPES.Item." + this.type);
+		}
+		
+		get hasTooltip() {
+			return this.replacementItem;
+		}
+
+		async getTooltipData() {
+			const tooltipData = await getTooltipDetails(this.replacementItem);
+			return tooltipData;
 		}
 
 		get icon() {
@@ -870,7 +955,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				else {
 					uses = () => {return {
 						max: this.actor.system.spells["spell" + i].max, 
-						value: Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass].value).reduce((summ, value) => {return summ = summ+value}, 0)
+						value: Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass]?.value).filter(value => value).reduce((summ, value) => {return summ = summ+value}, 0)
 					}}
 				}
 				
@@ -991,80 +1076,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			]
 		}
 	}
-	
-	class StarfinderSpecialActionButton extends ARGON.MAIN.BUTTONS.ActionButton {
-        constructor(specialItem) {
-			super();
-			this.item = new CONFIG.Item.documentClass(specialItem, {
-				parent: this.actor,
-			});
-		}
-
-		get label() {
-			return this.item.name;
-		}
-
-		get icon() {
-			return this.item.img;
-		}
-		
-		get isvalid() {
-			return true;
-		}
-
-		get hasTooltip() {
-			return true;
-		}
-
-		get colorScheme() {
-			return this.parent.colorScheme;
-		}
-
-		async getTooltipData() {
-			const tooltipData = await getTooltipDetails(this.item, this.actor.type);
-			return tooltipData;
-		}
-
-		async _onLeftClick(event) {
-			var used = true;
-			
-			const item = this.item;
-			
-			switch(this.actor.type) {
-				case "player" :
-				case "npc" :
-					let skill = item.system.skill;
-					
-					if (skill instanceof Array) {
-						const activeSet = await ui.ARGON.components.weaponSets?.getactiveSet();
-						
-						if (activeSet?.primary?.system.skill) {
-							skill = skill.find(key => key == activeSet.primary.system.skill);
-						}
-						
-						if (skill instanceof Array) {
-							skill = undefined;
-						}
-					}
-					
-					if (skill) {
-						this.actor.sheet.rollSkill(skill);
-					}
-					break;
-				case "Starfinder" : 
-					let attribute = item.system.Starfinderattribute;
-					
-					if (attribute) {
-						this.actor.sheet.rollAttribute(attribute);
-					}
-					break;					
-			}
-			
-			if (used) {
-				StarfinderSpecialActionButton.consumeActionEconomy(this.item);
-			}
-		}
-    }
 	
 	class StarfinderWeaponSets extends ARGON.WeaponSets {
 		async getDefaultSets() {
@@ -1209,5 +1220,5 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	CoreHUD.defineMovementHud(StarfinderMovementHud);
 	CoreHUD.defineButtonHud(StarfinderButtonHud);
     CoreHUD.defineWeaponSets(StarfinderWeaponSets);
-	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2", "starship", "vehicle"]);
+	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2" /*, "starship", "vehicle" */]);
 });

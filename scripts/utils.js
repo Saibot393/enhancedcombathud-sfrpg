@@ -105,7 +105,7 @@ async function getTooltipDetails(item) {
 		let damageparts = damage.parts.map(part => {return{formula : part.formula, types : part.types}});
 		
 		for (const part of damageparts) {
-			const roll = new Roll(part.formula, {actor, abilities});
+			const roll = new Roll(part.formula, {actor, abilities, details : actordetails});
 			
 			await roll.evaluate();
 			

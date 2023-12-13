@@ -29,6 +29,19 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Covering Fire"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						const rangedweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "r");
+						
+						if (rangedweapon) {
+							rangedweapon.rollAttack();
+							
+							return true;
+						}
+					}
+				}
 			}
 		},
 		Feint : {
@@ -37,6 +50,15 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Feint"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						item.parent?.rollSkill("blu");
+						
+						return true;
+					}
+				}
 			}
 		},
 		FightDefensively : {
@@ -45,6 +67,15 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Fight Defensively"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						//item.parent?.rollSkill("blu"); add effect
+						
+						return true;
+					}
+				}
 			}
 		},
 		HarryingFire : {
@@ -53,6 +84,19 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Harrying Fire"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						const rangedweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "r");
+						
+						if (rangedweapon) {
+							rangedweapon.rollAttack();
+							
+							return true;
+						}
+					}
+				}
 			}
 		},
 		TotalDefense : {
@@ -61,6 +105,15 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Total Defense"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						//item.parent?.rollSkill("blu"); add effect
+						
+						return true;
+					}
+				}
 			}
 		}
 	}
@@ -76,6 +129,15 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Draw or Sheathe a Weapon"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						//item.parent?.rollSkill("blu"); add
+						
+						return true;
+					}
+				}
 			}
 		},
 		GuardedStep : {
@@ -92,6 +154,19 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Reload"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						const rangedweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "r");
+						
+						if (rangedweapon) {
+							rangedweapon.reload();
+							
+							return true;
+						}
+					}
+				}
 			}
 		},
 		StandUp : {
@@ -100,6 +175,15 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Stand Up"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						//item.parent?.rollSkill("blu"); add effect deletion
+						
+						return true;
+					}
+				}
 			}
 		}
 	}
@@ -123,6 +207,17 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Coup de Grace"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						const weapon = item.parent?.items.find(item => item.type == "weapon");
+						
+						if (weapon) {
+							weapon.rollDamage();
+						}
+					}
+				}
 			}
 		},
 		FightDefensively : {
@@ -131,6 +226,15 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Fight Defensively"
+			},
+			flags : {
+				[ModuleName] : {
+					onclick : (item) => {
+						//item.parent?.rollSkill("blu"); add
+						
+						return true;
+					}
+				}
 			}
 		},
 		Withdraw : {
@@ -147,7 +251,16 @@ async function registerStarfinderECHSItems () {
 		groupflags : {
 			actiontype : "action",
 			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
-			ismaneuver : "true"
+			ismaneuver : "true",
+			onclick : (item) => {
+				const meleeweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "m");
+				
+				if (meleeweapon) {
+					meleeweapon.rollAttack();
+					
+					return true;
+				}
+			}
 		},
 		BullRush : {
 			img: "modules/enhancedcombathud-sfrpg/icons/bull.svg",
@@ -206,17 +319,17 @@ async function registerStarfinderECHSItems () {
 			}
 		}
 	}
-	
-	const actionJournal = await fromUuid("Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl.IvGviTIPp5SVY7pp");
-	console.log(actionJournal);
-	console.log(findTextunderHeader(actionJournal.text.content, "Bull Rush"));
+
 	//some preparation
 	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers]) {
 		const actionJournal = await fromUuid(itemset.groupflags.journalid);
 		
 		for (let itemkey of Object.keys(itemset)) {
 			if (itemkey != "groupflags") {
-				itemset[itemkey].flags = {};
+				if (!itemset[itemkey].flags) {
+					itemset[itemkey].flags = {};
+				}
+				
 				itemset[itemkey].flags[ModuleName] = {...itemset.groupflags, ...itemset[itemkey].flags[ModuleName], specialaction : true};
 				
 				let ReplacementItem = game.items.find(item => item.name == ItemReplacementID + itemkey);
@@ -236,6 +349,8 @@ async function registerStarfinderECHSItems () {
 				}
 			}
 		}
+		
+		console.log(StarfinderECHActionItems);
 		
 		delete itemset.groupflags;
 	}
