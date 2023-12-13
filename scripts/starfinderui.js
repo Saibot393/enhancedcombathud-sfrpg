@@ -111,9 +111,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			};
 			
 			for (const key of ["eac", "kac"]) {
+				let aclabel = CONFIG.SFRPG.modifierArmorClassAffectedValues[key];
+				
+				let aclabelshortened = [aclabel.split(" ")[0][0], aclabel.split(" ")[1]].join("");
+				
 				Blocks.push([
 					{
-						text: CONFIG.SFRPG.modifierArmorClassAffectedValues[key],
+						text: aclabelshortened,
 						id : key
 					},
 					{
@@ -127,10 +131,14 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async getBars() {
+			const widthscale = 1;
+			const heightscale = 1;
+			const minscale = Math.min(widthscale, heightscale);
+			
 			//probably better as css classes, but oh well
 			const bars = document.createElement("div");
-			bars.style.width = "160px";
-			bars.style.height = "50px";
+			bars.style.width = `${160*widthscale}px`;
+			bars.style.height = `${50*heightscale}px`;
 			bars.style.position = "absolute";
 			
 			let hp = this.actor.system.attributes.hp;
@@ -216,7 +224,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			splabel.style.width = "70%";
 			splabel.style.height = "100%";
 			splabel.style.textAlign = "left";
-			splabel.style.fontSize = "1.2em";
+			splabel.style.fontSize = `${1.2 * minscale}em`;
 			splabel.style.color = "white";
 			splabel.style.textShadow = "grey 1px 1px 10px";
 			
@@ -235,7 +243,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hplabel.style.width = "70%";
 			hplabel.style.height = "100%";
 			hplabel.style.textAlign = "left";
-			hplabel.style.fontSize = "1.4em";
+			hplabel.style.fontSize = `${1.4 * minscale}em`;
 			hplabel.style.color = "white";
 			hplabel.style.textShadow = "grey 1px 1px 10px";
 			
