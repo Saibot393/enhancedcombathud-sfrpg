@@ -134,6 +134,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const widthscale = 1;
 			const heightscale = 1;
 			const minscale = Math.min(widthscale, heightscale);
+			const cornercut = 30; //px
+			const spheightpart = 0.4;
+			const tempheightpart = 0.7;
 			
 			//probably better as css classes, but oh well
 			const bars = document.createElement("div");
@@ -147,10 +150,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			//stamina
 			const spbar = document.createElement("div");
 			spbar.style.width = "75%";
-			spbar.style.height = "40%";
+			spbar.style.height = `${spheightpart * 100}%`;
 			spbar.style.position = "relative";
 			//spbar.style.backgroundColor = "grey";
-			spbar.style.clipPath = "polygon(0% 0%, 100% 0%, 80% 100%, 0% 100%)";
+			spbar.style.clipPath = `polygon(0% 0%, 100% 0%, calc(100% - ${(spheightpart/(1-spheightpart))*cornercut}px) 100%, 0% 100%)`;
 
 			const spbackground = document.createElement("div");
 			spbackground.style.width = "100%";
@@ -163,7 +166,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			spsubbar.style.width = "100%"//`${sp.value/sp.max*100}%`;
 			spsubbar.style.height = "100%";
 			spsubbar.style.backgroundColor = "darkOrange";
-			spsubbar.style.clipPath = `polygon(0% 0%, ${sp.value/sp.max*100}% 0%, ${(sp.value/sp.max*100) - 20}% 100%, 0% 100%)`;
+			spsubbar.style.clipPath = `polygon(0% 0%, ${sp.value/sp.max*100}% 0%, calc(${(sp.value/sp.max*100)}% - ${(spheightpart/(1-spheightpart))*cornercut}px) 100%, 0% 100%)`;
 			spsubbar.style.opacity = "0.9";
 			spsubbar.style.position = "absolute";
 			spsubbar.style.top = "0";
@@ -175,10 +178,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			//hp
 			const hpbar = document.createElement("div");
 			hpbar.style.width = "100%";
-			hpbar.style.height = "60%";
+			hpbar.style.height = `${(1-spheightpart) * 100}%`;
 			hpbar.style.position = "relative";
 			//hpbar.style.backgroundColor = "grey";
-			hpbar.style.clipPath = "polygon(0% 0%, 100% 0%, 80% 100%, 0% 100%)";
+			hpbar.style.clipPath = `polygon(0% 0%, 100% 0%, calc(100% - ${cornercut}px) 100%, 0% 100%)`;
 			
 			const hpbackground = document.createElement("div");
 			hpbackground.style.width = "100%";
@@ -191,7 +194,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hpsubbar.style.width = "100%"//`${hp.value/hp.max*100}%`;
 			hpsubbar.style.height = "100%";
 			hpsubbar.style.backgroundColor = "red";
-			hpsubbar.style.clipPath = `polygon(0% 0%, ${hp.value/hp.max*100}% 0%, ${(hp.value/hp.max*100) - 20}% 100%, 0% 100%)`;
+			hpsubbar.style.clipPath = `polygon(0% 0%, ${hp.value/hp.max*100}% 0%, calc(${(hp.value/hp.max*100)}% - ${cornercut}px) 100%, 0% 100%)`;
 			hpsubbar.style.opacity = "0.9";
 			hpsubbar.style.position = "absolute";
 			hpsubbar.style.top = "0";
@@ -199,9 +202,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			const tempsubbar = document.createElement("div");
 			tempsubbar.style.width = "100%"//`${hp.temp/hp.max*100}%`;
-			tempsubbar.style.height = "70%";
+			tempsubbar.style.height = `${tempheightpart * 100}%`;
 			tempsubbar.style.backgroundColor = "blue";
-			tempsubbar.style.clipPath = `polygon(0% 0%, ${hp.temp/hp.max*100}% 0%, ${(hp.temp/hp.max*100) - 20*0.7}% 100%, 0% 100%)`;
+			tempsubbar.style.clipPath = `polygon(0% 0%, ${hp.temp/hp.max*100}% 0%, calc(${(hp.temp/hp.max*100)}% - ${cornercut*tempheightpart}px) 100%, 0% 100%)`;
 			tempsubbar.style.opacity = "0.9";
 			tempsubbar.style.position = "absolute";
 			tempsubbar.style.top = "0";
@@ -216,15 +219,17 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			bars.appendChild(hpbar);
 			
 			//labels
+			const fontsize = 2;//em
+			
 			const splabel = document.createElement("span");
 			splabel.innerHTML = `${sp.value}/${sp.max} SP`;
-			splabel.style.top = "0";
+			splabel.style.top = "-2px"; //strange format bug
 			splabel.style.position = "absolute";
 			splabel.style.zIndex = "20";
 			splabel.style.width = "70%";
 			splabel.style.height = "100%";
 			splabel.style.textAlign = "left";
-			splabel.style.fontSize = `${1.2 * minscale}em`;
+			splabel.style.fontSize = `${fontsize * (spheightpart/(1-spheightpart)) * minscale}em`;
 			splabel.style.color = "white";
 			splabel.style.textShadow = "grey 1px 1px 10px";
 			
@@ -243,7 +248,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hplabel.style.width = "70%";
 			hplabel.style.height = "100%";
 			hplabel.style.textAlign = "left";
-			hplabel.style.fontSize = `${1.4 * minscale}em`;
+			hplabel.style.fontSize = `${fontsize * tempheightpart * minscale}em`;
 			hplabel.style.color = "white";
 			hplabel.style.textShadow = "grey 1px 1px 10px";
 			
