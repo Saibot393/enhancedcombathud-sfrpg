@@ -746,7 +746,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 			
 			if (this.item.type == "spell") {
-				this.actor.useSpell(this.item, {configureDialog: true});
+				this.actor.useSpell(this.item, {configureDialog: false});
+				this.consumeSpellSlot(this.item.system.level);
 			}				
 			
 			if (used) {
@@ -775,6 +776,21 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}
 			}
 		}
+		
+		async consumeSpellSlot(level) {
+			const consumelevel = this.actor.system.spells["spell" + level];
+			
+			console.log(consumelevel);
+			if (consumelevel) {
+				const consumeclass = Object.keys(consumelevel.perClass).find(key => consumelevel.perClass[key].value > 0);
+				console.log(consumeclass);
+				const prevValue = consumelevel.perClass[consumeclass].value;
+				
+				if (consumeclass) {
+					this.actor.update({system : {spells : {["spell" + level] : {perClass : {[consumeclass] : {value : prevValue - 1}}}}}});
+				}
+			}
+		}
 	}
   
     class StarfinderButtonPanelButton extends ARGON.MAIN.BUTTONS.ButtonPanelButton {
@@ -782,6 +798,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			super();
 			this.type = type;
 			this._parent = parent;
+			
+			if (this.type == "spell") {
+				
+			}
 		}
 
 		get colorScheme() {
@@ -837,13 +857,22 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			let spells = this.validitems;
 			
 			for (let i = 0; i <= 6; i++) {
-				let usesvalue = i == 0 ? Infinity : Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass].value).reduce((summ, value) => {return summ = summ+value}, 0);
-				let usesmax = i == 0 ? Infinity : this.actor.system.spells["spell" + i].max;
+				let uses;
+				
+				if (i == 0) {
+					uses = {max: Infinity, value : Infinity}
+				}
+				else {
+					uses = () => {return {
+						max: this.actor.system.spells["spell" + i].max, 
+						value: Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass].value).reduce((summ, value) => {return summ = summ+value}, 0)
+					}}
+				}
 				
 				spellCategories.push({
 					label: CONFIG.SFRPG.spellLevels[i],
 					buttons: spells.filter(spell => spell.system.level == i).map(spell => new StarfinderItemButton({item : spell})),
-					uses: { max: usesmax, value: usesvalue }
+					uses: uses
 				});
 			}
 			
@@ -870,10 +899,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			else {
 				return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.validitems.map(item => new StarfinderItemButton({item}))});
 			}
-		}
-		
-		async _renderInner() {
-			await super._renderInner();
 		}
     }
 	
