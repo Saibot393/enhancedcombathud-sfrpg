@@ -49,10 +49,8 @@ The module only includes the english version of the action description included 
 - "Fight Defensively":`FightDefensively`
 - "Withdraw":`Withdraw`
 
-Due to the way movement works in Vaesen the Movement Tracker is not (yet?) available to in this implementation.
-
 #### Languages:
 
-The module contains an English and a German translation. If you want additional languages to be supported [let me know](https://github.com/Saibot393/enhancedcombathud-vaesen/issues).
+The module contains an English and a German translation. If you want additional languages to be supported [let me know](https://github.com/Saibot393/enhancedcombathud-sfrpg/issues).
 
-**If you have suggestions, questions, or requests for additional features please [let me know](https://github.com/Saibot393/enhancedcombathud-vaesen/issues).**
+**If you have suggestions, questions, or requests for additional features please [let me know](https://github.com/Saibot393/enhancedcombathud-sfrpg/issues).**
