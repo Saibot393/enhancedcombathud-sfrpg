@@ -3,6 +3,7 @@ An implementation of the [Argon - Combat HUD](https://foundryvtt.com/packages/en
 
 ![image](https://github.com/Saibot393/enhancedcombathud-sfrpg/assets/137942782/07336b27-b42c-43eb-a961-a98e4277e1e8)
 ![image](https://github.com/Saibot393/enhancedcombathud-sfrpg/assets/137942782/0acea995-f42f-4097-8473-d802ff3ade64)
+<sup>All icon included in this project are from [Game-icons.net](game-icons.net), used under the [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) license</sup>
 
 ### The documentation for the core argon features can be found [here](https://api.theripper93.com/modulewiki/enhancedcombathud/free)
 
