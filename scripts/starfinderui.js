@@ -642,7 +642,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		get hasTooltip() {
-			return true;
+			return !this.item?.system.hasOwnProperty("identified") || this.item?.system.identified || this.item?.flags[ModuleName]?.specialaction;
 		}
 
 		get targets() {
