@@ -1,72 +1,68 @@
 {
-	"enhancedcombathud-vaesen" : {
+	"enhancedcombathud-sfrpg" : {
 		"Titles" : {
-			"SlowAction"				: "SLOW ACTIONS",
-			"FastAction"				: "FAST ACTIONS",
-			"ReAction"					: "REACTIONS",
-			"Flee"						: "Flee",
-			"WPG"						: "Wrestle",
-			"Survey"					: "Survey",
-			"TreatInjuries"				: "Treat injuries",
-			"DrawWeapon"				: "Draw weapon",
-			"Standup"					: "Stand up",
+			"StandardAction"			: "Standard Actions",
+			"MoveAction"				: "Move Actions",
+			"SwiftAction"				: "Swift Actions",
+			"ReAction"					: "Reactions",
+			"FullAction"				: "Full Actions",
+			
+			"CombatManeuver"			: "Combat Maneuver",
+			"BullRush"					: "Bull Rush",
+			"DirtyTrick"				: "Dirty Trick",
+			"Disarm"					: "Disarm",
+			"Grapple"					: "Grapple",
+			"Reposition"				: "Reposition",
+			"Sunder"					: "Sunder",
+			"Trip"						: "Trip",
+			"CoveringFire"				: "Covering Fire",
+			"Feint"						: "Feint",
+			"Fight Defensively"			: "Fight Defensively",
+			"HarryingFire"				: "Harrying Fire",
+			"TotalDefense"				: "Total Defense",
+			
+			"DrawSheathe"				: "Draw/Sheathe",
+			"GuardedStep"				: "Guarded Step",
+			"Reload"					: "Reload",
+			"StandUp"					: "Stand Up",
+			
+			"Charge"					: "Charge",
+			"CoupdeGrace"				: "Coup de Grace",
+			"FightDefensively"			: "Fight Defensively",
+			"Withdraw"					: "Withdraw",
+			
+			"Attack"					: "Attack",
 			"Move"						: "Move",
-			"TakeCover"					: "Take cover",
-			"Dodge"						: "Dodge",
-			"Parry"						: "Parry",
-			"BreakFree"					: "Break free",
-			"Chase"						: "Chase"
-		},
-		
-		"Descriptions" : {
-			"Flee"						: "See Vaesen core rules book p.62",
-			"WPG"						: "See Vaesen core rules book p.62",
-			"Survey"					: "See Vaesen core rules book p.62",
-			"TreatInjuries"				: "See Vaesen core rules book p.71",
-			"DrawWeapon"				: "See Vaesen core rules book p.60",
-			"Standup"					: "See Vaesen core rules book p.60",
-			"Move"						: "See Vaesen core rules book p.60",
-			"TakeCover"					: "See Vaesen core rules book p.73",
-			"Dodge"						: "See Vaesen core rules book p.61",
-			"Parry"						: "See Vaesen core rules book p.61",
-			"BreakFree"					: "See Vaesen core rules book p.62",
-			"Chase"						: "See Vaesen core rules book p.62"
+			"MeleeAttack"				: "Melee Attack",
+			"RangedAttack"				: "Ranged Attack"
 		},
 		
 		"Settings" : {
-			"MentalInjurieTable" : {
-				"name"					: "Mental injuries roll table",
-				"descrp"				: "The table rolled for mental injuries (ID of table)"
+			"ShowSwiftActions" : {
+				"name"					: "Show swift actions",
+				"descrp"				: "If a panel for swift actions should be shown (if available)"
 			},
-			"PhysicalInjurieTable" : {
-				"name"					: "Physical injuries roll table",
-				"descrp"				: "The table rolled for physical injuries (ID of table)"
+			"ShowFullActions" : {
+				"name"					: "Show full actions",
+				"descrp"				: "If a panel for full actions should be shown "
 			},
-			"TreatType" : {
-				"name"					: "Treat injuries type",
-				"descrp"				: "Which type of injuries treatment should be rolled when the action button is clicked"
+			"HealthBarWidthScale" : {
+				"name"					: "Status bar width",
+				"descrp"				: "The width scale of the status bar in the portrait"
 			},
-			"ShowTalents" : {
-				"name"					: "Show talents button",
-				"descrp"				: "If a button for talents should be shown"				
+			"HealthBarHeightScale" : {
+				"name"					: "Status bar height",
+				"descrp"				: "The height scale of the status bar in the portrait"
 			},
-			"UseDiceCircles" : {
-				"name"					: "Use dice symbols",
-				"descrp"				: "If dice symbols instead of numbers should be used for Skills and Attributes"				
-			},
-			"AutoRollInjuries" : {
-				"name"					: "Automatically roll injuries",
-				"descrp"				: "If critical injuries should be rolled automatically when \"broken\" is applied"				
-			},
-			"AutoApplyBroken" : {
-				"name"					: "Automatically apply broken",
-				"descrp"				: "If the broken condition should automatically be applied when all other mental/physical conditions are active"				
+			"OwnSpellSlotConsume" : {
+				"name"					: "Custom spell slot consume",
+				"descrp"				: "If Argon - Starfinder should take care of spell slot consumption (if triggered via Argon) to circumvent the spellslot consumption bug"
 			}
 		}
 	},
 	
-    "enhancedcombathud.themeOptions.mainAction" : "Slow Action Colors",
-    "enhancedcombathud.themeOptions.bonusAction" : "Fast Action Colors",
-    "enhancedcombathud.themeOptions.freeAction" : "Not used by Argon Vaesen",
-    "enhancedcombathud.themeOptions.reaction" : "Reaction Colors"
+    "enhancedcombathud.themeOptions.mainAction" : "Standard Action Colors",
+    "enhancedcombathud.themeOptions.bonusAction" : "Move/Swift Action Colors",
+    "enhancedcombathud.themeOptions.freeAction" : "Reaction Colors",
+    "enhancedcombathud.themeOptions.reaction" : "Full Action Colors"
 }

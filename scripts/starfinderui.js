@@ -129,8 +129,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async getBars() {
-			const widthscale = 1;
-			const heightscale = 1;
+			const widthscale = game.settings.get(ModuleName, "HealthBarWidthScale");
+			const heightscale = game.settings.get(ModuleName, "HealthBarHeightScale");
 			const minscale = Math.min(widthscale, heightscale);
 			const cornercut = 30; //px
 			const spheightpart = 0.4;
@@ -365,10 +365,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					gridCols: "7fr 2fr",
 					captions: [
 						{
-							label: game.i18n.localize("HEADER.ATTRIBUTES"),
+							label: game.i18n.localize("SFRPG.Attributes"),
 						},
 						{
-							label: game.i18n.localize("ROLL.ROLL"),
+							label: game.i18n.localize("SFRPG.Rolls.Dice.Roll"),
 						},
 					],
 					buttons: abilitiesbuttons
@@ -380,7 +380,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					gridCols: "7fr 2fr",
 					captions: [
 						{
-							label: game.i18n.localize("HEADER.SAVES"),
+							label: game.i18n.localize("SFRPG.DroneSheet.Chassis.Details.Saves.Header"),
 						},
 						{
 							label: "",
@@ -395,7 +395,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					gridCols: "7fr 2fr",
 					captions: [
 						{
-							label: game.i18n.localize("HEADER.SKILLS"),
+							label: game.i18n.localize("SFRPG.SkillsToggleHeader"),
 						},
 						{
 							label: "",
@@ -409,7 +409,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		get title() {
-			return `${game.i18n.localize("HEADER.ATTRIBUTES")} & ${game.i18n.localize("HEADER.SKILLS")}`;
+			return `${game.i18n.localize("SFRPG.Attributes")}, ${game.i18n.localize("SFRPG.DroneSheet.Chassis.Details.Saves.Header")}, & ${game.i18n.localize("SFRPG.SkillsToggleHeader")}`;
 		}
 	}
   
@@ -550,10 +550,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			if (game.settings.get(ModuleName, "ShowSwiftActions")) {
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			}
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -629,16 +631,18 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			const specialActions = Object.values(StarfinderECHFullItems);
-			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
-			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
-			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+			if (game.settings.get(ModuleName, "ShowFullActions")) {
+				const specialActions = Object.values(StarfinderECHFullItems);
+				
+				buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+				
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+				
+				buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+			}
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -665,7 +669,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		get actionType() {
-			return this.parent.actionType;
+			if (this.parent?.actionType) {
+				return this.parent.actionType;
+			}
+			
+			if (this.parent?.parent?.actionType) {
+				return this.parent.parent.actionType
+			}
 		}
 		
 		get isvalid() {
@@ -743,10 +753,14 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			var used = false;
 			
 			const item = this.item;
-			console.log(item);
+			
 			if (item?.flags[ModuleName]?.specialaction) {
 				if (item?.flags[ModuleName]?.onclick) {
 					used = item.flags[ModuleName].onclick(item);
+					
+					console.log(used);
+					console.log(this.parent);
+					console.log(this.actionType);
 				}
 				else {
 					used = true;
@@ -772,8 +786,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}
 				
 				if (item.type == "spell") {
-					this.actor.useSpell(item, {configureDialog: false});
-					this.consumeSpellSlot(item.system.level);
+					this.actor.useSpell(item, {configureDialog: !game.settings.get(ModuleName, "OwnSpellSlotConsume")});
+					if (game.settings.get(ModuleName, "OwnSpellSlotConsume")) {
+						this.consumeSpellSlot(item.system.level);
+					}
+					
+					used = true;
 				}	
 			}
 			
@@ -810,11 +828,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			console.log(consumelevel);
 			if (consumelevel) {
 				const consumeclass = Object.keys(consumelevel.perClass).find(key => consumelevel.perClass[key].value > 0);
-				console.log(consumeclass);
-				const prevValue = consumelevel.perClass[consumeclass].value;
 				
 				if (consumeclass) {
-					this.actor.update({system : {spells : {["spell" + level] : {perClass : {[consumeclass] : {value : prevValue - 1}}}}}});
+					const prevValue = consumelevel.perClass[consumeclass].value;
+					
+					if (prevValue) {
+						this.actor.update({system : {spells : {["spell" + level] : {perClass : {[consumeclass] : {value : prevValue - 1}}}}}});
+					}
 				}
 			}
 		}
@@ -862,7 +882,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			var used = false;
 			
 			const item = this.item;
-			console.log(item);
+			
 			if (item?.flags[ModuleName]?.onclick) {
 				used = item?.flags[ModuleName]?.onclick(item);
 			}
@@ -890,6 +910,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		get label() {
+			if (this.replacementItem) {
+				return this.replacementItem.name;
+			}
+			
 			return game.i18n.localize("TYPES.Item." + this.type);
 		}
 		
@@ -913,7 +937,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		get actionType() {
-			return this.parent?.actionType;
+			return this.parent.actionType;
 		}
 		
 		get validitems() {
@@ -972,7 +996,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getPanel() {
 			switch (this.type) {
 				case "spell":
-					return new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanel({accordionPanelCategories: this.sortedSpells().map(({ label, buttons, uses }) => new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanelCategory({ label, buttons, uses })) });
+					return new StarfinderAccordionPanel({accordionPanelCategories: this.sortedSpells().map(({ label, buttons, uses }) => new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanelCategory({ label, buttons, uses })) });
 					break;
 				/*
 				case "maneuver":
@@ -980,21 +1004,31 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					break;
 				*/
 				default:
-					return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.validitems.map(item => new StarfinderItemButton({item}))});
+					return new StarfinderButtonPanel({buttons: this.validitems.map(item => new StarfinderItemButton({item}))});
 					break;
-			}
-			if (this.type == "spell") {
-				return new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanel({accordionPanelCategories: this.sortedSpells().map(({ label, buttons, uses }) => new ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanelCategory({ label, buttons, uses })) });
-			}
-			else {
-				return new ARGON.MAIN.BUTTON_PANELS.ButtonPanel({buttons: this.validitems.map(item => new StarfinderItemButton({item}))});
 			}
 		}
     }
 	
+	class StarfinderAccordionPanel extends ARGON.MAIN.BUTTON_PANELS.ACCORDION.AccordionPanel {
+		get actionType() {
+			return this.parent?.actionType;
+		}
+	}
+	
+	class StarfinderButtonPanel extends ARGON.MAIN.BUTTON_PANELS.ButtonPanel {
+		get actionType() {
+			return this.parent?.actionType;
+		}
+	}
+	
 	class StarfinderSplitButton extends ARGON.MAIN.BUTTONS.SplitButton {
 		get isvalid() {
 			return this.button1?.isvalid || this.button2?.isvalid;
+		}
+		
+		get actionType() {
+			return this.parent?.actionType;
 		}
 		
 		get colorScheme() {
@@ -1005,6 +1039,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	class StarfinderMovementHud extends ARGON.MovementHud {
 		constructor (...args) {
 			super(...args);
+			
+			this.prevUsedMovement = 0;
 		}
 
 		get visible() {
@@ -1025,6 +1061,26 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				return "land"
 			}
 		}
+		
+		get movementUsed() {
+			return this._movementUsed;
+		}
+		
+		set movementUsed(value) {
+			super._movementUsed = value;
+			
+			if (Math.ceil(value/this.movementMax) - Math.ceil(this.prevUsedMovement/this.movementMax) > 0) {
+				useAction("move");
+			};
+			
+			this.prevUsedMovement = value;
+		}
+		
+		_onNewRound(combat) {
+			super._onNewRound(combat);
+			
+			this.prevUsedMovement = 0;
+	    }
 		
 		async _renderInner() {
 			await super._renderInner();

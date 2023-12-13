@@ -1,7 +1,7 @@
 const ModuleName = "enhancedcombathud-sfrpg";
 
 async function getTooltipDetails(item) {
-	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, save, target, actarget, duration, damage, level, spellschool, featType, weaponproperties, descriptors;
+	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, save, target, actarget, duration, damage, level, spellschool, featType, specialAbilityType, weaponproperties, descriptors;
 	let actor, abilities, actordetails;
 	let title = "";
 	let propertiesLabel;
@@ -32,6 +32,7 @@ async function getTooltipDetails(item) {
 	level = item.system?.level;
 	spellschool = item.system?.school;
 	featType = item.system?.details?.category;
+	specialAbilityType = item.system?.details?.specialAbilityType;
 	weaponproperties = item.system?.properties;
 	descriptors = item.system?.descriptors;
 	
@@ -41,7 +42,9 @@ async function getTooltipDetails(item) {
 			subtitle = game.i18n.localize(CONFIG.SFRPG.spellSchools[spellschool]);
 			break;
 		case "feat":
-			subtitle = CONFIG.SFRPG.featureCategories[featType].label;
+			if (specialAbilityType && specialAbilityType != "none") {
+				subtitle = CONFIG.SFRPG.specialAbilityTypes[specialAbilityType];
+			}
 			break;
 		default:
 			if (!isNaN(level)) {
@@ -57,6 +60,11 @@ async function getTooltipDetails(item) {
 			else {
 				if (itemType != "base") {
 					subtitle = CONFIG.SFRPG.itemTypes[itemType];
+				}
+				else {
+					if (item.flags[ModuleName].subtitle) {
+						subtitle = game.i18n.localize(item.flags[ModuleName].subtitle);
+					}
 				}
 			}
 			break;

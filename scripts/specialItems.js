@@ -21,6 +21,11 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Combat Maneuver"
+			},
+			flags : {
+				[ModuleName] : {
+					subtitle : game.i18n.localize(ModuleName+".Titles.MeleeAttack")
+				}
 			}
 		},
 		CoveringFire : {
@@ -32,6 +37,7 @@ async function registerStarfinderECHSItems () {
 			},
 			flags : {
 				[ModuleName] : {
+					subtitle : ModuleName+".Titles.RangedAttack",
 					onclick : (item) => {
 						const rangedweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "r");
 						
@@ -53,6 +59,7 @@ async function registerStarfinderECHSItems () {
 			},
 			flags : {
 				[ModuleName] : {
+					subtitle : CONFIG.SFRPG.skills.blu,
 					onclick : (item) => {
 						item.parent?.rollSkill("blu");
 						
@@ -70,6 +77,7 @@ async function registerStarfinderECHSItems () {
 			},
 			flags : {
 				[ModuleName] : {
+					subtitle : ModuleName+".Titles.Attack",
 					onclick : (item) => {
 						//item.parent?.rollSkill("blu"); add effect
 						
@@ -87,6 +95,7 @@ async function registerStarfinderECHSItems () {
 			},
 			flags : {
 				[ModuleName] : {
+					subtitle : ModuleName+".Titles.RangedAttack",
 					onclick : (item) => {
 						const rangedweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "r");
 						
@@ -146,6 +155,11 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Guarded Step"
+			},			
+			flags : {
+				[ModuleName] : {
+					subtitle : ModuleName+".Titles.Move",
+				}
 			}
 		},
 		Reload : {
@@ -199,6 +213,11 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Charge"
+			},			
+			flags : {
+				[ModuleName] : {
+					subtitle : ModuleName+".Titles.Move",
+				}
 			}
 		},
 		CoupdeGrace : {
@@ -210,6 +229,7 @@ async function registerStarfinderECHSItems () {
 			},
 			flags : {
 				[ModuleName] : {
+					subtitle : ModuleName+".Titles.Attack",
 					onclick : (item) => {
 						const weapon = item.parent?.items.find(item => item.type == "weapon");
 						
@@ -229,6 +249,7 @@ async function registerStarfinderECHSItems () {
 			},
 			flags : {
 				[ModuleName] : {
+					subtitle : ModuleName+".Titles.Attack",
 					onclick : (item) => {
 						//item.parent?.rollSkill("blu"); add
 						
@@ -243,6 +264,11 @@ async function registerStarfinderECHSItems () {
 			type : "base",
 			system : {
 				descriptionHeader : "Withdraw"
+			},			
+			flags : {
+				[ModuleName] : {
+					subtitle : ModuleName+".Titles.Move",
+				}
 			}
 		}
 	}
@@ -252,6 +278,7 @@ async function registerStarfinderECHSItems () {
 			actiontype : "action",
 			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
 			ismaneuver : "true",
+			subtitle : game.i18n.localize(ModuleName+".Titles.MeleeAttack"),
 			onclick : (item) => {
 				const meleeweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "m");
 				

@@ -3,75 +3,63 @@ import { ModuleName } from "./utils.js";
 Hooks.once("init", () => {  // game.settings.get(cModuleName, "")
   //Settings
   //client
-  game.settings.register(ModuleName, "MentalInjurieTable", {
-	name: game.i18n.localize(ModuleName+".Settings.MentalInjurieTable.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.MentalInjurieTable.descrp"),
-	scope: "world",
-	config: true,
-	type: String,
-	default: "dwAyC3ED1v2Uo7Ha"
-  });
   
-  game.settings.register(ModuleName, "PhysicalInjurieTable", {
-	name: game.i18n.localize(ModuleName+".Settings.PhysicalInjurieTable.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.PhysicalInjurieTable.descrp"),
-	scope: "world",
-	config: true,
-	type: String,
-	default: "D4QOf1Mj4NL2ke7C"
-  });
-  
-  game.settings.register(ModuleName, "TreatType", {
-	name: game.i18n.localize(ModuleName+".Settings.TreatType.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.TreatType.descrp"),
+  game.settings.register(ModuleName, "ShowSwiftActions", {
+	name: game.i18n.localize(ModuleName+".Settings.ShowSwiftActions.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.ShowSwiftActions.descrp"),
 	scope: "client",
 	config: true,
-	type: String,
-	choices: {
-		"physical" : game.i18n.localize("CONDITION.PHYSICAL"),
-		"mental" : game.i18n.localize("CONDITION.MENTAL")
+	type: Boolean,
+	default: true,
+	onChange: () => {ui.ARGON.render()}
+  });
+  
+  game.settings.register(ModuleName, "ShowFullActions", {
+	name: game.i18n.localize(ModuleName+".Settings.ShowFullActions.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.ShowFullActions.descrp"),
+	scope: "client",
+	config: true,
+	type: Boolean,
+	default: true,
+	onChange: () => {ui.ARGON.render()}
+  });
+  
+  game.settings.register(ModuleName, "HealthBarWidthScale", {
+	name: game.i18n.localize(ModuleName+".Settings.HealthBarWidthScale.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.HealthBarWidthScale.descrp"),
+	scope: "client",
+	config: true,
+	type: Number,
+	range: {
+		min: 0.1,
+		max: 2,
+		step: 0.01
 	},
-	default: "physical",
-	requiresReload: true
+	default: 1,
+	onChange: () => {ui.ARGON.render()}
   });
   
-  game.settings.register(ModuleName, "ShowTalents", {
-	name: game.i18n.localize(ModuleName+".Settings.ShowTalents.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.ShowTalents.descrp"),
+  game.settings.register(ModuleName, "HealthBarHeightScale", {
+	name: game.i18n.localize(ModuleName+".Settings.HealthBarHeightScale.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.HealthBarHeightScale.descrp"),
+	scope: "client",
+	config: true,
+	type: Number,
+	range: {
+		min: 0.1,
+		max: 2,
+		step: 0.01
+	},
+	default: 1,
+	onChange: () => {ui.ARGON.render()}
+  });
+  
+  game.settings.register(ModuleName, "OwnSpellSlotConsume", {
+	name: game.i18n.localize(ModuleName+".Settings.OwnSpellSlotConsume.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.OwnSpellSlotConsume.descrp"),
 	scope: "client",
 	config: true,
 	type: Boolean,
-	default: false,
-	requiresReload: true
+	default: true
   });
-  
-  game.settings.register(ModuleName, "UseDiceCircles", {
-	name: game.i18n.localize(ModuleName+".Settings.UseDiceCircles.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.UseDiceCircles.descrp"),
-	scope: "client",
-	config: true,
-	type: Boolean,
-	default: false,
-	requiresReload: true
-  });
-  
-  game.settings.register(ModuleName, "AutoRollInjuries", {
-	name: game.i18n.localize(ModuleName+".Settings.AutoRollInjuries.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.AutoRollInjuries.descrp"),
-	scope: "client",
-	config: true,
-	type: Boolean,
-	default: false
-  });
-  
-  /*
-  game.settings.register(ModuleName, "AutoApplyBroken", {
-	name: game.i18n.localize(ModuleName+".Settings.AutoApplyBroken.name"),
-	hint: game.i18n.localize(ModuleName+".Settings.AutoApplyBroken.descrp"),
-	scope: "client",
-	config: true,
-	type: Boolean,
-	default: false
-  });
-  */
 });

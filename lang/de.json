@@ -1,72 +1,68 @@
 {
-	"enhancedcombathud-vaesen" : {
+	"enhancedcombathud-sfrpg" : {
 		"Titles" : {
-			"SlowAction"				: "LANGSAME AKTIONEN",
-			"FastAction"				: "SCHNELLE AKTIONEN",
-			"ReAction"					: "REAKTIONEN",
-			"Flee"						: "Flüchten",
-			"WPG"						: "Ringen",
-			"Survey"					: "Überblicken",
-			"TreatInjuries"				: "Behandeln",
-			"DrawWeapon"				: "Waffe ziehen",
-			"Standup"					: "Aufstehen",
-			"Move"						: "Bewegen",
-			"TakeCover"					: "Deckung",
-			"Dodge"						: "Ausweichen",
-			"Parry"						: "Parieren",
-			"BreakFree"					: "Losreißen",
-			"Chase"						: "Verfolgen"
-		},
-		
-		"Descriptions" : {
-			"Flee"						: "Siehe Vasesen Regelbuch S.62",
-			"WPG"						: "Siehe Vasesen Regelbuch S.62",
-			"Survey"					: "Siehe Vasesen Regelbuch S.62",
-			"TreatInjuries"				: "Siehe Vasesen Regelbuch S.71",
-			"DrawWeapon"				: "Siehe Vasesen Regelbuch S.60",
-			"Standup"					: "Siehe Vasesen Regelbuch S.60",
-			"Move"						: "Siehe Vasesen Regelbuch S.60",
-			"TakeCover"					: "Siehe Vasesen Regelbuch S.73",
-			"Dodge"						: "Siehe Vasesen Regelbuch S.61",
-			"Parry"						: "Siehe Vasesen Regelbuch S.61",
-			"BreakFree"					: "Siehe Vasesen Regelbuch S.62",
-			"Chase"						: "Siehe Vasesen Regelbuch S.62"
+			"StandardAction"			: "Standard Aktionen",
+			"MoveAction"				: "Bewegungsaktionen",
+			"SwiftAction"				: "Schnelle Aktionen",
+			"ReAction"					: "Reaktionen",
+			"FullAction"				: "Volle Aktionen",
+			
+			"CombatManeuver"			: "Kampfmaneuver",
+			"BullRush"					: "Ansturm",
+			"DirtyTrick"				: "Schmutziger Trick",
+			"Disarm"					: "Entwaffnen",
+			"Grapple"					: "Ringkampf",
+			"Reposition"				: "Versetzen",
+			"Sunder"					: "Gegenstand zerschmettern",
+			"Trip"						: "Zu Fall bringen",
+			"CoveringFire"				: "Deckungsfeuer",
+			"Feint"						: "Finte",
+			"Fight Defensively"			: "Defensiv kämpfen",
+			"HarryingFire"				: "Unterstützungsfeuer",
+			"TotalDefense"				: "Volle Verteidigung",
+			
+			"DrawSheathe"				: "Ziehen/Verstauen",
+			"GuardedStep"				: "Vorsichtiger Schritt",
+			"Reload"					: "Nachladen",
+			"StandUp"					: "Aufstehen",
+			
+			"Charge"					: "Rennen",
+			"CoupdeGrace"				: "Coup de Grace",
+			"FightDefensively"			: "Defensiv kämpfen",
+			"Withdraw"					: "Rückzug",
+			
+			"Attack"					: "Angriff",
+			"Move"						: "Bewegung",
+			"MeleeAttack"				: "Nahkampf",
+			"RangedAttack"				: "Fernkampf"
 		},
 		
 		"Settings" : {
-			"MentalInjurieTable" : {
-				"name"					: "Mentale Verletzungen Tabelle",
-				"descrp"				: "Die Tabelle auf welche gewürfelt wird wenn eine mentale Verletzung erlitten wird (ID der Tabelle)"
+			"ShowSwiftActions" : {
+				"name"					: "Zeige schnelle Aktionen",
+				"descrp"				: "Ob eine Leiste für schnelle Aktionen angezeigt werden soll (wenn verfügbar)"
 			},
-			"PhysicalInjurieTable" : {
-				"name"					: "Physische Verletzungen Tabelle",
-				"descrp"				: "Die Tabelle auf welche gewürfelt wird wenn eine physische Verletzung erlitten wird (ID der Tabelle)"
+			"ShowFullActions" : {
+				"name"					: "Zeige volle Aktionen",
+				"descrp"				: "Ob eine Leiste für volle Aktionen angezeigt werden soll "
 			},
-			"TreatType" : {
-				"name"					: "Behandeln Typ",
-				"descrp"				: "Welche art von Behandlung gewürfelt werden soll, wenn der Aktions Knopf gedrückt wird"
+			"HealthBarWidthScale" : {
+				"name"					: "Statusleisten Breite",
+				"descrp"				: "Die Breiten Skalierung der Statusleiste im Portrait"
 			},
-			"ShowTalents" : {
-				"name"					: "Zeige Talente Knopf",
-				"descrp"				: "Ob ein Knopf für Talente angezeigt werden soll"				
+			"HealthBarHeightScale" : {
+				"name"					: "Statusleisten Höhe",
+				"descrp"				: "Die Höhen Skalierung der Statusleiste im Portrait"
 			},
-			"UseDiceCircles" : {
-				"name"					: "Nutze Würfel Symbole",
-				"descrp"				: "Ob Würfel Symbole anstatt Zahlen für Attribute und Fertigkeiten angezeigt werden sollen"				
-			},
-			"AutoRollInjuries" : {
-				"name"					: "Verletzungen automatisch Würfeln",
-				"descrp"				: "Ob kritische Verletzungen automatisch gewürfelt werden sollen, wenn \"Gebrochen\" angewandt wird"				
-			},
-			"AutoApplyBroken" : {
-				"name"					: "Gebrochen automatisch anwenden",
-				"descrp"				: "Ob der \"Gebrochen\" Zustand automatisch hinzugefügt werden soll, wenn alle anderen mentalen/physischen Zustände angewandt wurden"				
+			"OwnSpellSlotConsume" : {
+				"name"					: "Angepasster Zauberplatz Verbrauch",
+				"descrp"				: "Ob Argon - Starfinder den Zauberplatz Verbrauch verwalten soll (wenn via Argon verursacht) um den Zauberplatz Verbrauch Bug zu umgehen"
 			}
 		}
 	},
 	
-    "enhancedcombathud.themeOptions.mainAction" : "Farben langsame Aktion",
-    "enhancedcombathud.themeOptions.bonusAction" : "Farben schnelle Aktion",
-    "enhancedcombathud.themeOptions.freeAction" : "Nicht von Argon Vaesen genutzt",
-    "enhancedcombathud.themeOptions.reaction" : "Farben Reaktion"
+    "enhancedcombathud.themeOptions.mainAction" : "Standard Aktion Farben",
+    "enhancedcombathud.themeOptions.bonusAction" : "Bewegungs-/Schnelle- Aktion Farben",
+    "enhancedcombathud.themeOptions.freeAction" : "Reaktion Farben",
+    "enhancedcombathud.themeOptions.reaction" : "Volle Aktion Farben"
 }
