@@ -1,7 +1,7 @@
 const ModuleName = "enhancedcombathud-sfrpg";
 
 async function getTooltipDetails(item) {
-	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, target, duration, damage, level, spellschool, featType, weaponproperties, descriptors;
+	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, save, target, actarget, duration, damage, level, spellschool, featType, weaponproperties, descriptors;
 	let actor, abilities, actordetails;
 	let title = "";
 	let propertiesLabel;
@@ -24,7 +24,9 @@ async function getTooltipDetails(item) {
 	area = item.system?.area;
 	ammunitionType = item.system?.ammunitionType;
 	attackbonus = item.system?.attackBonus;
+	save = item.system?.save;
 	target = item.system?.target;
+	actarget = item.system?.actionTarget;
 	duration = item.system?.duration;
 	damage = item.system?.damage;
 	level = item.system?.level;
@@ -169,6 +171,26 @@ async function getTooltipDetails(item) {
 		details.push({
 			label: "SFRPG.WeaponPropertiesAmmunition",
 			value: CONFIG.SFRPG.ammunitionTypes[ammunitionType],
+		});
+	}
+	
+	if (save?.type && save?.dc) {
+		const roll = new Roll(save.dc, {actor, item, abilities});
+		
+		await roll.evaluate();
+		
+		let dc = roll.total;
+		
+		details.push({
+			label: "SFRPG.Save",
+			value: `DC ${dc} ${CONFIG.SFRPG.saves[save.type]} ${CONFIG.SFRPG.saveDescriptors[save.descriptor]}`,
+		});	
+	}
+	
+	if (actarget) {
+		details.push({
+			label: ModuleName + ".Titles.Against",
+			value: actarget.toUpperCase(),
 		});
 	}
 

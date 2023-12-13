@@ -668,8 +668,17 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						const ammunition = this.actor.items.get(this.item.system.container.contents[0].id);
 						
 						if (ammunition) {
-							return ammunition.system.capacity?.value;
+							if (ammunition.system.capacity?.max) {
+								return ammunition.system.capacity?.value;
+							}
+							else {
+								return ammunition.system.quantity;
+							}
 						}
+					}
+					
+					if (this.item?.system.uses?.max && this.item?.system.uses?.max > 0) {
+						return this.item.system.capacity.value;
 					}
 					
 					return null;
@@ -741,7 +750,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}				
 			
 			if (used) {
-				StarfinderItemButton.consumeActionEconomy(this.item);
+				//StarfinderItemButton.consumeActionEconomy(this.item);
 			}
 		}
 
