@@ -1,4 +1,4 @@
-# Argon-Vaesen
+# Argon-Starfinder
 An implementation of the [Argon - Combat HUD](https://foundryvtt.com/packages/enhancedcombathud) (by [TheRipper93](https://theripper93.com/) and [Mouse0270](https://github.com/mouse0270)) for the [Starfinder](https://foundryvtt.com/packages/sfrpg) system. The Argon Combat HUD (CORE) module is required for this module to work.
 
 ![image](https://github.com/Saibot393/enhancedcombathud-sfrpg/assets/137942782/07336b27-b42c-43eb-a961-a98e4277e1e8)
@@ -7,7 +7,7 @@ An implementation of the [Argon - Combat HUD](https://foundryvtt.com/packages/en
 
 ### The documentation for the core argon features can be found [here](https://api.theripper93.com/modulewiki/enhancedcombathud/free)
 
-This module adjust various Argon features for the Vaesen system:
+This module adjust various Argon features for the Starfinder system:
 - **Portrait**
     - The HP and SP will be displayed as bars, temporary HP will be displayed as a bar over the HP
     - Both kinetic AC and energy AC will be displayer
