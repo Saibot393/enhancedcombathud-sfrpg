@@ -1204,42 +1204,44 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			let slots = fixedsets[set];
 			
-			let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
-			
-			if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
-				items[slot] = null;
-				slots[slot] = null;
-			}
-			
-			if (items.secondary == items.primary) {
-				if (items.primary && !items.primary.system.properties?.two) {
-					items.secondary = null;
-					slots.secondary = null;
+			if (this.actor?.system.attributes.arms <= 2) {
+				let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
+				
+				if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
+					items[slot] = null;
+					slots[slot] = null;
 				}
-			}
-			
-			if (items[slot]?.system.properties?.two) {
-				switch (slot) {
-					case "primary":
-						slots.secondary = slots.primary;
-						break;
-					case "secondary":
-						slots.primary = slots.secondary;
-						break;
+				
+				if (items.secondary == items.primary) {
+					if (items.primary && !items.primary.system.properties?.two) {
+						items.secondary = null;
+						slots.secondary = null;
+					}
 				}
-			}
-			else {
-				switch (slot) {
-					case "primary":
-						if (items.secondary?.system.properties?.two) {
-							slots.secondary = null;
-						}
-						break;
-					case "secondary":
-						if (items.primary?.system.properties?.two) {
-							slots.primary = null;
-						}
-						break;
+				
+				if (items[slot]?.system.properties?.two) {
+					switch (slot) {
+						case "primary":
+							slots.secondary = slots.primary;
+							break;
+						case "secondary":
+							slots.primary = slots.secondary;
+							break;
+					}
+				}
+				else {
+					switch (slot) {
+						case "primary":
+							if (items.secondary?.system.properties?.two) {
+								slots.secondary = null;
+							}
+							break;
+						case "secondary":
+							if (items.primary?.system.properties?.two) {
+								slots.primary = null;
+							}
+							break;
+					}
 				}
 			}
 			
