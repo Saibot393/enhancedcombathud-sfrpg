@@ -1,3 +1,6 @@
+## v1.0.2
+- Creatures with more than two arms will no longer be prevented from having a 2H weapon and another weapon in one weaponset
+
 ## v1.0.1
 - Added missing translation
 
