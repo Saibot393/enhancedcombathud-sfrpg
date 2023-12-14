@@ -34,7 +34,8 @@
 			"Attack"					: "Attack",
 			"Move"						: "Move",
 			"MeleeAttack"				: "Melee Attack",
-			"RangedAttack"				: "Ranged Attack"
+			"RangedAttack"				: "Ranged Attack",
+			"Against"					: "Against"
 		},
 		
 		"Settings" : {

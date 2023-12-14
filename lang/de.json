@@ -34,7 +34,8 @@
 			"Attack"					: "Angriff",
 			"Move"						: "Bewegung",
 			"MeleeAttack"				: "Nahkampf",
-			"RangedAttack"				: "Fernkampf"
+			"RangedAttack"				: "Fernkampf",
+			"Against"					: "Gegen"
 		},
 		
 		"Settings" : {
