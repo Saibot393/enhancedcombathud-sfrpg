@@ -1,4 +1,4 @@
-# Argon-Vaesen
+# Argon-Starfinder
 An implementation of the [Argon - Combat HUD](https://foundryvtt.com/packages/enhancedcombathud) (by [TheRipper93](https://theripper93.com/) and [Mouse0270](https://github.com/mouse0270)) for the [Starfinder](https://foundryvtt.com/packages/sfrpg) system. The Argon Combat HUD (CORE) module is required for this module to work.
 
 ![image](https://github.com/Saibot393/enhancedcombathud-sfrpg/assets/137942782/07336b27-b42c-43eb-a961-a98e4277e1e8)
