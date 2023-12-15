@@ -1,3 +1,6 @@
+## v1.0.4
+- When a weapon with and attached weapon is placed in an primary item set slot, the attached weapon will now automatically appear in the secondary slot
+
 ## v1.0.3
 - Imporoved maximum spell slot recognition
 
