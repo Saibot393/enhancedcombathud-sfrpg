@@ -445,11 +445,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		
 		async _getButtons() {
 			const specialActions = Object.values(StarfinderECHActionItems);
+			const arms = this.actor?.system.attributes.arms;
 
 			let buttons = [];
 			
-			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isPrimary: true }));
-			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isSecondary: true }));
+			for (let i = 1; i <= arms; i++) {
+				buttons.push(new StarfinderItemButton({ parent : this, item: null, slotnumber: i}));
+			}
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver", item : specialActions[0]}), new StarfinderSpecialActionButton(specialActions[1])));
 			
@@ -592,10 +594,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _getButtons() {
+			const arms = this.actor?.system.attributes.arms;
+
 			let buttons = [];
 			
-			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isPrimary: true }));
-			buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet: true, isSecondary: true }));
+			for (let i = 1; i <= arms; i++) {
+				buttons.push(new StarfinderItemButton({ parent : this, item: null, slotnumber: i}));
+			}
 			
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
@@ -658,6 +663,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					parent: this.actor,
 				});
 			}
+			
+			this.slotnumber = args.slotnumber;
 		}
 
 		get hasTooltip() {
@@ -726,6 +733,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 
 			let item;
 			
+			/*
 			if (this.isPrimary) {
 				item = activeSet.primary;
 			}
@@ -734,6 +742,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					item = activeSet.secondary;
 				}
 			}
+			*/
+			item = activeSet[this.slotnumber]
 			
 			if (this.actionType == "reaction") {
 				if (!["mwak", "msak"].includes(item?.system.actionType)) {
@@ -1129,23 +1139,74 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	}
 	
 	class StarfinderWeaponSets extends ARGON.WeaponSets {
+		constructor(...args) {
+			super(...args);
+			
+			this.fixoldsets();
+		}
+		
+		async fixoldsets() {
+			//for backwards compatibility
+			let sets = deepClone(this.actor?.getFlag("enhancedcombathud", "weaponSets"));
+			if (sets) {
+				let update = false;
+				
+				for (let setnumber of Object.keys(sets)) {
+					if (sets[setnumber]?.hasOwnProperty("primary")) {
+						sets[setnumber][1] = sets[setnumber].primary;
+						delete sets[setnumber].primary;
+						update = true;
+					}
+					
+					if (sets[setnumber]?.hasOwnProperty("secondary")) {
+						sets[setnumber][2] = sets[setnumber].secondary;
+						delete sets[setnumber].secondary;
+						update = true;
+					}
+				}
+				
+				if (update) {
+					await this.actor.setFlag("enhancedcombathud", "weaponSets", null); //complete reset
+					await this.actor.setFlag("enhancedcombathud", "weaponSets", sets);
+				}
+			}	
+		}
+	
+		async _getSets() { //overwrite because slots.primary/secondary contains id, not uuid
+			const arms = this.actor?.system.attributes.arms;
+			
+			const sets = mergeObject(await this.getDefaultSets(), deepClone(this.actor.getFlag("enhancedcombathud", "weaponSets") || {}));
+
+			for (const [set, slots] of Object.entries(sets)) {
+				for (let i = 1; i <= arms; i++) {
+					slots[i] = slots[i] ? await fromUuid(slots[i]) : null;
+				}
+			}
+			
+			return sets;
+		}
+		
 		async getDefaultSets() {
+			const arms = this.actor?.system.attributes.arms;
+			
 			const activeweapons = this.actor.items.filter((item) => item.type == "weapon");
 			
-			return {
-				1: {
-					primary: activeweapons[0]?.uuid ?? null,
-					secondary: null,
-				},
-				2: {
-					primary: activeweapons[1]?.uuid ?? null,
-					secondary: null,
-				},
-				3: {
-					primary: activeweapons[2]?.uuid ?? null,
-					secondary: null,
-				},
-			};
+			let defaultsets = {};
+			
+			for (let i = 1; i <= 3; i++) {
+				defaultsets[i] = {};
+				
+				for (let j = 1; j <= arms; j++) {
+					if (j == 1) {
+						defaultsets[i][j] = activeweapons[j-1]?.uuid ?? null;
+					}
+					else {
+						defaultsets[i][j] = null;
+					}
+				}
+			}
+			
+			return defaultsets;
 		}
 
 		async _onSetChange({sets, active}) {
@@ -1161,16 +1222,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				if(!item.system?.equipped) updates.push({_id: item.id, "system.equipped": true});
 			});
 			return await this.actor.updateEmbeddedDocuments("Item", updates);
-		}
-
-		async _getSets() { //overwrite because slots.primary/secondary contains id, not uuid
-			const sets = mergeObject(await this.getDefaultSets(), deepClone(this.actor.getFlag("enhancedcombathud", "weaponSets") || {}));
-
-			for (const [set, slots] of Object.entries(sets)) {
-				slots.primary = slots.primary ? await fromUuid(slots.primary) : null;
-				slots.secondary = slots.secondary ? await fromUuid(slots.secondary) : null;
-			}
-			return sets;
 		}
 		
 		async _onDrop(event) {
@@ -1189,7 +1240,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				const sets = this.actor.getFlag("enhancedcombathud", "weaponSets") || {};
 				sets[set] = sets[set] || {};
 				sets[set][slot] = data.uuid;
-
 				await this.setfixedsets(sets, set, slot);
 				await this.render();
 			try {      
@@ -1201,7 +1251,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		
 		async setfixedsets(sets, set, slot) {
 			let fixedsets = sets;
-			
+			/*
 			let slots = fixedsets[set];
 			
 			let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
@@ -1259,6 +1309,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 			
 			fixedsets[set] = slots;
+			*/
 			
 			await this.actor.setFlag("enhancedcombathud", "weaponSets", fixedsets);
 		}
@@ -1285,6 +1336,117 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 			
 			return null;
+		}
+		
+		async _renderInner() {
+			const sizefactor = 50; //px
+			
+			const arms = this.actor?.system.attributes.arms;
+			const setdata = await this._getSets();
+			
+			let maindiv = document.createElement("div");
+			
+			maindiv.classList.add("weapon-sets");
+			
+			for (let i = 1; i <= 3; i++) {
+				let armscounter = 0;
+				
+				let setdiv = document.createElement("div");
+				setdiv.style.display = "flex";
+				setdiv.style.flexDirection = "column";
+				setdiv.style.transform = `translate(0px, -${(Math.ceil(arms/2)-1)*sizefactor}px)`;
+					
+				while (armscounter < arms) {
+					let rowdiv = document.createElement("div");
+					rowdiv.classList.add("weapon-set");
+					rowdiv.setAttribute("data-type", "switchWeapons");
+					rowdiv.setAttribute("data-set", i);
+					
+					armscounter = armscounter + 1;
+					let firstslot = document.createElement("div");
+					firstslot.classList.add("set", "set-primary")
+					firstslot.draggable = true;
+					firstslot.setAttribute("data-set", i);
+					firstslot.setAttribute("data-slot", armscounter);
+					console.log(i, armscounter);
+					console.log(setdata[i] ? setdata[i][armscounter] : undefined);
+					if (setdata[i] && setdata[i][armscounter]) {
+						console.log(setdata[i][armscounter]?.img);
+						firstslot.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
+					}
+					
+					rowdiv.appendChild(firstslot);
+					
+					if (armscounter < arms) {
+						armscounter = armscounter + 1;
+						let secondslot = document.createElement("div");
+						secondslot.classList.add("set", "set-secondary")
+						secondslot.draggable = true;
+						secondslot.setAttribute("data-set", i);
+						secondslot.setAttribute("data-slot", armscounter);
+						console.log(i, armscounter);
+						console.log(setdata[i] ? setdata[i][armscounter] : undefined);
+						if (setdata[i] && setdata[i][armscounter]) {
+							secondslot.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
+						}
+						
+						rowdiv.appendChild(secondslot);
+					}
+					
+					setdiv.prepend(rowdiv);
+				}
+				
+				maindiv.appendChild(setdiv);
+			}
+			
+			const tempElement = document.createElement("div");
+			tempElement.appendChild(maindiv);
+			this.element.innerHTML = tempElement.firstElementChild.innerHTML;
+			
+			/*
+			await super._renderInner();
+			
+			const arms = this.actor?.system.attributes.arms;
+			
+			for (const set of this.element.querySelectorAll(".weapon-set")) {
+				set.style.transform = this.element.style.transform + `translate(0px, -${(Math.ceil(arms/2)-1)*sizefactor}px)`
+				
+				
+				for (const slot of set.querySelectorAll(".set")) {
+					slot.style.height = `${sizefactor}px`;
+					
+					slot.style.position = "absolute";
+					slot.style.bottom = "0";
+					
+					switch(slot.classList[1]) {
+						case `set-primary`
+					}
+					slot.style.left = `sizefactor`
+				}
+				
+				let addslots = [];
+				for (let i = 2; i < arms; i++) {
+					let newslot = document.createElement("div");
+					newslot.classList.add("set");
+					
+					if (i%2 == 0) {
+						newslot.classList.add("set-primary");
+					}
+					else {
+						newslot.classList.add("set-secondary");
+					}
+					
+					addslots.push(newslot);
+				}
+			}
+			
+						for(
+			const sizefactor = 52; //px
+			
+			this.element.style.height = `${Math.ceil(arms/2)*sizefactor}px`;
+			this.element.style.transform = this.element.style.transform + `translate(0px, -${(Math.ceil(arms/2)-1)*sizefactor}px)`
+			console.log(this.element);
+			*/
 		}
     }
   
