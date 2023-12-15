@@ -377,8 +377,6 @@ async function registerStarfinderECHSItems () {
 			}
 		}
 		
-		console.log(StarfinderECHActionItems);
-		
 		delete itemset.groupflags;
 	}
 }

@@ -973,7 +973,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}
 				else {
 					uses = () => {return {
-						max: this.actor.system.spells["spell" + i].max, 
+						max: this.actor.system.spells["spell" + i].max || Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass]?.max).filter(value => value).reduce((summ, value) => {return summ = summ+value}, 0), 
 						value: Object.keys(this.actor.system.classes).map(spellclass => this.actor.system.spells["spell" + i].perClass[spellclass]?.value).filter(value => value).reduce((summ, value) => {return summ = summ+value}, 0)
 					}}
 				}
