@@ -1204,14 +1204,17 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			let slots = fixedsets[set];
 			
+			let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
+			
+			//handle equipability
+			if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
+				items[slot] = null;
+				slots[slot] = null;
+			}
+			
+			//handle 2H/1H placement validity
 			if (this.actor?.system.attributes.arms <= 2) {
-				let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
-				
-				if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
-					items[slot] = null;
-					slots[slot] = null;
-				}
-				
+
 				if (items.secondary == items.primary) {
 					if (items.primary && !items.primary.system.properties?.two) {
 						items.secondary = null;
@@ -1238,9 +1241,19 @@ Hooks.on("argonInit", async (CoreHUD) => {
 							break;
 						case "secondary":
 							if (items.primary?.system.properties?.two) {
-								slots.primary = null;
+								slots.secondary = null;
 							}
-							break;
+					}
+				}
+			}
+			
+			//handle attached weapons
+			if (slot == "primary" && items.primary) {
+				if ((slots.primary == slots.secondary) || (slots.secondary == null)) {
+					const primaryattachedWeapon = StarfinderWeaponSets.attachedWeapon(items.primary);
+					
+					if (primaryattachedWeapon) {
+						slots.secondary = primaryattachedWeapon.uuid;
 					}
 				}
 			}
@@ -1248,6 +1261,30 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			fixedsets[set] = slots;
 			
 			await this.actor.setFlag("enhancedcombathud", "weaponSets", fixedsets);
+		}
+		
+		static attachedWeapon(Item) {
+			const containedIDs = Item?.system.container?.contents.map(content => content.id);
+			
+			const ownerActor = Item?.parent;
+			
+			if (containedIDs?.length && ownerActor) {
+				const containedItems = containedIDs.map(ID => ownerActor.items.get(ID)).filter(item => item);
+				
+				for (const item of containedItems) {
+					if (item.type == "weapon") {
+						return item;
+					}
+					
+					const proxyattachedWeapon = StarfinderWeaponSets.attachedWeapon(item);
+					
+					if (proxyattachedWeapon) {
+						return proxyattachedWeapon;
+					}
+				}
+			}
+			
+			return null;
 		}
     }
   
