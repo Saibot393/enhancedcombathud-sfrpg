@@ -1371,11 +1371,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					
 				while (armscounter < arms) {
 					let rowdiv = document.createElement("div");
+					rowdiv.classList.add("weapon-set")
 					if (armscounter == 0) {
-						rowdiv.classList.add("weapon-set");
+						rowdiv.classList.add("weapon-set-buttoncorrection");
 					}
 					else {
-						rowdiv.classList.add("weapon-set", "weapon-set-nobutton");
+						rowdiv.classList.add("weapon-set-nobutton");
 					}
 					if (arms - armscounter == 1) {
 						rowdiv.style.width = `${sizefactor}px`;
@@ -1384,30 +1385,21 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					rowdiv.setAttribute("data-type", "switchWeapons");
 					rowdiv.setAttribute("data-set", i);
 					
-					armscounter = armscounter + 1;
-					let firstslot = document.createElement("div");
-					firstslot.classList.add("set", "set-primary")
-					firstslot.draggable = true;
-					firstslot.setAttribute("data-set", i);
-					firstslot.setAttribute("data-slot", armscounter);
-					if (setdata[i] && setdata[i][armscounter]) {
-						firstslot.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
-					}
-					
-					rowdiv.appendChild(firstslot);
-					
-					if (armscounter < arms) {
+					let rowslots = Math.min(arms - armscounter, 2);
+					for (let j = 1; j <= rowslots; j++) {
 						armscounter = armscounter + 1;
-						let secondslot = document.createElement("div");
-						secondslot.classList.add("set", "set-secondary")
-						secondslot.draggable = true;
-						secondslot.setAttribute("data-set", i);
-						secondslot.setAttribute("data-slot", armscounter);
+						let slotdiv = document.createElement("div");
+						slotdiv.classList.add("set", "set-secondary")
+						slotdiv.draggable = true;
+						slotdiv.setAttribute("data-set", i);
+						slotdiv.setAttribute("data-slot", armscounter);
+						slotdiv.style.border = "solid 0.5px";
+						slotdiv.style.color = "var(--ech-portrait-base-border)";
 						if (setdata[i] && setdata[i][armscounter]) {
-							secondslot.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
+							slotdiv.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
 						}
 						
-						rowdiv.appendChild(secondslot);
+						rowdiv.appendChild(slotdiv);
 					}
 					
 					setdiv.prepend(rowdiv);

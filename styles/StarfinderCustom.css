@@ -1,4 +1,14 @@
 /*Based on Argon core portraitHUD.css, changes to the weapon sets to make them single buttons*/
+.weapon-set-buttoncorrection:before {
+    left: 50px !important;
+	bottom : 25px !important;
+	border : 0px !important;
+}
+.weapon-set-buttoncorrection.active:after {
+    left: 50px !important;
+	bottom : 25px !important;
+}
+
 .weapon-set-nobutton {
     align-items: center;
     backdrop-filter: blur(6px);
@@ -51,10 +61,10 @@
 
 .weapon-set-nobutton > .set.set-primary:before,
 .weapon-set-nobutton > .set.set-primary:after {
-    border-left: 2px solid transparent;
+    border-left: 0px solid transparent;
     content: '';
-    height: 25px;
-    left: 50%;
+    height: 500px !important;
+    left: 50px;
     position: absolute;
     top: 0px;
     transform: translateX(-50%);
