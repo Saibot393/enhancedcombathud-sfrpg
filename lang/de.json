@@ -39,6 +39,10 @@
 		},
 		
 		"Settings" : {
+			"CheckWeaponSets" : {
+				"name"					: "Waffensets überprüfen",
+				"descrp"				: "Ob Waffensets überprüft werden sollen um invalide Kombinationen zu verhindern"
+			},
 			"ShowSwiftActions" : {
 				"name"					: "Zeige schnelle Aktionen",
 				"descrp"				: "Ob eine Leiste für schnelle Aktionen angezeigt werden soll (wenn verfügbar)"

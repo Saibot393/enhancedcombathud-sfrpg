@@ -39,6 +39,10 @@
 		},
 		
 		"Settings" : {
+			"CheckWeaponSets" : {
+				"name"					: "Check weapon sets",
+				"descrp"				: "If weapon sets should be checked to prevent impossible or invalid combination"
+			},
 			"ShowSwiftActions" : {
 				"name"					: "Show swift actions",
 				"descrp"				: "If a panel for swift actions should be shown (if available)"

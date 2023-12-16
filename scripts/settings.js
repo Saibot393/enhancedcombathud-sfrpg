@@ -3,6 +3,14 @@ import { ModuleName } from "./utils.js";
 Hooks.once("init", () => {  // game.settings.get(cModuleName, "")
   //Settings
   //client
+  game.settings.register(ModuleName, "CheckWeaponSets", {
+	name: game.i18n.localize(ModuleName+".Settings.CheckWeaponSets.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.CheckWeaponSets.descrp"),
+	scope: "client",
+	config: true,
+	type: Boolean,
+	default: true
+  });
   
   game.settings.register(ModuleName, "ShowSwiftActions", {
 	name: game.i18n.localize(ModuleName+".Settings.ShowSwiftActions.name"),

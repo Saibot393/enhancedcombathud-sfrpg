@@ -446,11 +446,11 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			const specialActions = Object.values(StarfinderECHActionItems);
 			const arms = this.actor?.system.attributes.arms;
-
+			
 			let buttons = [];
 			
 			for (let i = 1; i <= arms; i++) {
-				buttons.push(new StarfinderItemButton({ parent : this, item: null, slotnumber: i}));
+				buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
 			}
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver", item : specialActions[0]}), new StarfinderSpecialActionButton(specialActions[1])));
@@ -465,6 +465,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[4]), new StarfinderSpecialActionButton(specialActions[5])));
 			
+			//to solve update bug
+			ui.ARGON?.components.weaponSets?.startUpdate();
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -599,13 +601,16 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			let buttons = [];
 			
 			for (let i = 1; i <= arms; i++) {
-				buttons.push(new StarfinderItemButton({ parent : this, item: null, slotnumber: i}));
+				buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
 			}
 			
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
 			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			
+			//to solve update bug
+			ui.ARGON?.components.weaponSets?.startUpdate();
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -729,29 +734,30 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _onSetChange({sets, active}) {
+			const arms = this.actor?.system.attributes.arms;
 			const activeSet = sets[active];
-
-			let item;
+			let item = activeSet[this.slotnumber];
 			
-			/*
-			if (this.isPrimary) {
-				item = activeSet.primary;
-			}
-			else {
-				if (activeSet.primary != activeSet.secondary) {
-					item = activeSet.secondary;
+			for (let i = this.slotnumber - 1; i > 0; i--) {
+				//prevent duplicate display
+				if (activeSet[i] == item) {
+					item = null;
 				}
 			}
-			*/
-			item = activeSet[this.slotnumber]
 			
+			//savety check for item validity
+			if (!(item instanceof Object)) {
+				item = null;
+			}
+			
+			//only show meele weapons in reactions
 			if (this.actionType == "reaction") {
 				if (!["mwak", "msak"].includes(item?.system.actionType)) {
 					item = null;
 				}
 			}
 			
-			this.setItem(item);    
+			this.setItem(item);
 		}
 		
 		async getTooltipData() {
@@ -1142,7 +1148,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		constructor(...args) {
 			super(...args);
 			
-			this.fixoldsets();
+			//this.fixoldsets();
 		}
 		
 		async fixoldsets() {
@@ -1181,6 +1187,15 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				for (let i = 1; i <= arms; i++) {
 					slots[i] = slots[i] ? await fromUuid(slots[i]) : null;
 				}
+				
+				//backwards compatibility
+				if (!slots[1] && slots.hasOwnProperty("primary")) {
+					slots[1] = slots.primary ? await fromUuid(slots.primary) : null;
+				}
+				
+				if (!slots[2] && slots.hasOwnProperty("secondary")) {
+					slots[2] = slots.secondary ? await fromUuid(slots.secondary) : null;
+				}
 			}
 			
 			return sets;
@@ -1198,7 +1213,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				
 				for (let j = 1; j <= arms; j++) {
 					if (j == 1) {
-						defaultsets[i][j] = activeweapons[j-1]?.uuid ?? null;
+						defaultsets[i][j] = activeweapons[i-1]?.uuid ?? null;
 					}
 					else {
 						defaultsets[i][j] = null;
@@ -1212,9 +1227,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _onSetChange({sets, active}) {
 			const updates = [];
 			const activeSet = sets[active];
-			const activeItems = Object.values(activeSet).filter((item) => item);
+			const activeItems = Object.values(activeSet).filter((item) => item && (item instanceof Object));
 			const inactiveSets = Object.values(sets).filter((set) => set !== activeSet);
-			const inactiveItems = inactiveSets.flatMap((set) => Object.values(set)).filter((item) => item && !activeItems.includes(item));
+			const inactiveItems = inactiveSets.flatMap((set) => Object.values(set)).filter((item) => item && (item instanceof Object) &&!activeItems.includes(item));
 			inactiveItems.forEach((item) => {
 				if(item.system?.equipped) updates.push({_id: item.id, "system.equipped": false});
 			});
@@ -1222,12 +1237,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				if(!item.system?.equipped) updates.push({_id: item.id, "system.equipped": true});
 			});
 			return await this.actor.updateEmbeddedDocuments("Item", updates);
-		}
-		
-		async _onDrop(event) {
-			await super._onDrop(event);
-			
-			this.fixitemsets();
 		}
 
 		async _onDrop(event) {
@@ -1250,66 +1259,69 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async setfixedsets(sets, set, slot) {
+			const arms = this.actor?.system.attributes.arms;
+			const isprimary = (slot%2 == 1);
+			const neighborslot = isprimary ? Number(slot)+1 : Number(slot)-1;
+			const hasneighborslot = (arms%2 == 0) || (slot < arms-1);
+			
 			let fixedsets = sets;
-			/*
-			let slots = fixedsets[set];
-			
-			let items = {primary : (slots.primary ? await fromUuid(slots.primary) : null), secondary : (slots.secondary ? await fromUuid(slots.secondary) : null)};
-			
-			//handle equipability
-			if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
-				items[slot] = null;
-				slots[slot] = null;
-			}
-			
-			//handle 2H/1H placement validity
-			if (this.actor?.system.attributes.arms <= 2) {
 
-				if (items.secondary == items.primary) {
-					if (items.primary && !items.primary.system.properties?.two) {
-						items.secondary = null;
-						slots.secondary = null;
+			if (game.settings.get(ModuleName, "CheckWeaponSets")) {
+				let slots = fixedsets[set];
+				let items = {};
+				
+				for(const key of Object.keys(slots)) {
+					items[key] = slots[key] ? await fromUuid(slots[key]) : null
+				}
+				
+				//prevent duplicates
+				for (let i = 1; i <= arms; i++) {
+					if ((i != slot) && (slots[i] == slots[slot]) && !(items[i]?.system.quantity > 1 || (items[i]?.system.capacity.value > 1 && items[i]?.system.properties?.thrown))) {
+						slots[i] = null;
+						items[i] = null;
+					}
+				}
+
+				//handle equipability
+				if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
+					items[slot] = null;
+					slots[slot] = null;
+				}
+				
+				//handle 2H/1H placement validity
+				if (neighborslot) {
+					if (items[slot] == items[neighborslot]) {
+						if (items[slot] && !items[slot].system.properties?.two) {
+							items.secondary = null;
+							slots.secondary = null;
+						}
+					}
+					
+					if (items[slot]?.system.properties?.two) {
+						slots[neighborslot] = slots[slot];
+					}
+					else {
+						if (items[neighborslot]?.system.properties?.two) {
+							slots[neighborslot] = null;
+						}
 					}
 				}
 				
-				if (items[slot]?.system.properties?.two) {
-					switch (slot) {
-						case "primary":
-							slots.secondary = slots.primary;
-							break;
-						case "secondary":
-							slots.primary = slots.secondary;
-							break;
+			
+				//handle attached weapons
+				if (slot%2 == 1 && items[slot] && hasneighborslot) {
+					if ((slots[slot] == slots[neighborslot]) || (slots[neighborslot] == null)) {
+						const primaryattachedWeapon = StarfinderWeaponSets.attachedWeapon(items[slot]);
+						
+						if (primaryattachedWeapon) {
+							slots[neighborslot] = primaryattachedWeapon.uuid;
+						}
 					}
 				}
-				else {
-					switch (slot) {
-						case "primary":
-							if (items.secondary?.system.properties?.two) {
-								slots.secondary = null;
-							}
-							break;
-						case "secondary":
-							if (items.primary?.system.properties?.two) {
-								slots.secondary = null;
-							}
-					}
-				}
+				
+				fixedsets[set] = slots;
 			}
 			
-			//handle attached weapons
-			if (slot == "primary" && items.primary) {
-				if ((slots.primary == slots.secondary) || (slots.secondary == null)) {
-					const primaryattachedWeapon = StarfinderWeaponSets.attachedWeapon(items.primary);
-					
-					if (primaryattachedWeapon) {
-						slots.secondary = primaryattachedWeapon.uuid;
-					}
-				}
-			}
-			
-			fixedsets[set] = slots;
-			*/
 			
 			await this.actor.setFlag("enhancedcombathud", "weaponSets", fixedsets);
 		}
@@ -1355,10 +1367,20 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				setdiv.style.display = "flex";
 				setdiv.style.flexDirection = "column";
 				setdiv.style.transform = `translate(0px, -${(Math.ceil(arms/2)-1)*sizefactor}px)`;
+				setdiv.style.alignItems = "center";
 					
 				while (armscounter < arms) {
 					let rowdiv = document.createElement("div");
-					rowdiv.classList.add("weapon-set");
+					if (armscounter == 0) {
+						rowdiv.classList.add("weapon-set");
+					}
+					else {
+						rowdiv.classList.add("weapon-set", "weapon-set-nobutton");
+					}
+					if (arms - armscounter == 1) {
+						rowdiv.style.width = `${sizefactor}px`;
+						rowdiv.classList.add("weapon-set-nobutton-single");
+					}
 					rowdiv.setAttribute("data-type", "switchWeapons");
 					rowdiv.setAttribute("data-set", i);
 					
@@ -1368,10 +1390,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					firstslot.draggable = true;
 					firstslot.setAttribute("data-set", i);
 					firstslot.setAttribute("data-slot", armscounter);
-					console.log(i, armscounter);
-					console.log(setdata[i] ? setdata[i][armscounter] : undefined);
 					if (setdata[i] && setdata[i][armscounter]) {
-						console.log(setdata[i][armscounter]?.img);
 						firstslot.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
 					}
 					
@@ -1384,8 +1403,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						secondslot.draggable = true;
 						secondslot.setAttribute("data-set", i);
 						secondslot.setAttribute("data-slot", armscounter);
-						console.log(i, armscounter);
-						console.log(setdata[i] ? setdata[i][armscounter] : undefined);
 						if (setdata[i] && setdata[i][armscounter]) {
 							secondslot.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
 						}
@@ -1402,51 +1419,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const tempElement = document.createElement("div");
 			tempElement.appendChild(maindiv);
 			this.element.innerHTML = tempElement.firstElementChild.innerHTML;
-			
-			/*
-			await super._renderInner();
-			
-			const arms = this.actor?.system.attributes.arms;
-			
-			for (const set of this.element.querySelectorAll(".weapon-set")) {
-				set.style.transform = this.element.style.transform + `translate(0px, -${(Math.ceil(arms/2)-1)*sizefactor}px)`
-				
-				
-				for (const slot of set.querySelectorAll(".set")) {
-					slot.style.height = `${sizefactor}px`;
-					
-					slot.style.position = "absolute";
-					slot.style.bottom = "0";
-					
-					switch(slot.classList[1]) {
-						case `set-primary`
-					}
-					slot.style.left = `sizefactor`
-				}
-				
-				let addslots = [];
-				for (let i = 2; i < arms; i++) {
-					let newslot = document.createElement("div");
-					newslot.classList.add("set");
-					
-					if (i%2 == 0) {
-						newslot.classList.add("set-primary");
-					}
-					else {
-						newslot.classList.add("set-secondary");
-					}
-					
-					addslots.push(newslot);
-				}
-			}
-			
-						for(
-			const sizefactor = 52; //px
-			
-			this.element.style.height = `${Math.ceil(arms/2)*sizefactor}px`;
-			this.element.style.transform = this.element.style.transform + `translate(0px, -${(Math.ceil(arms/2)-1)*sizefactor}px)`
-			console.log(this.element);
-			*/
+		}
+		
+		async startUpdate() {
+			await this.onSetChange(await this.getSetData())
 		}
     }
   
