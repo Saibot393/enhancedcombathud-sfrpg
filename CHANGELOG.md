@@ -1,3 +1,6 @@
+## v1.1.1
+- Small style fix for weapon sets (i hate css)
+
 ## v1.1.0
 - Creatures will now have an amount of weapon slots equal to their arms (all praise the Skittermanders... and well, the Kasatha)
 - Added client setting Check weapon sets to toggle the rule/validation checks when assigning new weapons to sets
