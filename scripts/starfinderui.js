@@ -143,8 +143,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			bars.style.position = "absolute";
 			
 			let hp = this.actor.system.attributes.hp;
-			let sp = this.actor.system.attributes.sp;
-			
+			let sp = this.actor.system.attributes.sp ?? {value : 0,max : 0};
+
 			//stamina
 			const spbar = document.createElement("div");
 			spbar.style.width = "75%";
@@ -172,7 +172,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			spbar.appendChild(spbackground);
 			spbar.appendChild(spsubbar);
-			
+
 			//hp
 			const hpbar = document.createElement("div");
 			hpbar.style.width = "100%";
@@ -213,7 +213,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hpbar.appendChild(hpsubbar);
 			hpbar.appendChild(tempsubbar);
 			
-			bars.appendChild(spbar);
+			if (sp.max > 0){
+				bars.appendChild(spbar);
+			}
 			bars.appendChild(hpbar);
 			
 			//labels
@@ -230,9 +232,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			splabel.style.fontSize = `${fontsize * (spheightpart/(1-spheightpart)) * minscale}em`;
 			splabel.style.color = "white";
 			splabel.style.textShadow = "grey 1px 1px 10px";
-			
-			spbar.appendChild(splabel);
-			
+			if (sp.max > 0){
+				spbar.appendChild(splabel);
+			}
 			const hplabel = document.createElement("span");
 			if (hp.temp <= 0) {
 				hplabel.innerHTML = `${hp.value}/${hp.max} HP`;
