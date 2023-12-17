@@ -75,29 +75,30 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					
 					return classes.map(characterclass => `${characterclass.name} ${game.i18n.localize("SFRPG.LevelLabelText")} ${characterclass.system.levels}`).join("/");
 					break;
+				case "npc":
+				case "npc2":
+						let cr = this.actor.system.details.cr;
+						
+						switch (cr) {
+							case 1/3:
+								cr = "1/3";
+								break;
+							case 1/2:
+								cr = "1/2";
+								break;
+						}
+						
+						return `${this.actor.system.details.type} ${this.actor.system.details.subtype? "," : ""} ${this.actor.system.details.subtype} ${game.i18n.localize("SFRPG.Combat.Difficulty.Tooltip.CR")} ${cr}`
+					break;
+				case "drone":
+					return `${game.i18n.localize("SFRPG.DroneSheet.Header.Owner")}: ${this.actor.system.details.owner}, ${game.i18n.localize("SFRPG.LevelLabelText")} ${this.actor.system.details.level.value}`
+					break;
 			}
 			return `${this.actor.name}`;
 		}
 
 		get isDead() {
-			let isDead = false;
-			
-			let mental = false;
-			let physical = false;
-			
-			if (this.actor.type == "player") {
-				mental = this.actor.system.condition.mental?.isBroken;
-				physical = this.actor.system.condition.physical?.isBroken;
-			}
-			
-			if (this.actor.type == "npc") {
-				mental = this.actor.system.condition.mental?.value == 0;
-				physical = this.actor.system.condition.physical?.value == 0;
-			}
-			
-			isDead = mental || physical;
-			
-			return isDead;
+			return this.actor?.system.attributes.hp?.value == 0;
 		}
 
 		async getStatBlocks() {
