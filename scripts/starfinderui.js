@@ -143,7 +143,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			bars.style.position = "absolute";
 			
 			let hp = this.actor.system.attributes.hp;
-			let sp = this.actor.system.attributes.sp ?? {value : 0,max : 0};
+			let sp = this.actor.system.attributes.sp;
 
 			//stamina
 			const spbar = document.createElement("div");
@@ -154,17 +154,18 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			spbar.style.clipPath = `polygon(0% 0%, 100% 0%, calc(100% - ${(spheightpart/(1-spheightpart))*cornercut}px) 100%, 0% 100%)`;
 
 			const spbackground = document.createElement("div");
-			spbackground.style.width = "100%";
+			spbackground.style.width = sp?.max ? "100%" : "0%";
 			spbackground.style.height = "100%";
 			spbackground.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
 			spbackground.style.opacity = "0.7";
 			spbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
 			
+			const sppercent = sp?.max ? sp?.value/sp.max : 0;
 			const spsubbar = document.createElement("div");
 			spsubbar.style.width = "100%"//`${sp.value/sp.max*100}%`;
 			spsubbar.style.height = "100%";
 			spsubbar.style.backgroundColor = "darkOrange";
-			spsubbar.style.clipPath = `polygon(0% 0%, ${sp.value/sp.max*100}% 0%, calc(${(sp.value/sp.max*100)}% - ${(spheightpart/(1-spheightpart))*cornercut}px) 100%, 0% 100%)`;
+			spsubbar.style.clipPath = `polygon(0% 0%, ${sppercent*100}% 0%, calc(${(sppercent*100)}% - ${(spheightpart/(1-spheightpart))*cornercut}px) 100%, 0% 100%)`;
 			spsubbar.style.opacity = "0.9";
 			spsubbar.style.position = "absolute";
 			spsubbar.style.top = "0";
@@ -188,21 +189,23 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hpbackground.style.opacity = "0.7";
 			hpbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
 			
+			const hppercent = hp?.max ? hp.value/hp.max : 0;
 			const hpsubbar = document.createElement("div");
 			hpsubbar.style.width = "100%"//`${hp.value/hp.max*100}%`;
 			hpsubbar.style.height = "100%";
 			hpsubbar.style.backgroundColor = "red";
-			hpsubbar.style.clipPath = `polygon(0% 0%, ${hp.value/hp.max*100}% 0%, calc(${(hp.value/hp.max*100)}% - ${cornercut}px) 100%, 0% 100%)`;
+			hpsubbar.style.clipPath = `polygon(0% 0%, ${hppercent*100}% 0%, calc(${(hppercent*100)}% - ${cornercut}px) 100%, 0% 100%)`;
 			hpsubbar.style.opacity = "0.9";
 			hpsubbar.style.position = "absolute";
 			hpsubbar.style.top = "0";
 			hpsubbar.style.left = "0";
 			
+			const temppercent = hp?.max ? hp.temp/hp.max : 0;
 			const tempsubbar = document.createElement("div");
 			tempsubbar.style.width = "100%"//`${hp.temp/hp.max*100}%`;
 			tempsubbar.style.height = `${tempheightpart * 100}%`;
 			tempsubbar.style.backgroundColor = "blue";
-			tempsubbar.style.clipPath = `polygon(0% 0%, ${hp.temp/hp.max*100}% 0%, calc(${(hp.temp/hp.max*100)}% - ${cornercut*tempheightpart}px) 100%, 0% 100%)`;
+			tempsubbar.style.clipPath = `polygon(0% 0%, ${temppercent*100}% 0%, calc(${(temppercent*100)}% - ${cornercut*tempheightpart}px) 100%, 0% 100%)`;
 			tempsubbar.style.opacity = "0.9";
 			tempsubbar.style.position = "absolute";
 			tempsubbar.style.top = "0";
@@ -213,16 +216,15 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hpbar.appendChild(hpsubbar);
 			hpbar.appendChild(tempsubbar);
 			
-			if (sp.max > 0){
-				bars.appendChild(spbar);
-			}
+
+			bars.appendChild(spbar);
 			bars.appendChild(hpbar);
 			
 			//labels
 			const fontsize = 2;//em
 			
 			const splabel = document.createElement("span");
-			splabel.innerHTML = `${sp.value}/${sp.max} SP`;
+			splabel.innerHTML = sp?.max ? `${sp.value}/${sp.max} SP` : `- SP`;
 			splabel.style.top = "-2px"; //strange format bug
 			splabel.style.position = "absolute";
 			splabel.style.zIndex = "20";
@@ -232,9 +234,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			splabel.style.fontSize = `${fontsize * (spheightpart/(1-spheightpart)) * minscale}em`;
 			splabel.style.color = "white";
 			splabel.style.textShadow = "grey 1px 1px 10px";
-			if (sp.max > 0){
+			if (sp?.max){
 				spbar.appendChild(splabel);
 			}
+			
 			const hplabel = document.createElement("span");
 			if (hp.temp <= 0) {
 				hplabel.innerHTML = `${hp.value}/${hp.max} HP`;
@@ -251,8 +254,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hplabel.style.fontSize = `${fontsize * tempheightpart * minscale}em`;
 			hplabel.style.color = "white";
 			hplabel.style.textShadow = "grey 1px 1px 10px";
-			
-			hpbar.appendChild(hplabel);
+			if (hp?.max) {
+				hpbar.appendChild(hplabel);
+			}
 			
 			return bars;
 		}
