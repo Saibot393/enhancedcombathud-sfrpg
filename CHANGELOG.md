@@ -1,3 +1,7 @@
+## v1.1.3
+- Fixed portrait death detection
+- Improved portrait subtitles for not player characters
+
 ## v1.1.2
 - Fixed bug that caused errors for creatures without SP (thanks to [danimrath](https://github.com/danimrath))
 
