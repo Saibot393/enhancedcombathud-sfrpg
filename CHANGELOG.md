@@ -1,3 +1,6 @@
+## v1.1.2
+- Fixed bug that caused errors for creatures without SP (thanks to [danimrath](https://github.com/danimrath))
+
 ## v1.1.1
 - Small style fix for weapon sets (i hate css)
 
