@@ -1,3 +1,6 @@
+## v1.1.4
+- Fixed localizations problem
+
 ## v1.1.3
 - Fixed portrait death detection
 - Improved portrait subtitles for not player characters
