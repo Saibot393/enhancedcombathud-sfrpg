@@ -149,7 +149,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						id : key
 					},
 					{
-						text: this.actor.system.attributes[key].value,
+						text: this.actor.system.attributes[key]?.value,
 						color: colors[key],
 					},
 				]);
@@ -158,13 +158,72 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			return Blocks;
 		}
 		
-		async getBars() {
+		async speciestype() {
+			const types = ["plant", "construct", "undead"];
+			const explicittype = this.actor.system.details.type;
+			
+			if (explicittype) {
+				for (const type of types) {
+					if (explicittype.toLowerCase().search(type) >= 0) {
+						return type;
+					}
+				}
+			}
+			else {
+				const roughtypes = ["plant", "constructed", "undead"];
+				const speciesitem = this.actor.items.find(item => item.type == "race");
+				if (speciesitem) {
+					const description = speciesitem.system.description.value;
+					for (const type of roughtypes) {
+						if (description.toLowerCase().search(type) >= 0) {
+							return type;
+						}
+					}
+				}
+			}
+			
+			return "default";
+		}
+		
+		async getBarColors() {
+			let barColors = {sp : "darkOrange", shield : "blue"};
+			
+			switch (this.actor.type) {
+				case "drone":
+					barColors.hp = "LightSteelBlue";
+					break;
+				default:
+					const speciestype = await this.speciestype();
+					
+					switch (speciestype) {
+						case "plant":
+							barColors.hp = "green";
+							break;
+						case "construct":
+						case "constructed":
+							barColors.hp = "#d1c6a5";
+							break;
+						case "undead":
+							barColors.hp = "purple";
+							break;
+						default:
+							barColors.hp = "red";
+							break;
+					}
+					break;
+			}
+			
+			return barColors;
+		}
+		
+		async getBarsCreature() {
 			const widthscale = game.settings.get(ModuleName, "HealthBarWidthScale");
 			const heightscale = game.settings.get(ModuleName, "HealthBarHeightScale");
 			const minscale = Math.min(widthscale, heightscale);
 			const cornercut = 30; //px
 			const spheightpart = 0.4;
 			const tempheightpart = 0.7;
+			const barColors = await this.getBarColors();
 			
 			//probably better as css classes, but oh well
 			const bars = document.createElement("div");
@@ -174,6 +233,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			let hp = this.actor.system.attributes.hp;
 			let sp = this.actor.system.attributes.sp;
+			
+			if (this.actor.type == "drone") {
+				sp = null;
+			}
 
 			//stamina
 			const spbar = document.createElement("div");
@@ -194,7 +257,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const spsubbar = document.createElement("div");
 			spsubbar.style.width = "100%"//`${sp.value/sp.max*100}%`;
 			spsubbar.style.height = "100%";
-			spsubbar.style.backgroundColor = "darkOrange";
+			spsubbar.style.backgroundColor = barColors.sp;
 			spsubbar.style.clipPath = `polygon(0% 0%, ${sppercent*100}% 0%, calc(${(sppercent*100)}% - ${(spheightpart/(1-spheightpart))*cornercut}px) 100%, 0% 100%)`;
 			spsubbar.style.opacity = "0.9";
 			spsubbar.style.position = "absolute";
@@ -223,7 +286,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const hpsubbar = document.createElement("div");
 			hpsubbar.style.width = "100%"//`${hp.value/hp.max*100}%`;
 			hpsubbar.style.height = "100%";
-			hpsubbar.style.backgroundColor = "red";
+			hpsubbar.style.backgroundColor = barColors.hp;
 			hpsubbar.style.clipPath = `polygon(0% 0%, ${hppercent*100}% 0%, calc(${(hppercent*100)}% - ${cornercut}px) 100%, 0% 100%)`;
 			hpsubbar.style.opacity = "0.9";
 			hpsubbar.style.position = "absolute";
@@ -234,7 +297,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const tempsubbar = document.createElement("div");
 			tempsubbar.style.width = "100%"//`${hp.temp/hp.max*100}%`;
 			tempsubbar.style.height = `${tempheightpart * 100}%`;
-			tempsubbar.style.backgroundColor = "blue";
+			tempsubbar.style.backgroundColor = barColors.shield;
 			tempsubbar.style.clipPath = `polygon(0% 0%, ${temppercent*100}% 0%, calc(${(temppercent*100)}% - ${cornercut*tempheightpart}px) 100%, 0% 100%)`;
 			tempsubbar.style.opacity = "0.9";
 			tempsubbar.style.position = "absolute";
@@ -249,6 +312,11 @@ Hooks.on("argonInit", async (CoreHUD) => {
 
 			bars.appendChild(spbar);
 			bars.appendChild(hpbar);
+			
+			//bottom left
+			bars.style.left = "0px";
+			bars.style.bottom = "0px";
+			bars.style.zIndex = "10"; //to front
 			
 			//labels
 			const fontsize = 2;//em
@@ -291,14 +359,77 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			return bars;
 		}
 		
+		async getBarsShip() {
+			const widthscale = game.settings.get(ModuleName, "HealthBarWidthScale");
+			const heightscale = game.settings.get(ModuleName, "HealthBarHeightScale");
+			
+			//probably better as css classes, but oh well
+			const bars = document.createElement("div");
+			bars.style.width = `${50*widthscale}%`;
+			bars.style.height = `${60*heightscale}px`;
+			bars.style.position = "absolute";
+			
+			let hp = this.actor.system.hp;
+			let shields = this.actor.system.shields;
+			let aft = this.actor.system.quadrants.aft;
+			let forward = this.actor.system.quadrants.forward;
+			let port = this.actor.system.quadrants.port;
+			let starboard = this.actor.system.quadrants.starboard;
+			
+			//shields
+			//stamina
+			const shieldbar = document.createElement("div");
+			shieldbar.style.width = "100%";
+			shieldbar.style.height = "100%";
+			shieldbar.style.position = "relative";
+			shieldbar.style.clipPath = `polygon(0% 67%, 33% 100%, 67% 100%, 100% 67%, 100% 33%, 67% 0%, 33% 0%, 0% 33%, 0% 67%)`;
+
+			const shieldbackground = document.createElement("div");
+			shieldbackground.style.width = "100%";
+			shieldbackground.style.height = "100%";
+			shieldbackground.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+			shieldbackground.style.opacity = "0.7";
+			shieldbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
+			
+			const sppercent = sp?.max ? sp?.value/sp.max : 0;
+			const shieldsubbar = document.createElement("div");
+			shieldsubbar.style.width = "100%"//`${sp.value/sp.max*100}%`;
+			shieldsubbar.style.height = "100%";
+			shieldsubbar.style.backgroundColor = "darkOrange";
+			shieldsubbar.style.opacity = "0.9";
+			shieldsubbar.style.position = "absolute";
+			shieldsubbar.style.top = "0";
+			shieldsubbar.style.left = "0";
+			
+			shieldbar.appendChild(shieldbackground);
+			shieldbar.appendChild(shieldsubbar);
+			
+			bars.appendChild(shieldbar);
+			
+			//bottom middle
+			bars.style.left = "50%";
+			bars.style.bottom = "0px";
+			bars.style.zIndex = "10"; //to front
+			
+			return bars;
+		}
+		
 		async _renderInner(data) {
 			await super._renderInner(data);
 			
-			const bars = await this.getBars();
+			let bars;
+			switch (this.actor.type) {
+				case "character":
+				case "npc":
+				case "npc2":
+				case "drone":
+					bars = await this.getBarsCreature();
+					break;
+				case "starship":
+					bars = await this.getBarsShip();
+					break;
+			}
 			this.element.appendChild(bars);
-			bars.style.left = "0px";
-			bars.style.bottom = "0px";
-			bars.style.zIndex = "10"; //to front
 			
 			const height = 1.6;
 			let bottom = 0;
@@ -320,125 +451,136 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		get categories() {
-			const abilities = this.actor.system.abilities;
-			const saves = Object.fromEntries(["fort", "reflex", "will"].map(key => [key, this.actor.system.attributes[key]]));
-			const skills = this.actor.system.skills;
+			let actor;
 			
-			let validskills = {};
-			
-			for (const key of Object.keys(skills)) {
-				if (!skills[key].isTrainedOnly || skills[key].ranks > 0) {
-					validskills[key] = skills[key]
-				}
+			switch (this.actor.type) {
+				case "starship":
+					break;
+				default:
+					actor = this.actor;
 			}
-
-			const abilitiesbuttons = Object.keys(abilities).map((ability) => {
-				const abilitiedata = abilities[ability];
-				
-				let valueLabel = `<span style="margin: 0 1rem">${abilitiedata.mod > 0 ? "+" : "" }${abilitiedata.mod}</span>`;
-				
-				let icon = "";
-				
-				if (this.actor.system.classes && Object.values(this.actor.system.classes).find(value => value.keyAbilityScore == ability)) {
-					icon = ` <i class="fa-solid fa-star"></i>`;
-				}
-				
-				return new ARGON.DRAWER.DrawerButton([
-					{
-						label: CONFIG.SFRPG.abilities[ability] + icon,
-						onClick: () => {this.actor.rollAbility(ability)}
-					},
-					{
-						label: valueLabel,
-						onClick: () => {this.actor.rollAbility(ability)},
-						style: "display: flex; justify-content: flex-end;"
-					}
-				]);
-			});
 			
-			const savesbuttons = Object.keys(saves).map((save) => {
-				const savedata = saves[save];
-				
-				let valueLabel = `<span style="margin: 0 1rem">${savedata.bonus > 0 ? "+" : "" }${savedata.bonus}</span>`;
-				
-				return new ARGON.DRAWER.DrawerButton([
-					{
-						label: CONFIG.SFRPG.saves[save],
-						onClick: () => {this.actor.rollSave(save)}
-					},
-					{
-						label: valueLabel,
-						label: valueLabel,
-						onClick: () => {this.actor.rollSave(save)},
-						style: "display: flex; justify-content: flex-end;"
-					}
-				]);
-			});
-			
-			
-			let skillsButtons = Object.keys(validskills).map((skill) => {
-				const skillData = validskills[skill];
-				
-				let valueLabel = `${skillData.mod > 0 ? "+" : "" }${skillData.mod}<span style="margin: 0 1rem; filter: brightness(0.8)">(${validskills[skill].ranks})</span>`;
-				
-				return new ARGON.DRAWER.DrawerButton([
-					{
-						label: CONFIG.SFRPG.skills[skill],
-						onClick: () => {this.actor.rollSkill(skill)}
-					},
-					{
-						label: valueLabel,
-						onClick: () => {this.actor.rollSkill(skill)},
-						style: "display: flex; justify-content: flex-end;"
-					},
-				]);
-			});
-
 			let returncategories = [];
+			
+			if (actor) {
+				const abilities = actor.system.abilities;
+				const saves = Object.fromEntries(["fort", "reflex", "will"].map(key => [key, actor.system.attributes[key]]));
+				const skills = actor.system.skills;
+				
+				let validskills = {};
+				
+				for (const key of Object.keys(skills)) {
+					if (!skills[key].isTrainedOnly || skills[key].ranks > 0) {
+						validskills[key] = skills[key]
+					}
+				}
 
-			if (abilitiesbuttons.length) {
-				returncategories.push({
-					gridCols: "7fr 2fr",
-					captions: [
+				const abilitiesbuttons = Object.keys(abilities).map((ability) => {
+					const abilitiedata = abilities[ability];
+					
+					let valueLabel = `<span style="margin: 0 1rem">${abilitiedata.mod > 0 ? "+" : "" }${abilitiedata.mod}</span>`;
+					
+					let icon = "";
+					
+					if (actor.system.classes && Object.values(actor.system.classes).find(value => value.keyAbilityScore == ability)) {
+						icon = ` <i class="fa-solid fa-star"></i>`;
+					}
+					
+					return new ARGON.DRAWER.DrawerButton([
 						{
-							label: game.i18n.localize("SFRPG.Attributes"),
+							label: CONFIG.SFRPG.abilities[ability] + icon,
+							onClick: () => {actor.rollAbility(ability)}
 						},
 						{
-							label: game.i18n.localize("SFRPG.Rolls.Dice.Roll"),
-						},
-					],
-					buttons: abilitiesbuttons
-				});
-			}
-			
-			if (savesbuttons.length) {
-				returncategories.push({
-					gridCols: "7fr 2fr",
-					captions: [
-						{
-							label: game.i18n.localize("SFRPG.DroneSheet.Chassis.Details.Saves.Header"),
-						},
-						{
-							label: "",
-						},
-					],
-					buttons: savesbuttons
-				});
-			}
-			
-			if (skillsButtons.length) {
-				returncategories.push({
-					gridCols: "7fr 2fr",
-					captions: [
-						{
-							label: game.i18n.localize("SFRPG.SkillsToggleHeader"),
-						},
-						{
-							label: "",
+							label: valueLabel,
+							onClick: () => {actor.rollAbility(ability)},
+							style: "display: flex; justify-content: flex-end;"
 						}
-					],
-					buttons: skillsButtons,
+					]);
 				});
+				
+				const savesbuttons = Object.keys(saves).map((save) => {
+					const savedata = saves[save];
+					
+					let valueLabel = `<span style="margin: 0 1rem">${savedata.bonus > 0 ? "+" : "" }${savedata.bonus}</span>`;
+					
+					return new ARGON.DRAWER.DrawerButton([
+						{
+							label: CONFIG.SFRPG.saves[save],
+							onClick: () => {actor.rollSave(save)}
+						},
+						{
+							label: valueLabel,
+							label: valueLabel,
+							onClick: () => {actor.rollSave(save)},
+							style: "display: flex; justify-content: flex-end;"
+						}
+					]);
+				});
+				
+				
+				let skillsButtons = Object.keys(validskills).map((skill) => {
+					const skillData = validskills[skill];
+					
+					let valueLabel = `${skillData.mod > 0 ? "+" : "" }${skillData.mod}<span style="margin: 0 1rem; filter: brightness(0.8)">(${validskills[skill].ranks})</span>`;
+					
+					return new ARGON.DRAWER.DrawerButton([
+						{
+							label: CONFIG.SFRPG.skills[skill],
+							onClick: () => {actor.rollSkill(skill)}
+						},
+						{
+							label: valueLabel,
+							onClick: () => {actor.rollSkill(skill)},
+							style: "display: flex; justify-content: flex-end;"
+						},
+					]);
+				});
+
+				if (abilitiesbuttons.length) {
+					returncategories.push({
+						gridCols: "7fr 2fr",
+						captions: [
+							{
+								label: game.i18n.localize("SFRPG.Attributes"),
+							},
+							{
+								label: game.i18n.localize("SFRPG.Rolls.Dice.Roll"),
+							},
+						],
+						buttons: abilitiesbuttons
+					});
+				}
+				
+				if (savesbuttons.length) {
+					returncategories.push({
+						gridCols: "7fr 2fr",
+						captions: [
+							{
+								label: game.i18n.localize("SFRPG.DroneSheet.Chassis.Details.Saves.Header"),
+							},
+							{
+								label: "",
+							},
+						],
+						buttons: savesbuttons
+					});
+				}
+				
+				if (skillsButtons.length) {
+					returncategories.push({
+						gridCols: "7fr 2fr",
+						captions: [
+							{
+								label: game.i18n.localize("SFRPG.SkillsToggleHeader"),
+							},
+							{
+								label: "",
+							}
+						],
+						buttons: skillsButtons,
+					});
+				}
 			}
 			
 			return returncategories;
@@ -1095,7 +1237,14 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		get movementMax() {
-			return this.actor.system.attributes.speed[this.movementtype].value / canvas.scene.dimensions.distance;
+			switch (this.actor.type) {
+				case "starship":
+					return null;
+					break;
+				default:
+					return this.actor.system.attributes.speed[this.movementtype].value / canvas.scene.dimensions.distance;
+					break;
+			}
 		}
 		
 		get movementtype() {
@@ -1481,5 +1630,5 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	CoreHUD.defineMovementHud(StarfinderMovementHud);
 	CoreHUD.defineButtonHud(StarfinderButtonHud);
     CoreHUD.defineWeaponSets(StarfinderWeaponSets);
-	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2" /*, "starship", "vehicle" */]);
+	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2"/*, "starship" /*, "starship", "vehicle" */]);
 });

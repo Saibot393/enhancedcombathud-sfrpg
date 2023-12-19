@@ -7,7 +7,7 @@
     "name": "saibot"
     }
   ],
-  "version": "1.1.5",
+  "version": "1.1.6",
   "compatibility": {
     "minimum": "11",
     "verified": "11"
@@ -55,7 +55,7 @@
 	"verified": "11"
   },
   "url": "https://github.com/Saibot393/enhancedcombathud-sfrpg",
-  "download": "https://github.com/Saibot393/enhancedcombathud-sfrpg/archive/refs/tags/v1.1.5.zip",
+  "download": "https://github.com/Saibot393/enhancedcombathud-sfrpg/archive/refs/tags/v1.1.6.zip",
   "manifest": "https://github.com/Saibot393/enhancedcombathud-sfrpg/releases/latest/download/module.json",
   "readme": "https://github.com/Saibot393/enhancedcombathud-sfrpg/blob/main/README.md",
   "changelog": "https://github.com/Saibot393/enhancedcombathud-sfrpg/blob/main/CHANGELOG.md",
