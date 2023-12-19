@@ -54,6 +54,35 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 	}
 	
+	function armsof(actor) {
+		let attributes = actor?.system.attributes;
+		
+		switch(actor?.type) {
+			case "character":
+			case "npc":
+			case "npc2":
+				return attributes?.arms
+				break;
+			case "drone":
+				let arms = 0;
+				
+				if (attributes?.arms) {
+					arms = arms + attributes.arms;
+				}
+				
+				if (attributes?.weaponMounts?.melee) {
+					arms = arms + attributes.weaponMounts.melee.max;
+				}
+				
+				if (attributes?.weaponMounts?.ranged) {
+					arms = arms + attributes.weaponMounts.ranged.max;
+				}
+				
+				return arms;
+				break;
+		}
+	}
+	
 	//for ammunition updates
 	function onUpdateItemadditional(item) {
 		if (item.parent !== ui.ARGON._actor) return;
@@ -452,7 +481,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		
 		async _getButtons() {
 			const specialActions = Object.values(StarfinderECHActionItems);
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 			
 			let buttons = [];
 			
@@ -603,7 +632,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _getButtons() {
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 
 			let buttons = [];
 			
@@ -741,7 +770,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _onSetChange({sets, active}) {
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 			const activeSet = sets[active];
 			let item = activeSet[this.slotnumber];
 			
@@ -1186,7 +1215,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 	
 		async _getSets() { //overwrite because slots.primary/secondary contains id, not uuid
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 			
 			const sets = mergeObject(await this.getDefaultSets(), deepClone(this.actor.getFlag("enhancedcombathud", "weaponSets") || {}));
 
@@ -1209,7 +1238,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async getDefaultSets() {
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 			
 			const activeweapons = this.actor.items.filter((item) => item.type == "weapon");
 			
@@ -1266,7 +1295,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async setfixedsets(sets, set, slot) {
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 			const isprimary = (slot%2 == 1);
 			const neighborslot = isprimary ? Number(slot)+1 : Number(slot)-1;
 			const hasneighborslot = (arms%2 == 0) || (slot < arms-1);
@@ -1360,7 +1389,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _renderInner() {
 			const sizefactor = 50; //px
 			
-			const arms = this.actor?.system.attributes.arms;
+			const arms = armsof(this.actor);
 			const setdata = await this._getSets();
 			
 			let maindiv = document.createElement("div");
@@ -1378,16 +1407,22 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					
 				while (armscounter < arms) {
 					let rowdiv = document.createElement("div");
-					rowdiv.classList.add("weapon-set")
-					if (armscounter == 0) {
-						rowdiv.classList.add("weapon-set-buttoncorrection");
+					rowdiv.classList.add("weapon-set");
+					if (arms == 1) {
+						rowdiv.classList.add("weapon-set-singleslotselect");
 					}
 					else {
-						rowdiv.classList.add("weapon-set-nobutton");
-					}
-					if (arms - armscounter == 1) {
-						rowdiv.style.width = `${sizefactor}px`;
-						rowdiv.classList.add("weapon-set-nobutton-single");
+						if (armscounter == 0) {
+							rowdiv.classList.add("weapon-set-buttoncorrection");
+						}
+						else {
+							rowdiv.classList.add("weapon-set-nobutton");
+						}
+						
+						if (arms - armscounter == 1) {
+							rowdiv.style.width = `${sizefactor}px`;
+							rowdiv.classList.add("weapon-set-nobutton-single");
+						}
 					}
 					rowdiv.setAttribute("data-type", "switchWeapons");
 					rowdiv.setAttribute("data-set", i);
