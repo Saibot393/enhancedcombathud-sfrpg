@@ -1,3 +1,6 @@
+## v1.1.5
+- Fixed and improved drone weapon sets
+
 ## v1.1.4
 - Fixed localizations problem
 
