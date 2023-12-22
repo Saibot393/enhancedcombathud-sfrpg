@@ -1,3 +1,7 @@
+## v1.1.6
+- Stamina will no longer be shown for drones
+- Plants, undead, constructs and drones now have their own hp bar color (just a bit of visual flair)
+
 ## v1.1.5
 - Fixed and improved drone weapon sets
 
