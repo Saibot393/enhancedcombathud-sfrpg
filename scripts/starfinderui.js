@@ -455,6 +455,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			switch (this.actor.type) {
 				case "starship":
+					actor = game.user.character;
 					break;
 				default:
 					actor = this.actor;
@@ -622,29 +623,36 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _getButtons() {
-			const specialActions = Object.values(StarfinderECHActionItems);
-			const arms = armsof(this.actor);
-			
 			let buttons = [];
 			
-			for (let i = 1; i <= arms; i++) {
-				buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+			switch(this.actor) {
+				case "starship":
+					break;
+				default:
+					const arms = armsof(this.actor);
+					
+					const specialActions = Object.values(StarfinderECHActionItems);
+					
+					for (let i = 1; i <= arms; i++) {
+						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+					}
+					
+					buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver", item : specialActions[0]}), new StarfinderSpecialActionButton(specialActions[1])));
+					
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+					
+					buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+					
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+					
+					buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[4]), new StarfinderSpecialActionButton(specialActions[5])));
+					
+					//to solve update bug
+					ui.ARGON?.components.weaponSets?.startUpdate();
+					break;
 			}
-			
-			buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver", item : specialActions[0]}), new StarfinderSpecialActionButton(specialActions[1])));
-			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
-			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
-			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[4]), new StarfinderSpecialActionButton(specialActions[5])));
-			
-			//to solve update bug
-			ui.ARGON?.components.weaponSets?.startUpdate();
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -682,18 +690,24 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _getButtons() {
-			const specialActions = Object.values(StarfinderECHMoveItems);
-
 			let buttons = [];
 			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+			switch(this.actor) {
+				case "starship":
+					break;
+				default:
+					const specialActions = Object.values(StarfinderECHMoveItems);
 			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
-			
-			buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+					buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+					
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+					
+					buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+					break;
+			}
 			 
 			return buttons.filter(button => button.isvalid);
 		}
@@ -732,11 +746,17 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			if (game.settings.get(ModuleName, "ShowSwiftActions")) {
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+			switch(this.actor) {
+				case "starship":
+					break;
+				default:
+					if (game.settings.get(ModuleName, "ShowSwiftActions")) {
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+					}
+					break;
 			}
 			
 			return buttons.filter(button => button.isvalid);
@@ -774,21 +794,27 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _getButtons() {
-			const arms = armsof(this.actor);
-
 			let buttons = [];
 			
-			for (let i = 1; i <= arms; i++) {
-				buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+			switch(this.actor) {
+				case "starship":
+					break;
+				default:
+					const arms = armsof(this.actor);
+					
+					for (let i = 1; i <= arms; i++) {
+						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+					}
+					
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+					
+					//to solve update bug
+					ui.ARGON?.components.weaponSets?.startUpdate();
+					break;
 			}
-			
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-			buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
-			
-			//to solve update bug
-			ui.ARGON?.components.weaponSets?.startUpdate();
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -819,17 +845,23 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			if (game.settings.get(ModuleName, "ShowFullActions")) {
-				const specialActions = Object.values(StarfinderECHFullItems);
-				
-				buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
-				
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
-				buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
-				
-				buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+			switch(this.actor) {
+				case "starship":
+					break;
+				default:
+					if (game.settings.get(ModuleName, "ShowFullActions")) {
+						const specialActions = Object.values(StarfinderECHFullItems);
+						
+						buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[0]), new StarfinderSpecialActionButton(specialActions[1])));
+						
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
+						buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
+						
+						buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[2]), new StarfinderSpecialActionButton(specialActions[3])));
+					}
+					break;
 			}
 			
 			return buttons.filter(button => button.isvalid);
