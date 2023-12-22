@@ -1,6 +1,21 @@
 import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions} from "./specialItems.js";
 import {ModuleName, getTooltipDetails} from "./utils.js";
 
+const nominalicon = "fa-check";
+const glitchicon = "fa-bug";
+const malfunctionicon = "fa-exclamation";
+const wreckedicon = "fa-xmark";
+
+const lifesupporticon = "fa-heart-pulse";
+const sensoricon = "fa-satellite-dish";
+const engineicon = "fa-rocket";
+const powericon = "fa-bolt";
+
+const forwardicon = "fa-up-long";
+const afticon = "fa-down-long";
+const starboardicon = "fa-right-long";
+const porticon = "fa-left-long";
+
 Hooks.on("argonInit", async (CoreHUD) => {
     const ARGON = CoreHUD.ARGON;
   
