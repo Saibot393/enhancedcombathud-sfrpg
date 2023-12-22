@@ -380,6 +380,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			const totalwidth = 60;//%
 			const widthscale = game.settings.get(ModuleName, "HealthBarWidthScale");
 			const heightscale = game.settings.get(ModuleName, "HealthBarHeightScale");
+			const minscale = Math.min(widthscale, heightscale);
 			
 			//probably better as css classes, but oh well
 			const bars = document.createElement("div");
@@ -493,6 +494,25 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			bars.appendChild(shieldbar);
 			bars.appendChild(hpbar);
+			
+			//labels
+			const fontsize = 1.1;//em
+			
+			const hplabel = document.createElement("span");
+			hplabel.innerHTML = `${hp.value}/${hp.max} HP`;
+			hplabel.style.top = "0";
+			hplabel.style.position = "absolute";
+			hplabel.style.zIndex = "20";
+			hplabel.style.width = "100%";
+			hplabel.style.height = "100%";
+			hplabel.style.textAlign = "center";
+			hplabel.style.top = `calc(50% - 0.55em)`;
+			hplabel.style.fontSize = `${fontsize * minscale}em`;
+			hplabel.style.color = "white";
+			hplabel.style.textShadow = "grey 1px 1px 10px";
+			if (hp?.max) {
+				hpbar.appendChild(hplabel);
+			}
 			
 			//bottom middle
 			bars.style.left = `${(100-totalwidth*widthscale)/2}%`;
