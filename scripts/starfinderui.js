@@ -148,6 +148,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async getStatBlocks() {
 			let Blocks = [];
 			
+			/*
 			const colors = {
 				eac: "DeepSkyBlue",
 				kac: "LightSteelBlue"
@@ -169,6 +170,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					},
 				]);
 			}
+			*/
 			
 			return Blocks;
 		}
@@ -528,6 +530,43 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			return bars;
 		}
 		
+		async getsideStatBlocks() {
+			const colors = {
+				eac: "DeepSkyBlue",
+				kac: "LightSteelBlue"
+			};
+			
+			let attributes = this.actor.system.attributes;
+			
+			let Blocks = {left : [], right : []};
+			
+			switch (this.actor.type) {
+				case "character":
+				case "npc":
+				case "npc2":
+				case "drone":
+					for (const key of ["kac", "eac"]) {
+						let aclabel = CONFIG.SFRPG.modifierArmorClassAffectedValues[key];
+						
+						let aclabelshortened = [aclabel.split(" ")[0][0], aclabel.split(" ")[1]].join("");
+						
+						Blocks["right"].push([
+							{
+								text: aclabelshortened,
+								id : key
+							},
+							{
+								text: this.actor.system.attributes[key]?.value,
+								color: colors[key],
+							},
+						]);
+					}
+					break;
+			}
+			
+			return Blocks;
+		}
+		
 		async _renderInner(data) {
 			await super._renderInner(data);
 			
@@ -545,16 +584,44 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 			this.element.appendChild(bars);
 			
+			const statBlocks = await this.getsideStatBlocks();
 			const height = 1.6;
-			let bottom = 0;
-			for (const key of ["eac", "kac"]) {
-				let armorblock = this.element.querySelector(`#${key}`)?.parentElement;
-				
-				armorblock.style.right = "0";
-				armorblock.style.position = "absolute";
-				armorblock.style.bottom = `${bottom}em`;
-				armorblock.style.height = `${height}em`;
-				bottom = bottom + height;
+			for (const position of ["left", "right"]) {
+				if (statBlocks[position].length) {
+					const sb = document.createElement("div");
+					
+					sb.style = `position : absolute;${position} : 0px`;
+					
+					for (const block of statBlocks[position]) {
+						const sidesb = document.createElement("div");
+						sidesb.classList.add("portrait-stat-block");
+						sidesb.style.paddingLeft = "0.35em";
+						sidesb.style.paddingRight = "0.35em";
+						sidesb.style.height = `${height}em`;
+						for (const stat of block) {
+							if (!stat.position) {
+								let displayer;
+								if (stat.isinput) {
+									displayer = document.createElement("input");
+									displayer.type = stat.inputtype; 
+									displayer.value = stat.text;
+									displayer.style.width = "1.5em";
+									displayer.style.color = "#ffffff";
+									displayer.onchange = () => {stat.changevent(displayer.value)};
+								}
+								else {
+									displayer = document.createElement("span");
+									displayer.innerText = stat.text;
+								}
+								displayer.id = stat.id;
+								displayer.style.color = stat.color;
+								sidesb.appendChild(displayer);
+							}
+						}
+						sb.appendChild(sidesb);
+					}
+					this.element.appendChild(sb);
+				}
 			}
 		}
 	}
