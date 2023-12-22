@@ -121,19 +121,30 @@ Hooks.on("argonInit", async (CoreHUD) => {
     class StarfinderPortraitPanel extends ARGON.PORTRAIT.PortraitPanel {
 		constructor(...args) {
 			super(...args);
-			
-			this._role = "captain";
+
+			if (game.user.character?.getFlag(ModuleName, "starshiprole")) {
+				this._role = game.user.character.getFlag(ModuleName, "starshiprole");
+			}
+			else {
+				this._role = "captain";
+			}
 		}
 		
 		get role() {
+			if (game.user.character?.getFlag(ModuleName, "starshiprole")) {
+				return game.user.character.getFlag(ModuleName, "starshiprole");
+			}
 			return this._role;
 		}
 		
 		set role(value) {
 			this._role = value;
 			
+			game.user.character?.setFlag(ModuleName, "starshiprole", value)
+			
 			if (this.actor.type == "starship") {
-				this.render();
+				ui.ARGON.components.portrait.render();
+				ui.ARGON.components.main[0].render();
 			}
 		}
 
@@ -700,7 +711,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						sidesb.style.paddingRight = "0.35em";
 						sidesb.style.height = `${height}em`;
 						for (const stat of block) {
-							console.log(stat);
 							if (!stat.position) {
 								let displayer;
 								if (stat.isinput) {
@@ -752,7 +762,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					const roleoption = document.createElement("option");
 					roleoption.value = role;
 					roleoption.innerHTML = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
-					roleoption.checked = (role == this.role);
+					roleoption.selected = (role == this.role);
 					roleoption.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
 					roleoption.style.width = "200px";
 					roleoption.style.height = "20px";
@@ -921,24 +931,21 @@ Hooks.on("argonInit", async (CoreHUD) => {
     class StarfinderStandardActionPanel extends ARGON.MAIN.ActionPanel {
 		constructor(...args) {
 			super(...args);
-			
-			this._role = "captain";
 		}
 		
 		get role() {
-			return this._role;
-		}
-		
-		set role(value) {
-			this._role = value;
-			
-			if (this.actor.type == "starship") {
-				this.render();
-			}
+			return ui.ARGON.components?.portrait.role;
 		}
 
 		get label() {
-			return ModuleName+".Titles.StandardAction";
+			switch (this.actor.type) {
+				case "starship":
+					return CONFIG.SFRPG.starshipRoleNames[this.role];
+					break;
+				default:
+					return ModuleName+".Titles.StandardAction";
+					break;
+			}
 		}
 		
 		get maxActions() {
@@ -1002,36 +1009,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 			
 			return buttons.filter(button => button.isvalid);
-		}
-		
-		async _renderInner() {
-			await super._renderInner();
-			
-			if (this.actor.type == "starship") {
-				const roleselect = document.createElement("select");
-				roleselect.id = "roleselect";
-				roleselect.style.width = "10%";
-				roleselect.style.color = "white";
-				
-				for (const role of Object.keys(CONFIG.SFRPG.starshipRoleNames)) {
-					const roleoption = document.createElement("option");
-					roleoption.value = role;
-					roleoption.innerHTML = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
-					roleoption.checked = (role == this.role);
-					roleoption.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
-					roleoption.style.width = "200px";
-					roleoption.style.height = "20px";
-					roleoption.style.backgroundColor = "grey";
-					
-					roleselect.appendChild(roleoption);
-				}
-				
-				roleselect.style.position = "absolute";
-				roleselect.style.bottom = "-25px";
-				roleselect.onchange = () => {this.role = roleselect.value};
-				
-				this.element.appendChild(roleselect);
-			}
 		}
     }
 	
