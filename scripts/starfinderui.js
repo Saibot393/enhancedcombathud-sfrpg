@@ -389,6 +389,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			let hp = this.actor.system.attributes.hp;
 			let shields = this.actor.system.attributes.shields;
+			let directions = this.actor.system.quadrants;
 			let aft = this.actor.system.quadrants.aft;
 			let forward = this.actor.system.quadrants.forward;
 			let port = this.actor.system.quadrants.port;
@@ -408,89 +409,60 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			shieldbackground.style.opacity = "0.7";
 			shieldbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
 			
-			//aft
-			const aftbackground = document.createElement("div");
-			aftbackground.style.width = "100%";
-			aftbackground.style.height = "33%";
-			aftbackground.style.position = "absolute";
-			aftbackground.style.bottom = "0";
-			aftbackground.style.clipPath = `polygon(67% 0%, 83.5% 50%, 67% 100%, 33% 100%, 16.5% 50%, 33% 0%, 67% 0%)`;
-			
-			const aftshieldsubbar = document.createElement("div");
-			aftshieldsubbar.style.width = "100%";
-			aftshieldsubbar.style.height = `${aft.shields.value/shields.limit * 100}%`;
-			aftshieldsubbar.style.right = "0%";
-			aftshieldsubbar.style.top = "0%";
-			aftshieldsubbar.style.position = "absolute";
-			aftshieldsubbar.style.backgroundColor = "#3498DB";
-			aftshieldsubbar.style.opacity = "1";
-			
-			aftbackground.appendChild(aftshieldsubbar);
-			
-			//forward
-			const forwardbackground = document.createElement("div");
-			forwardbackground.style.width = "100%";
-			forwardbackground.style.height = "33%";
-			forwardbackground.style.position = "absolute";
-			forwardbackground.style.top = "0";
-			forwardbackground.style.clipPath = `polygon(67% 0%, 83.5% 50%, 67% 100%, 33% 100%, 16.5% 50%, 33% 0%, 67% 0%)`;
-			
-			const forwardshieldsubbar = document.createElement("div");
-			forwardshieldsubbar.style.width = "100%";
-			forwardshieldsubbar.style.height = `${forward.shields.value/shields.limit * 100}%`;
-			forwardshieldsubbar.style.right = "0%";
-			forwardshieldsubbar.style.bottom = "0%";
-			forwardshieldsubbar.style.position = "absolute";
-			forwardshieldsubbar.style.backgroundColor = "#3498DB";
-			forwardshieldsubbar.style.opacity = "1";
-			
-			forwardbackground.appendChild(forwardshieldsubbar);
-			
-			//port
-			const portbackground = document.createElement("div");
-			portbackground.style.width = "33%";
-			portbackground.style.height = "100%";
-			portbackground.style.position = "absolute";
-			portbackground.style.top = "0";
-			portbackground.style.clipPath = `polygon(0% 67%, 50% 83.5%, 100% 67%, 100% 33%, 50% 16.5%, 0% 33%, 0% 67%)`;
-			
-			const portshieldsubbar = document.createElement("div");
-			portshieldsubbar.style.width = `${port.shields.value/shields.limit * 100}%`;
-			portshieldsubbar.style.height = "100%";
-			portshieldsubbar.style.right = "0%";
-			portshieldsubbar.style.top = "0%";
-			portshieldsubbar.style.position = "absolute";
-			portshieldsubbar.style.backgroundColor = "#3498DB";
-			portshieldsubbar.style.opacity = "1";
-			
-			portbackground.appendChild(portshieldsubbar);
-			
-			//starboard
-			const starboardbackground = document.createElement("div");
-			starboardbackground.style.width = "33%";
-			starboardbackground.style.height = "100%";
-			starboardbackground.style.position = "absolute";
-			starboardbackground.style.top = "0";
-			starboardbackground.style.right = "0";
-			starboardbackground.style.clipPath = `polygon(0% 67%, 50% 83.5%, 100% 67%, 100% 33%, 50% 16.5%, 0% 33%, 0% 67%)`;
-			
-			const starboardshieldsubbar = document.createElement("div");
-			starboardshieldsubbar.style.width = `${starboard.shields.value/shields.limit * 100}%`;
-			starboardshieldsubbar.style.height = "100%";
-			starboardshieldsubbar.style.left = "0%";
-			starboardshieldsubbar.style.top = "0%";
-			starboardshieldsubbar.style.position = "absolute";
-			starboardshieldsubbar.style.backgroundColor = "#3498DB";
-			starboardshieldsubbar.style.opacity = "1";
-			
-			starboardbackground.appendChild(starboardshieldsubbar);
-			
 			shieldbar.appendChild(shieldbackground);
-			shieldbar.append(aftbackground);
-			shieldbar.append(forwardbackground);
-			shieldbar.append(portbackground);
-			shieldbar.append(starboardbackground);
-			//shieldbar.appendChild(shieldsubbar);
+			
+			const directionbackground = {};
+			const shieldsubbar = {};
+			for (const direction of ["aft", "forward", "port", "starboard"]) {
+				directionbackground[direction] = document.createElement("div");
+				directionbackground[direction].style.position = "absolute";
+				directionbackground[direction].style.top = "0";
+				directionbackground[direction].style.left = "0";
+				switch (direction) {
+					case "aft":
+						directionbackground[direction].style.top = "";
+						directionbackground[direction].style.bottom = "0";
+					case "forward":
+						directionbackground[direction].style.width = "100%";
+						directionbackground[direction].style.height = "33%";
+						directionbackground[direction].style.clipPath = `polygon(67% 0%, 83.5% 50%, 67% 100%, 33% 100%, 16.5% 50%, 33% 0%, 67% 0%)`;
+						break;
+					case "starboard":
+						directionbackground[direction].style.left = "";
+						directionbackground[direction].style.right = "0";
+					case "port":
+						directionbackground[direction].style.width = "33%";
+						directionbackground[direction].style.height = "100%";
+						directionbackground[direction].style.clipPath = `polygon(0% 67%, 50% 83.5%, 100% 67%, 100% 33%, 50% 16.5%, 0% 33%, 0% 67%)`;
+						break;
+				}
+				
+				shieldsubbar[direction] = document.createElement("div");
+				shieldsubbar[direction].style.top = "0";
+				shieldsubbar[direction].style.left = "0";
+				shieldsubbar[direction].style.position = "absolute";
+				shieldsubbar[direction].style.backgroundColor = "#3498DB";
+				shieldsubbar[direction].style.opacity = "1";
+				switch (direction) {
+					case "forward":
+						shieldsubbar[direction].style.top = "";
+						shieldsubbar[direction].style.bottom = "0";
+					case "aft":
+						shieldsubbar[direction].style.width = "100%";
+						shieldsubbar[direction].style.height = `${directions[direction].shields.value/shields.limit * 100}%`;
+						break;
+					case "port":
+						shieldsubbar[direction].style.left = "";
+						shieldsubbar[direction].style.right = "0";
+					case "starboard":
+						shieldsubbar[direction].style.width = `${directions[direction].shields.value/shields.limit * 100}%`;
+						shieldsubbar[direction].style.height = "100%";
+						break;
+				}
+				
+				directionbackground[direction].appendChild(shieldsubbar[direction]);
+				shieldbar.append(directionbackground[direction]);
+			}
 			
 			//hull points
 			const hpbar = document.createElement("div");
@@ -610,8 +582,16 @@ Hooks.on("argonInit", async (CoreHUD) => {
 									displayer.onchange = () => {stat.changevent(displayer.value)};
 								}
 								else {
-									displayer = document.createElement("span");
-									displayer.innerText = stat.text;
+								displayer = document.createElement("span");
+								displayer.innerText = ``;
+								if (stat.text) {
+									displayer.innerText = displayer.innerText + stat.text;
+								}
+								if (stat.icon) {
+									let icon = document.createElement("i");
+									icon.classList.add(...stat.icon);
+									displayer.appendChild(icon);
+								}
 								}
 								displayer.id = stat.id;
 								displayer.style.color = stat.color;
