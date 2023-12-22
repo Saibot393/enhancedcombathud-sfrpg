@@ -399,4 +399,43 @@ function findTextunderHeader(htmlText, header) {
 	return "";
 }
 
-export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers}
+async function starshipactions(role) {
+	const starshipPackKey = game.settings.get("sfrpg", "starshipActionsSource");
+    const starshipActionsPack = game.packs.get(starshipPackKey);
+	const indexes = await starshipActionsPack.getIndex();
+
+	let roleActions = [];
+	
+	for (const index of indexes) {
+		const action = await starshipActionsPack.getDocument(index._id);
+		
+		if (action.system?.role == role) {
+			const localcopy = duplicate(action); //copy to modify
+			
+			localcopy.img = shipActionImage(localcopy);
+			localcopy.flags = {[ModuleName] : {onclick : shipActionAutomation(localcopy)}};
+
+			roleActions.push(localcopy);
+		}
+	}
+	
+	return roleActions;
+}
+
+function shipActionImage(shipAction) {
+	switch(shipAction.id) {
+		default: return "icons/svg/mystery-man.svg";
+	}
+}
+
+function shipActionAutomation(shipAction) {
+	switch(shipAction.id) {
+		default: return () => {};
+	}
+}
+
+function defaultaction(role) {
+	
+}
+
+export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions}

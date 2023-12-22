@@ -1,4 +1,4 @@
-import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers} from "./specialItems.js";
+import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions} from "./specialItems.js";
 import {ModuleName, getTooltipDetails} from "./utils.js";
 
 Hooks.on("argonInit", async (CoreHUD) => {
@@ -360,24 +360,24 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async getBarsShip() {
+			const totalwidth = 60;//%
 			const widthscale = game.settings.get(ModuleName, "HealthBarWidthScale");
 			const heightscale = game.settings.get(ModuleName, "HealthBarHeightScale");
 			
 			//probably better as css classes, but oh well
 			const bars = document.createElement("div");
-			bars.style.width = `${50*widthscale}%`;
-			bars.style.height = `${60*heightscale}px`;
+			bars.style.width = `${totalwidth*widthscale}%`;
+			bars.style.height = `${75*heightscale}px`;
 			bars.style.position = "absolute";
 			
-			let hp = this.actor.system.hp;
-			let shields = this.actor.system.shields;
+			let hp = this.actor.system.attributes.hp;
+			let shields = this.actor.system.attributes.shields;
 			let aft = this.actor.system.quadrants.aft;
 			let forward = this.actor.system.quadrants.forward;
 			let port = this.actor.system.quadrants.port;
 			let starboard = this.actor.system.quadrants.starboard;
 			
 			//shields
-			//stamina
 			const shieldbar = document.createElement("div");
 			shieldbar.style.width = "100%";
 			shieldbar.style.height = "100%";
@@ -391,23 +391,122 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			shieldbackground.style.opacity = "0.7";
 			shieldbackground.style.textShadow = "0 0 10px rgba(0,0,0,.7)";
 			
-			const sppercent = sp?.max ? sp?.value/sp.max : 0;
-			const shieldsubbar = document.createElement("div");
-			shieldsubbar.style.width = "100%"//`${sp.value/sp.max*100}%`;
-			shieldsubbar.style.height = "100%";
-			shieldsubbar.style.backgroundColor = "darkOrange";
-			shieldsubbar.style.opacity = "0.9";
-			shieldsubbar.style.position = "absolute";
-			shieldsubbar.style.top = "0";
-			shieldsubbar.style.left = "0";
+			//aft
+			const aftbackground = document.createElement("div");
+			aftbackground.style.width = "100%";
+			aftbackground.style.height = "33%";
+			aftbackground.style.position = "absolute";
+			aftbackground.style.bottom = "0";
+			aftbackground.style.clipPath = `polygon(67% 0%, 83.5% 50%, 67% 100%, 33% 100%, 16.5% 50%, 33% 0%, 67% 0%)`;
+			
+			const aftshieldsubbar = document.createElement("div");
+			aftshieldsubbar.style.width = "100%";
+			aftshieldsubbar.style.height = `${aft.shields.value/shields.limit * 100}%`;
+			aftshieldsubbar.style.right = "0%";
+			aftshieldsubbar.style.top = "0%";
+			aftshieldsubbar.style.position = "absolute";
+			aftshieldsubbar.style.backgroundColor = "#3498DB";
+			aftshieldsubbar.style.opacity = "1";
+			
+			aftbackground.appendChild(aftshieldsubbar);
+			
+			//forward
+			const forwardbackground = document.createElement("div");
+			forwardbackground.style.width = "100%";
+			forwardbackground.style.height = "33%";
+			forwardbackground.style.position = "absolute";
+			forwardbackground.style.top = "0";
+			forwardbackground.style.clipPath = `polygon(67% 0%, 83.5% 50%, 67% 100%, 33% 100%, 16.5% 50%, 33% 0%, 67% 0%)`;
+			
+			const forwardshieldsubbar = document.createElement("div");
+			forwardshieldsubbar.style.width = "100%";
+			forwardshieldsubbar.style.height = `${forward.shields.value/shields.limit * 100}%`;
+			forwardshieldsubbar.style.right = "0%";
+			forwardshieldsubbar.style.bottom = "0%";
+			forwardshieldsubbar.style.position = "absolute";
+			forwardshieldsubbar.style.backgroundColor = "#3498DB";
+			forwardshieldsubbar.style.opacity = "1";
+			
+			forwardbackground.appendChild(forwardshieldsubbar);
+			
+			//port
+			const portbackground = document.createElement("div");
+			portbackground.style.width = "33%";
+			portbackground.style.height = "100%";
+			portbackground.style.position = "absolute";
+			portbackground.style.top = "0";
+			portbackground.style.clipPath = `polygon(0% 67%, 50% 83.5%, 100% 67%, 100% 33%, 50% 16.5%, 0% 33%, 0% 67%)`;
+			
+			const portshieldsubbar = document.createElement("div");
+			portshieldsubbar.style.width = `${port.shields.value/shields.limit * 100}%`;
+			portshieldsubbar.style.height = "100%";
+			portshieldsubbar.style.right = "0%";
+			portshieldsubbar.style.top = "0%";
+			portshieldsubbar.style.position = "absolute";
+			portshieldsubbar.style.backgroundColor = "#3498DB";
+			portshieldsubbar.style.opacity = "1";
+			
+			portbackground.appendChild(portshieldsubbar);
+			
+			//starboard
+			const starboardbackground = document.createElement("div");
+			starboardbackground.style.width = "33%";
+			starboardbackground.style.height = "100%";
+			starboardbackground.style.position = "absolute";
+			starboardbackground.style.top = "0";
+			starboardbackground.style.right = "0";
+			starboardbackground.style.clipPath = `polygon(0% 67%, 50% 83.5%, 100% 67%, 100% 33%, 50% 16.5%, 0% 33%, 0% 67%)`;
+			
+			const starboardshieldsubbar = document.createElement("div");
+			starboardshieldsubbar.style.width = `${starboard.shields.value/shields.limit * 100}%`;
+			starboardshieldsubbar.style.height = "100%";
+			starboardshieldsubbar.style.left = "0%";
+			starboardshieldsubbar.style.top = "0%";
+			starboardshieldsubbar.style.position = "absolute";
+			starboardshieldsubbar.style.backgroundColor = "#3498DB";
+			starboardshieldsubbar.style.opacity = "1";
+			
+			starboardbackground.appendChild(starboardshieldsubbar);
 			
 			shieldbar.appendChild(shieldbackground);
-			shieldbar.appendChild(shieldsubbar);
+			shieldbar.append(aftbackground);
+			shieldbar.append(forwardbackground);
+			shieldbar.append(portbackground);
+			shieldbar.append(starboardbackground);
+			//shieldbar.appendChild(shieldsubbar);
+			
+			//hull points
+			const hpbar = document.createElement("div");
+			hpbar.style.width = "34%";
+			hpbar.style.height = "34%";
+			hpbar.style.position = "absolute";
+			hpbar.style.top = "33%";
+			hpbar.style.left = "33%";
+			
+			const hpbackground = document.createElement("div");
+			hpbackground.style.width = "100%";
+			hpbackground.style.height = "100%";
+			hpbackground.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+			hpbackground.style.opacity = "0.7";
+			hpbackground.style.border = "0.5px solid white";
+
+			const hpsubbar = document.createElement("div");
+			hpsubbar.style.width = `${hp.value/hp.max*100}%`;
+			hpsubbar.style.height = "100%";
+			hpsubbar.style.backgroundColor = "#9FA1A3";
+			hpsubbar.style.opacity = "0.9";
+			hpsubbar.style.position = "absolute";
+			hpsubbar.style.top = "0";
+			hpsubbar.style.left = "0";
+			
+			hpbar.append(hpbackground);
+			hpbar.append(hpsubbar);
 			
 			bars.appendChild(shieldbar);
+			bars.appendChild(hpbar);
 			
 			//bottom middle
-			bars.style.left = "50%";
+			bars.style.left = `${(100-totalwidth*widthscale)/2}%`;
 			bars.style.bottom = "0px";
 			bars.style.zIndex = "10"; //to front
 			
@@ -595,6 +694,20 @@ Hooks.on("argonInit", async (CoreHUD) => {
     class StarfinderStandardActionPanel extends ARGON.MAIN.ActionPanel {
 		constructor(...args) {
 			super(...args);
+			
+			this._role = "captain";
+		}
+		
+		get role() {
+			return this._role;
+		}
+		
+		set role(value) {
+			this._role = value;
+			
+			if (this.actor.type == "starship") {
+				this.render();
+			}
 		}
 
 		get label() {
@@ -624,14 +737,21 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		
 		async _getButtons() {
 			let buttons = [];
+			let specialActions;
 			
-			switch(this.actor) {
+			switch(this.actor.type) {
 				case "starship":
+					specialActions = await starshipactions(this.role);
+					
+					for (let i = 0; i < Math.ceil(specialActions.length/2); i++) {
+						buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[i*2]), new StarfinderSpecialActionButton(specialActions[i*2+1])));
+					}
+					
 					break;
 				default:
 					const arms = armsof(this.actor);
 					
-					const specialActions = Object.values(StarfinderECHActionItems);
+					specialActions = Object.values(StarfinderECHActionItems);
 					
 					for (let i = 1; i <= arms; i++) {
 						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
@@ -657,6 +777,35 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			return buttons.filter(button => button.isvalid);
 		}
 		
+		async _renderInner() {
+			await super._renderInner();
+			
+			if (this.actor.type == "starship") {
+				const roleselect = document.createElement("select");
+				roleselect.id = "roleselect";
+				roleselect.style.width = "10%";
+				roleselect.style.color = "white";
+				
+				for (const role of Object.keys(CONFIG.SFRPG.starshipRoleNames)) {
+					const roleoption = document.createElement("option");
+					roleoption.value = role;
+					roleoption.innerHTML = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
+					roleoption.checked = (role == this.role);
+					roleoption.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+					roleoption.style.width = "200px";
+					roleoption.style.height = "20px";
+					roleoption.style.backgroundColor = "grey";
+					
+					roleselect.appendChild(roleoption);
+				}
+				
+				roleselect.style.position = "absolute";
+				roleselect.style.bottom = "-25px";
+				roleselect.onchange = () => {this.role = roleselect.value};
+				
+				this.element.appendChild(roleselect);
+			}
+		}
     }
 	
     class StarfinderMovementActionPanel extends ARGON.MAIN.ActionPanel {
@@ -692,7 +841,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			switch(this.actor) {
+			switch(this.actor.type) {
 				case "starship":
 					break;
 				default:
@@ -746,7 +895,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			switch(this.actor) {
+			switch(this.actor.type) {
 				case "starship":
 					break;
 				default:
@@ -796,7 +945,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			switch(this.actor) {
+			switch(this.actor.type) {
 				case "starship":
 					break;
 				default:
@@ -845,7 +994,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _getButtons() {
 			let buttons = [];
 			
-			switch(this.actor) {
+			switch(this.actor.type) {
 				case "starship":
 					break;
 				default:
@@ -1065,17 +1214,20 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	class StarfinderSpecialActionButton extends ARGON.MAIN.BUTTONS.ActionButton {
         constructor(specialItem) {
 			super();
-			this.item = new CONFIG.Item.documentClass(specialItem, {
-				parent: this.actor,
-			});
+			
+			if (specialItem) {
+				this.item = new CONFIG.Item.documentClass(specialItem, {
+					parent: this.actor,
+				});
+			}
 		}
 
 		get label() {
-			return this.item.name;
+			return this.item?.name;
 		}
 
 		get icon() {
-			return this.item.img;
+			return this.item?.img;
 		}
 		
 		get isvalid() {
@@ -1271,7 +1423,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		get movementMax() {
 			switch (this.actor.type) {
 				case "starship":
-					return null;
+					return this.actor.system.attributes.speed.value;
 					break;
 				default:
 					return this.actor.system.attributes.speed[this.movementtype].value / canvas.scene.dimensions.distance;
@@ -1662,5 +1814,5 @@ Hooks.on("argonInit", async (CoreHUD) => {
 	CoreHUD.defineMovementHud(StarfinderMovementHud);
 	CoreHUD.defineButtonHud(StarfinderButtonHud);
     CoreHUD.defineWeaponSets(StarfinderWeaponSets);
-	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2"/*, "starship" /*, "starship", "vehicle" */]);
+	CoreHUD.defineSupportedActorTypes(["character", "drone", "npc", "npc2", "starship" /*, "starship", "vehicle" */]);
 });
