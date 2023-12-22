@@ -1,20 +1,31 @@
 import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions} from "./specialItems.js";
-import {ModuleName, getTooltipDetails} from "./utils.js";
+import {ModuleName, getTooltipDetails, firstUpper} from "./utils.js";
 
-const nominalicon = "fa-check";
-const glitchicon = "fa-bug";
-const malfunctionicon = "fa-exclamation";
-const wreckedicon = "fa-xmark";
+const systemicons = {
+	lifeSupport : "fa-heart-pulse",
+	sensors : "fa-satellite-dish",
+	engines : "fa-rocket",
+	powerCore : "fa-bolt",
 
-const lifesupporticon = "fa-heart-pulse";
-const sensoricon = "fa-satellite-dish";
-const engineicon = "fa-rocket";
-const powericon = "fa-bolt";
+	weaponsArrayForward : "fa-up-long",
+	weaponsArrayAft : "fa-down-long",
+	weaponsArrayStarboard : "fa-right-long",
+	weaponsArrayPort : "fa-left-long"
+}
 
-const forwardicon = "fa-up-long";
-const afticon = "fa-down-long";
-const starboardicon = "fa-right-long";
-const porticon = "fa-left-long";
+const systemconditionicons = {
+	nominal : "fa-check",
+	glitching : "fa-bug",
+	malfunctioning : "fa-exclamation",
+	wrecked : "fa-xmark"
+}
+
+const systemconditioncolor = {
+	nominal : "green",
+	glitching : "yellow",
+	malfunctioning : "orange",
+	wrecked : "red"
+}
 
 Hooks.on("argonInit", async (CoreHUD) => {
     const ARGON = CoreHUD.ARGON;
@@ -110,6 +121,20 @@ Hooks.on("argonInit", async (CoreHUD) => {
     class StarfinderPortraitPanel extends ARGON.PORTRAIT.PortraitPanel {
 		constructor(...args) {
 			super(...args);
+			
+			this._role = "captain";
+		}
+		
+		get role() {
+			return this._role;
+		}
+		
+		set role(value) {
+			this._role = value;
+			
+			if (this.actor.type == "starship") {
+				this.render();
+			}
 		}
 
 		get description() {
@@ -438,11 +463,19 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						break;
 				}
 				
+				let percentage = directions[direction].shields.value/shields.limit;
+				let color = "#3498DB"; //shiled blue
+				
+				if (directions[direction].shields.value <= 0 && directions[direction].ablative.max > 0) {
+					percentage = directions[direction].ablative.value/directions[direction].ablative.max;
+					color = "#43464B"; //dark grey
+				}
+				
 				shieldsubbar[direction] = document.createElement("div");
 				shieldsubbar[direction].style.top = "0";
 				shieldsubbar[direction].style.left = "0";
 				shieldsubbar[direction].style.position = "absolute";
-				shieldsubbar[direction].style.backgroundColor = "#3498DB";
+				shieldsubbar[direction].style.backgroundColor = color;
 				shieldsubbar[direction].style.opacity = "1";
 				switch (direction) {
 					case "forward":
@@ -450,13 +483,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						shieldsubbar[direction].style.bottom = "0";
 					case "aft":
 						shieldsubbar[direction].style.width = "100%";
-						shieldsubbar[direction].style.height = `${directions[direction].shields.value/shields.limit * 100}%`;
+						shieldsubbar[direction].style.height = `${percentage * 100}%`;
 						break;
 					case "port":
 						shieldsubbar[direction].style.left = "";
 						shieldsubbar[direction].style.right = "0";
 					case "starboard":
-						shieldsubbar[direction].style.width = `${directions[direction].shields.value/shields.limit * 100}%`;
+						shieldsubbar[direction].style.width = `${percentage * 100}%`;
 						shieldsubbar[direction].style.height = "100%";
 						break;
 				}
@@ -500,7 +533,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			const hplabel = document.createElement("span");
 			hplabel.innerHTML = `${hp.value}/${hp.max} HP`;
-			hplabel.style.top = "0";
 			hplabel.style.position = "absolute";
 			hplabel.style.zIndex = "20";
 			hplabel.style.width = "100%";
@@ -510,8 +542,29 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hplabel.style.fontSize = `${fontsize * minscale}em`;
 			hplabel.style.color = "white";
 			hplabel.style.textShadow = "grey 1px 1px 10px";
-			if (hp?.max) {
-				hpbar.appendChild(hplabel);
+			hpbar.appendChild(hplabel);
+			
+			for (const direction of ["aft", "forward", "port", "starboard"]) {
+				let labelname = "SHL";
+				let labelvalue = directions[direction].shields.value;
+
+				if (directions[direction].shields.value <= 0 && directions[direction].ablative.max > 0) {
+					labelname = "ABL";
+					labelvalue = directions[direction].ablative.value;
+				}
+				
+				const shieldlabel = document.createElement("span");
+				shieldlabel.innerHTML = `${labelvalue} ${labelname}`;
+				shieldlabel.style.position = "absolute";
+				shieldlabel.style.zIndex = "20";
+				shieldlabel.style.width = "100%";
+				shieldlabel.style.height = "100%";
+				shieldlabel.style.textAlign = "center";
+				shieldlabel.style.top = `calc(50% - 0.55em)`;
+				shieldlabel.style.fontSize = `${fontsize * minscale}em`;
+				shieldlabel.style.color = "white";
+				shieldlabel.style.textShadow = "grey 1px 1px 10px";
+				directionbackground[direction].appendChild(shieldlabel);
 			}
 			
 			//bottom middle
@@ -525,7 +578,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async getsideStatBlocks() {
 			const colors = {
 				eac: "DeepSkyBlue",
-				kac: "LightSteelBlue"
+				kac: "LightSteelBlue",
+				ac: "LightSteelBlue",
+				tl: "gold"
+				
 			};
 			
 			let attributes = this.actor.system.attributes;
@@ -550,6 +606,59 @@ Hooks.on("argonInit", async (CoreHUD) => {
 							{
 								text: this.actor.system.attributes[key]?.value,
 								color: colors[key],
+							},
+						]);
+					}
+					break;
+				case "starship":
+					for (const side of ["left", "right"]) {
+						let valuetype;
+						let key;
+							
+						switch (side) {
+							case "left":
+								valuetype = "targetLock";
+								key = "tl";
+								break;
+							case "right":
+								valuetype = "ac";
+								key = "ac";
+								break;
+						}
+						
+						Blocks[side].push([
+							{
+								text: game.i18n.localize("SFRPG.Items.Action.ActionTarget.Starship"+key.toUpperCase()),
+								id : key
+							},
+							{
+								text: Math.min(...Object.values(this.actor.system.quadrants).map(values => values[valuetype].value)),
+								color: colors[key],
+							},
+						]);
+					}
+					
+					const systems = this.actor.system.attributes.systems;
+					for (const systemkey of Object.keys(systems)) {
+						let side = "left";
+						if (systemkey.search("weapon") >= 0) {
+							side = "right";
+						}
+						let systemcondition = this.actor.system.attributes.systems[systemkey].value;
+						
+						Blocks[side].unshift([
+							{
+								icon: ["fa-solid", systemicons[systemkey]],
+								id : systemkey,
+								tooltip: game.i18n.localize("SFRPG.StarshipSheet.Critical.Systems." + firstUpper(systemkey))
+							},
+							{
+								text: ":"
+							},
+							{
+								icon: ["fa-solid", systemconditionicons[systemcondition]],
+								color: systemconditioncolor[systemcondition],
+								tooltip: CONFIG.SFRPG.starshipSystemStatus[systemcondition]
 							},
 						]);
 					}
@@ -591,6 +700,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						sidesb.style.paddingRight = "0.35em";
 						sidesb.style.height = `${height}em`;
 						for (const stat of block) {
+							console.log(stat);
 							if (!stat.position) {
 								let displayer;
 								if (stat.isinput) {
@@ -602,17 +712,24 @@ Hooks.on("argonInit", async (CoreHUD) => {
 									displayer.onchange = () => {stat.changevent(displayer.value)};
 								}
 								else {
-								displayer = document.createElement("span");
-								displayer.innerText = ``;
-								if (stat.text) {
-									displayer.innerText = displayer.innerText + stat.text;
+									displayer = document.createElement("span");
+									displayer.innerText = ``;
+									if (stat.text) {
+										displayer.innerText = displayer.innerText + stat.text;
+									}
+									if (stat.icon) {
+										let icon = document.createElement("i");
+										icon.classList.add(...stat.icon);
+										displayer.appendChild(icon);
+									}
 								}
-								if (stat.icon) {
-									let icon = document.createElement("i");
-									icon.classList.add(...stat.icon);
-									displayer.appendChild(icon);
+								if (stat.tooltip) {
+									displayer.setAttribute("data-tooltip", stat.tooltip);
 								}
+								if (stat.color) {
+									displayer.style.color = stat.color;
 								}
+								displayer.style.flexGrow = "1";
 								displayer.id = stat.id;
 								displayer.style.color = stat.color;
 								sidesb.appendChild(displayer);
@@ -623,6 +740,34 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					this.element.appendChild(sb);
 				}
 			}
+			
+			if (this.actor.type == "starship") {
+				const roleselect = document.createElement("select");
+				roleselect.id = "roleselect";
+				roleselect.style.width = "30%";
+				roleselect.style.color = "white";
+				roleselect.style.zIndex = "10";
+				
+				for (const role of Object.keys(CONFIG.SFRPG.starshipRoleNames)) {
+					const roleoption = document.createElement("option");
+					roleoption.value = role;
+					roleoption.innerHTML = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
+					roleoption.checked = (role == this.role);
+					roleoption.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
+					roleoption.style.width = "200px";
+					roleoption.style.height = "20px";
+					roleoption.style.backgroundColor = "grey";
+					
+					roleselect.appendChild(roleoption);
+				}
+				
+				roleselect.style.position = "absolute";
+				roleselect.style.top = "0";
+				roleselect.style.right = "0";
+				roleselect.onchange = () => {this.role = roleselect.value};
+				
+				this.element.appendChild(roleselect);
+			}	
 		}
 	}
 	
