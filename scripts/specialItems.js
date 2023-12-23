@@ -348,11 +348,10 @@ async function registerStarfinderECHSItems () {
 		}
 	}
 	
-	/*
 	const starshipPackKey = game.settings.get("sfrpg", "starshipActionsSource");
     const starshipActionsPack = game.packs.get(starshipPackKey);
-	a = await starshipActionsPack.getDocument("7rt4q9ZonN0GlCXx"); a.system.formula
-	*/
+	const stunt = await starshipActionsPack.getDocument("7rt4q9ZonN0GlCXx");
+	const stuntformulas = stunt.system.formula;
 	StarfinderStunts = {
 		groupflags : {
 			actiontype : "action",
@@ -361,61 +360,17 @@ async function registerStarfinderECHSItems () {
 			subtitle : game.i18n.localize(ModuleName+".Titles.PilotManeuver"),
 			onclick : (item) => {
 			}
-		},
-		BackOff : {
-			img: "modules/enhancedcombathud-sfrpg/icons/bull.svg",
-			name: game.i18n.localize(ModuleName+".Titles.BullRush"),
+		}
+	}
+	
+	for (let i = 0; i <= stuntformulas.length) {
+		StarfinderStunts[stuntformulas[i].name.replace(" ", "")] = {
+			name = stuntformulas[i].name,
 			type : "base",
 			system : {
-				descriptionHeader : "Bull Rush"
-			}
-		},
-		BarrelRoll : {
-			img: "modules/enhancedcombathud-sfrpg/icons/cloak-dagger.svg",
-			name: game.i18n.localize(ModuleName+".Titles.DirtyTrick"),
-			type : "base",
-			system : {
-				descriptionHeader : "Dirty Trick"
-			}
-		},
-		Evade : {
-			img: "modules/enhancedcombathud-sfrpg/icons/drop-weapon.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Disarm"),
-			type : "base",
-			system : {
-				descriptionHeader : "Disarm"
-			}
-		},
-		FlipandBurn : {
-			img: "modules/enhancedcombathud-sfrpg/icons/grab.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Grapple"),
-			type : "base",
-			system : {
-				descriptionHeader : "Grapple"
-			}
-		},
-		Flyby : {
-			img: "modules/enhancedcombathud-sfrpg/icons/move.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Reposition"),
-			type : "base",
-			system : {
-				descriptionHeader : "Reposition"
-			}
-		},
-		RammingSpeed : {
-			img: "modules/enhancedcombathud-sfrpg/icons/hammer-break.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Sunder"),
-			type : "base",
-			system : {
-				descriptionHeader : "Sunder"
-			}
-		},
-		Slide : {
-			img: "modules/enhancedcombathud-sfrpg/icons/falling.svg",
-			name: game.i18n.localize(ModuleName+".Titles.Trip"),
-			type : "base",
-			system : {
-				descriptionHeader : "Trip"
+				description : stuntformulas[i].effectNormal + stuntformulas[i].effectCritical;
+				formula : stuntformulas[i].formula;
+				dc : stuntformulas[i].dc;
 			}
 		}
 	}
