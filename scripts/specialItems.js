@@ -348,6 +348,11 @@ async function registerStarfinderECHSItems () {
 		}
 	}
 	
+	/*
+	const starshipPackKey = game.settings.get("sfrpg", "starshipActionsSource");
+    const starshipActionsPack = game.packs.get(starshipPackKey);
+	a = await starshipActionsPack.getDocument("7rt4q9ZonN0GlCXx"); a.system.formula
+	*/
 	StarfinderPilotManeuvers = {
 		groupflags : {
 			actiontype : "action",
