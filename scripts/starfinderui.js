@@ -552,7 +552,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hplabel.style.top = `calc(50% - 0.55em)`;
 			hplabel.style.fontSize = `${fontsize * minscale}em`;
 			hplabel.style.color = "white";
-			hplabel.style.textShadow = "grey 1px 1px 10px";
+			//hplabel.style.textShadow = "grey 1px 1px 10px";
+			hplabel.style.textShadow = "1px  1px 1px black, 1px -1px 1px black, -1px  1px 1px black, -1px -1px 1px black";
 			hpbar.appendChild(hplabel);
 			
 			for (const direction of ["aft", "forward", "port", "starboard"]) {
@@ -574,7 +575,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				shieldlabel.style.top = `calc(50% - 0.55em)`;
 				shieldlabel.style.fontSize = `${fontsize * minscale}em`;
 				shieldlabel.style.color = "white";
-				shieldlabel.style.textShadow = "grey 1px 1px 10px";
+				//shieldlabel.style.textShadow = "grey 1px 1px 10px";
+				shieldlabel.style.textShadow = "1px  1px 1px black, 1px -1px 1px black, -1px  1px 1px black, -1px -1px 1px black";
 				directionbackground[direction].appendChild(shieldlabel);
 			}
 			

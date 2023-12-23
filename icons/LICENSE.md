@@ -9,6 +9,29 @@ The following icons are included
 	- grab.svg
 	- bull.svg
 	- cloak-dagger.svg
+	- cannon-shot.svg
+	- divert.svg
+	- cracked-glass.svg
+	- rocket.svg
+	- sticking-plaster.svg
+	- targeting.svg
+	- overdrive.svg
+	- crystal-ball.svg
+	- psychic-waves.svg
+	- screwdriver.svg
+	- radar-sweep.svg
+	- eyeball.svg
+	- strafe.svg
+	- boot-kick.svg
+	- pointing.svg
+	- circuitry.svg
+	- rocket-flight.svg
+	- scales.svg
+	- ember-shot.svg
+	- striking-balls.svg
+	- lightning-electron.svg
+	- dozen.svg
+	- arrow-dunk.svg
 - By [Delapouite](https://delapouite.com/)
 	- high-kick.svg
 	- reload-gun-barrel.svg
@@ -19,12 +42,29 @@ The following icons are included
 	- exit-door.svg
 	- hammer-break.svg
 	- move.svg
+	- delivery-drone.svg
+	- pipes.svg
+	- speedometer.svg
+	- sparkles.svg
+	- crime-scene-tape.svg
+	- calculator.svg
+	- measure-tape.svg
+	- binoculars.svg
+	- injustice.svg
+	- thrust-bend.svg
+	- growth.svg
 - By [Skoll](https://game-icons.net/)
 	- machine-gun.svg
 	- drop-weapon.svg
+	- bullseye.svg
+	- hang-glider.svg
+	- teller-mine.svg
 - By [sbed](https://opengameart.org/content/95-game-icons)
 	- shield.svg
 	- vial.svg
 	- falling.svg
+	- target-laser.svg
 - By [DarkZaitzev](https://www.deviantart.com/darkzaitzev)
 	- distraction.svg
+- By [Lord Berandas](https://www.deviantart.com/berandas)
+	- amplitude.svg

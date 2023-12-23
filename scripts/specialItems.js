@@ -8,6 +8,7 @@ var StarfinderECHActionItems = {};
 var StarfinderECHMoveItems = {};
 var StarfinderECHFullItems = {};
 var StarfinderManeuvers = {};
+var StarfinderPilotManeuvers = {};
 
 async function registerStarfinderECHSItems () {
 	StarfinderECHActionItems = {
@@ -346,9 +347,76 @@ async function registerStarfinderECHSItems () {
 			}
 		}
 	}
+	
+	StarfinderPilotManeuvers = {
+		groupflags : {
+			actiontype : "action",
+			//journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
+			ismaneuver : "true",
+			subtitle : game.i18n.localize(ModuleName+".Titles.PilotManeuver"),
+			onclick : (item) => {
+			}
+		},
+		BackOff : {
+			img: "modules/enhancedcombathud-sfrpg/icons/bull.svg",
+			name: game.i18n.localize(ModuleName+".Titles.BullRush"),
+			type : "base",
+			system : {
+				descriptionHeader : "Bull Rush"
+			}
+		},
+		BarrelRoll : {
+			img: "modules/enhancedcombathud-sfrpg/icons/cloak-dagger.svg",
+			name: game.i18n.localize(ModuleName+".Titles.DirtyTrick"),
+			type : "base",
+			system : {
+				descriptionHeader : "Dirty Trick"
+			}
+		},
+		Evade : {
+			img: "modules/enhancedcombathud-sfrpg/icons/drop-weapon.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Disarm"),
+			type : "base",
+			system : {
+				descriptionHeader : "Disarm"
+			}
+		},
+		FlipandBurn : {
+			img: "modules/enhancedcombathud-sfrpg/icons/grab.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Grapple"),
+			type : "base",
+			system : {
+				descriptionHeader : "Grapple"
+			}
+		},
+		Flyby : {
+			img: "modules/enhancedcombathud-sfrpg/icons/move.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Reposition"),
+			type : "base",
+			system : {
+				descriptionHeader : "Reposition"
+			}
+		},
+		RammingSpeed : {
+			img: "modules/enhancedcombathud-sfrpg/icons/hammer-break.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Sunder"),
+			type : "base",
+			system : {
+				descriptionHeader : "Sunder"
+			}
+		},
+		Slide : {
+			img: "modules/enhancedcombathud-sfrpg/icons/falling.svg",
+			name: game.i18n.localize(ModuleName+".Titles.Trip"),
+			type : "base",
+			system : {
+				descriptionHeader : "Trip"
+			}
+		}
+	}
 
 	//some preparation
-	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers]) {
+	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, StarfinderPilotManeuvers]) {
 		const actionJournal = await fromUuid(itemset.groupflags.journalid);
 		
 		for (let itemkey of Object.keys(itemset)) {
@@ -411,7 +479,6 @@ async function starshipactions(role) {
 		
 		if (action.system?.role == role) {
 			const localcopy = duplicate(action); //copy to modify
-			
 			localcopy.img = shipActionImage(localcopy);
 			localcopy.flags = {[ModuleName] : {onclick : shipActionAutomation(localcopy)}};
 
@@ -423,7 +490,49 @@ async function starshipactions(role) {
 }
 
 function shipActionImage(shipAction) {
-	switch(shipAction.id) {
+	switch(shipAction._id) {
+		case "qHsecClYOjza7Lyb": return "modules/enhancedcombathud-sfrpg/icons/circuitry.svg"; //Activate ECM
+		case "sUkNIfIG9WNC3F3A": return "modules/enhancedcombathud-sfrpg/icons/rocket-flight.svg"; //Audacious Gambit
+		case "nBvPpilpblioZptC": return "modules/enhancedcombathud-sfrpg/icons/scales.svg"; //Balance
+		case "yW30fIr6P855ynYo": return "modules/enhancedcombathud-sfrpg/icons/cannon-shot.svg"; //Broadside
+		case "p0sQQHqhVWOtHAn1": return "modules/enhancedcombathud-sfrpg/icons/delivery-drone.svg"; //Deploy Drone
+		case "RKHIOu4uCqrEcFoC": return "modules/enhancedcombathud-sfrpg/icons/divert.svg"; //Divert
+		case "exvXNMIOA2BnaL39": return "modules/enhancedcombathud-sfrpg/icons/ember-shot.svg"; //Eldritch Shot
+		case "amVSLKRqQRXdKk4M": return "modules/enhancedcombathud-sfrpg/icons/thrust-bend.svg"; //Erratic Maneuvering
+		case "YgHwyM4ATjSmUfX9": return "modules/enhancedcombathud-sfrpg/icons/cracked-glass.svg"; //Feign Disaster
+		case "gTnq68hXhcwfMhfO": return "modules/enhancedcombathud-sfrpg/icons/striking-balls.svg"; //Fire At Will
+		case "HzOXH8vFMCgBnMjg": return "modules/enhancedcombathud-sfrpg/icons/rocket.svg"; //Fly
+		case "FDcymzZLqnp2K8eC": return "modules/enhancedcombathud-sfrpg/icons/power-lightning.svg"; //Full Power
+		case "OGHHS1o91ZCaaiNa": return "modules/enhancedcombathud-sfrpg/icons/hang-glider.svg"; //Glide
+		case "ggqDHMMCQdYdFfed": return "modules/enhancedcombathud-sfrpg/icons/return-arrow.svg"; //Hard Turn
+		case "JnvLkvtuSdTbSQJ9": return "modules/enhancedcombathud-sfrpg/icons/distraction.svg"; //Harrying Shot
+		case "B9CsbXIcE9ZGlGv9": return "modules/enhancedcombathud-sfrpg/icons/crime-scene-tape.svg"; //Hold It Together
+		case "MkGcNrSOwmE0hFyW": return "modules/enhancedcombathud-sfrpg/icons/growth.svg"; //Improve Countermeasures
+		case "J1x8JPeFUy0FLUKW": return "modules/enhancedcombathud-sfrpg/icons/lightning-electron.svg"; //Insidious Electronics
+		case "FQJePy9WOiWXT0SO": return "modules/enhancedcombathud-sfrpg/icons/teller-mine.svg"; //Lay Mines
+		case "9mCZxidXk8Txsdoz": return "modules/enhancedcombathud-sfrpg/icons/dozen.svg"; //Lead Boarding Party
+		case "ML6Dh5dRr3XItvZx": return "modules/enhancedcombathud-sfrpg/icons/targeting.svg"; //Lock on
+		case "hSOm5TfBN03pf5bJ": return "modules/enhancedcombathud-sfrpg/icons/pipes.svg"; //Maintenance Panel Access
+		case "tlib3m1UOWD0LFDZ": return "modules/enhancedcombathud-sfrpg/icons/speedometer.svg"; //Maximize Speed
+		case "OTWPk0lEeOwebAD3": return "modules/enhancedcombathud-sfrpg/icons/sparkles.svg"; //Mystic Haze
+		case "xuRQbRMlMpPppWbH": return "modules/enhancedcombathud-sfrpg/icons/overdrive.svg"; //Overpower
+		case "zWxJLgoAgkHsdr61": return "modules/enhancedcombathud-sfrpg/icons/sticking-plaster.svg"; //Patch
+		case "XPBs4pSEl3XYXBE1": return "modules/enhancedcombathud-sfrpg/icons/bullseye.svg"; //Precise Targeting
+		case "j7QVUYCTfHXDQMOX": return "modules/enhancedcombathud-sfrpg/icons/crystal-ball.svg"; //Precognition
+		case "BeKPQFkSRO2c79rn": return "modules/enhancedcombathud-sfrpg/icons/calculator.svg"; //Prioritize Calculation
+		case "WBO4aqcsNAfF5ziy": return "modules/enhancedcombathud-sfrpg/icons/psychic-waves.svg"; //Psychic Currents
+		case "qbKzyS9YiTO6OTvg": return "modules/enhancedcombathud-sfrpg/icons/screwdriver.svg"; //Quick Fix
+		case "QiXsxUPrbd44tr16": return "modules/enhancedcombathud-sfrpg/icons/radar-sweep.svg"; //Quick Rescan
+		case "tbUCFKttNbU2Znbj": return "modules/enhancedcombathud-sfrpg/icons/measure-tape.svg"; //Range Finding
+		case "JomStKwZWIbTDLif": return "modules/enhancedcombathud-sfrpg/icons/amplitude.svg"; //Rapid Jam
+		case "f7azdHY89WWjV1Ti": return "modules/enhancedcombathud-sfrpg/icons/arrow-dunk.svg"; //Recall Beacon
+		case "wOZ9xGH2l1S5lQ9g": return "modules/enhancedcombathud-sfrpg/icons/radar-sweep.svg"; //Scan
+		case "OR6r6VkBCr9Ifand": return "modules/enhancedcombathud-sfrpg/icons/eyeball.svg"; //Scrying
+		case "umc9JwD3YQmZhOyh": return "modules/enhancedcombathud-sfrpg/icons/strafe.svg"; //Shoot
+		case "SvmYvEk0UTJ8MRhE": return "modules/enhancedcombathud-sfrpg/icons/boot-kick.svg"; //Swift Kick
+		case "CGOK99xDHW47gA3M": return "modules/enhancedcombathud-sfrpg/icons/target-laser.svg"; //Target System
+		case "GO5w2bC91j0o7hh0": return "modules/enhancedcombathud-sfrpg/icons/pointing.svg"; //Targeting Aid
+		case "0U3Voy2pxhR4g6W6": return "modules/enhancedcombathud-sfrpg/icons/binoculars.svg"; //Visual Identification
 		default: return "icons/svg/mystery-man.svg";
 	}
 }
@@ -438,4 +547,4 @@ function defaultaction(role) {
 	
 }
 
-export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions}
+export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, StarfinderPilotManeuvers, starshipactions}
