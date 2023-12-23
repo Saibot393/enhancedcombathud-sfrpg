@@ -8,7 +8,7 @@ var StarfinderECHActionItems = {};
 var StarfinderECHMoveItems = {};
 var StarfinderECHFullItems = {};
 var StarfinderManeuvers = {};
-var StarfinderPilotManeuvers = {};
+var StarfinderStunts = {};
 
 async function registerStarfinderECHSItems () {
 	StarfinderECHActionItems = {
@@ -353,7 +353,7 @@ async function registerStarfinderECHSItems () {
     const starshipActionsPack = game.packs.get(starshipPackKey);
 	a = await starshipActionsPack.getDocument("7rt4q9ZonN0GlCXx"); a.system.formula
 	*/
-	StarfinderPilotManeuvers = {
+	StarfinderStunts = {
 		groupflags : {
 			actiontype : "action",
 			//journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
@@ -421,7 +421,7 @@ async function registerStarfinderECHSItems () {
 	}
 
 	//some preparation
-	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, StarfinderPilotManeuvers]) {
+	for (let itemset of [StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, StarfinderStunts]) {
 		const actionJournal = await fromUuid(itemset.groupflags.journalid);
 		
 		for (let itemkey of Object.keys(itemset)) {
@@ -552,4 +552,4 @@ function defaultaction(role) {
 	
 }
 
-export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, StarfinderPilotManeuvers, starshipactions}
+export {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, StarfinderStunts, starshipactions}
