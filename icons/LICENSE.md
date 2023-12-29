@@ -32,6 +32,9 @@ The following icons are included
 	- lightning-electron.svg
 	- dozen.svg
 	- arrow-dunk.svg
+	- gunshot.svg
+	- swan-breeze.svg
+	- daemon-skull.svg
 - By [Delapouite](https://delapouite.com/)
 	- high-kick.svg
 	- reload-gun-barrel.svg
@@ -53,6 +56,14 @@ The following icons are included
 	- injustice.svg
 	- thrust-bend.svg
 	- growth.svg
+	- upgrade.svg
+	- acoustic-megaphone.svg
+	- sword-brandish.svg
+	- tongue.svg
+	- public-speaker.svg
+	- receive-money.svg
+	- joystick.svg
+	- closed-doors.svg
 - By [Skoll](https://game-icons.net/)
 	- machine-gun.svg
 	- drop-weapon.svg
@@ -68,3 +79,4 @@ The following icons are included
 	- distraction.svg
 - By [Lord Berandas](https://www.deviantart.com/berandas)
 	- amplitude.svg
+	- power-button.svg

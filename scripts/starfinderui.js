@@ -1,4 +1,4 @@
-import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions} from "./specialItems.js";
+import {registerStarfinderECHSItems, StarfinderECHActionItems, StarfinderECHMoveItems, StarfinderECHFullItems, StarfinderManeuvers, starshipactions, StarfinderShipWeapons} from "./specialItems.js";
 import {ModuleName, getTooltipDetails, firstUpper} from "./utils.js";
 
 const systemicons = {
@@ -106,6 +106,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				
 				return arms;
 				break;
+			case "starship":
+				return 1;
 		}
 	}
 	
@@ -977,7 +979,11 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			switch(this.actor.type) {
 				case "starship":
-					specialActions = await starshipactions(this.role);
+					specialActions = await starshipactions(this.role, this.actor);
+					
+					for (let i = 1; i <= 10; i++) {
+						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+					}
 					
 					for (let i = 0; i < Math.ceil(specialActions.length/2); i++) {
 						buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[i*2]), new StarfinderSpecialActionButton(specialActions[i*2+1])));
@@ -1004,11 +1010,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "consumable"}));
 					
 					buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[4]), new StarfinderSpecialActionButton(specialActions[5])));
-					
-					//to solve update bug
-					ui.ARGON?.components.weaponSets?.startUpdate();
+		
 					break;
 			}
+			
+			//to solve update bug
+			ui.ARGON?.components.weaponSets?.startUpdate();
 			
 			return buttons.filter(button => button.isvalid);
 		}
@@ -1301,7 +1308,19 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _onSetChange({sets, active}) {
 			const arms = armsof(this.actor);
 			const activeSet = sets[active];
-			let item = activeSet[this.slotnumber];
+			
+			let item;
+	
+			switch (this.actor.type) {
+				case "starship":
+					let items = this.actor.items.filter(item => item?.type == "starshipWeapon").filter(item => item.system.mount.mounted && item.system.mount.arc == sets[active][1].direction);
+					
+					item = items[this.slotnumber-1];
+					break;
+				default:
+					item = activeSet[this.slotnumber];
+					break;
+			}
 			
 			for (let i = this.slotnumber - 1; i > 0; i--) {
 				//prevent duplicate display
@@ -1344,7 +1363,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}
 			}
 			else {
-				if (item.type == "weapon") {
+				if (item.type == "weapon" || item.type == "starshipWeapon") {
 					item?.roll();
 					
 					used = true;
@@ -1754,6 +1773,18 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 	
 		async _getSets() { //overwrite because slots.primary/secondary contains id, not uuid
+			if (this.actor.type == "starship") {
+				let shipsets = {};
+				
+				let vDirections = Object.values(StarfinderShipWeapons);
+				
+				for (let i = 1; i <= vDirections.length; i++) {
+					shipsets[i] = {1 : vDirections[i-1]};
+				}
+				
+				return shipsets;
+			}
+			
 			const arms = armsof(this.actor);
 			
 			const sets = mergeObject(await this.getDefaultSets(), deepClone(this.actor.getFlag("enhancedcombathud", "weaponSets") || {}));
@@ -1800,6 +1831,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		async _onSetChange({sets, active}) {
+			if (this.actor.type == "starship") return;
+			
 			const updates = [];
 			const activeSet = sets[active];
 			const activeItems = Object.values(activeSet).filter((item) => item && (item instanceof Object));
@@ -1817,6 +1850,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _onDrop(event) {
 				event.preventDefault();
 				event.stopPropagation();
+				if (this.actor.type == "starship") return;
 				const data = JSON.parse(event.dataTransfer.getData("text/plain"));
 				if(data?.type !== "Item") return;
 				const set = event.currentTarget.dataset.set;
@@ -1928,6 +1962,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async _renderInner() {
 			const sizefactor = 50; //px
 			
+			const sets = this.actor.type == "starship" ? 4 : 3;
+			
 			const arms = armsof(this.actor);
 			const setdata = await this._getSets();
 			
@@ -1935,7 +1971,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			maindiv.classList.add("weapon-sets");
 			
-			for (let i = 1; i <= 3; i++) {
+			for (let i = 1; i <= sets; i++) {
 				let armscounter = 0;
 				
 				let setdiv = document.createElement("div");
@@ -1978,6 +2014,9 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						slotdiv.style.color = "var(--ech-portrait-base-border)";
 						if (setdata[i] && setdata[i][armscounter]) {
 							slotdiv.style.backgroundImage = `url(${setdata[i][armscounter]?.img})`;
+							if (this.actor.type == "starship") {
+								slotdiv.style.rotate = setdata[i][armscounter]?.imgrotation;
+							}
 						}
 						
 						rowdiv.appendChild(slotdiv);
