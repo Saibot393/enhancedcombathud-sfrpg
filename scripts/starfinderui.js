@@ -1482,7 +1482,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		
 		get quantity() {
 			if (this.item?.system.resolvePointCost) {
-				return game.user.character?.system ? game.user.character.system.rp.value : 0
+				return game.user.character?.system ? game.user.character.system.attributes.rp.value : 0
 			}
 			
 			return null;
