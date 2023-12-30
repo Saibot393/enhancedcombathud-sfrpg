@@ -6,6 +6,7 @@
 			"SwiftAction"				: "Swift Actions",
 			"ReAction"					: "Reactions",
 			"FullAction"				: "Full Actions",
+			"Action"					: "Action",
 			
 			"CombatManeuver"			: "Combat Maneuver",
 			"BullRush"					: "Bull Rush",
@@ -57,6 +58,26 @@
 			"HealthBarHeightScale" : {
 				"name"					: "Status bar height",
 				"descrp"				: "The height scale of the status bar in the portrait"
+			},
+			"ShowSystemStatus" : {
+				"name"					: "Show ship system status",
+				"descrp"				: "For which roles the ship system status should be displayed in the portrait",
+				"options" : {
+					"never"				: "never",
+					"engineer"			: "Engineer",
+					"engineercaptain"	: "Engineer, Captain",
+					"always"			: "always"
+				}
+			},
+			"ShowWeaponStatus" : {
+				"name"					: "Show ship weapon status",
+				"descrp"				: "For which roles the ship weapon status should be displayed in the portrait",
+				"options" : {
+					"never"				: "never",
+					"engineergunner"	: "Engineer, Gunner",
+					"engineergunnercaptain": "Engineer, Gunner, Captain",
+					"always"			: "always"
+				}
 			},
 			"OwnSpellSlotConsume" : {
 				"name"					: "Custom spell slot consume",

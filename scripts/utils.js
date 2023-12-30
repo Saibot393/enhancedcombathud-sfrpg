@@ -1,7 +1,10 @@
+import { DiceSFRPG } from "/systems/sfrpg/module/dice.js";
+import RollContext from "/systems/sfrpg/module/rolls/rollcontext.js";
+
 const ModuleName = "enhancedcombathud-sfrpg";
 
 async function getTooltipDetails(item) {
-	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, save, target, actarget, duration, damage, level, spellschool, featType, specialAbilityType, weaponproperties, descriptors;
+	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, save, target, actarget, duration, damage, level, spellschool, featType, specialAbilityType, weaponproperties, descriptors, role;
 	let actor, abilities, actordetails;
 	let title = "";
 	let propertiesLabel;
@@ -35,6 +38,7 @@ async function getTooltipDetails(item) {
 	specialAbilityType = item.system?.details?.specialAbilityType;
 	weaponproperties = item.system?.properties;
 	descriptors = item.system?.descriptors;
+	role = item.system?.role;
 	
 	//sub title
 	switch (itemType) {
@@ -58,12 +62,17 @@ async function getTooltipDetails(item) {
 				}
 			}
 			else {
-				if (itemType != "base") {
-					subtitle = CONFIG.SFRPG.itemTypes[itemType];
+				if (role) {
+					subtitle = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
 				}
 				else {
-					if (item.flags[ModuleName].subtitle) {
-						subtitle = game.i18n.localize(item.flags[ModuleName].subtitle);
+					if (itemType != "base") {
+						subtitle = CONFIG.SFRPG.itemTypes[itemType];
+					}
+					else {
+						if (item.flags[ModuleName].subtitle) {
+							subtitle = game.i18n.localize(item.flags[ModuleName].subtitle);
+						}
 					}
 				}
 			}
@@ -251,4 +260,134 @@ function firstUpper(string) {
 	return string[0].toUpperCase() + string.substr(1);
 }
 
-export { getTooltipDetails, ModuleName, firstUpper }
+async function useStunt(stunt) {
+	let actor = stunt.parent;
+	let selectedFormula = stunt.system;
+	
+	console.log(stunt);
+
+	const rollContext = new RollContext();
+	rollContext.addContext("ship", actor);
+	rollContext.setMainContext("ship");
+
+	actor.setupRollContexts(rollContext, stunt.system.selectors || []);
+
+	/** Create additional modifiers. */
+	const additionalModifiers = [
+		{bonus: { name: game.i18n.format("SFRPG.Rolls.Starship.ComputerBonus"), modifier: "@ship.attributes.computer.value", enabled: false} },
+		{bonus: { name: game.i18n.format("SFRPG.Rolls.Starship.CaptainDemand"), modifier: "4", enabled: false} },
+		{bonus: { name: game.i18n.format("SFRPG.Rolls.Starship.CaptainEncouragement"), modifier: "2", enabled: false} },
+		{bonus: { name: game.i18n.format("SFRPG.Rolls.Starship.ScienceOfficerLockOn"), modifier: "2", enabled: false} }
+	];
+	rollContext.addContext("additional", {name: "additional"}, {modifiers: { bonus: "n/a", rolledMods: additionalModifiers } });
+
+	let systemBonus = "";
+	
+	for (const [key, value] of Object.entries(actor.system.attributes.systems)) {
+		if (value.affectedRoles && value.affectedRoles[stunt.system.role]) {
+			if (key === "powerCore" && stunt.system.role !== "engineer") {
+				systemBonus += ` + @ship.attributes.systems.${key}.modOther`;
+			} else {
+				systemBonus += ` + @ship.attributes.systems.${key}.mod`;
+			}
+		}
+	}
+
+	console.log( selectedFormula.formula + systemBonus + " + @additional.modifiers.bonus");
+	
+	const rollResult = await DiceSFRPG.createRoll({
+		rollContext: rollContext,
+		rollFormula: selectedFormula.formula + systemBonus + " + @additional.modifiers.bonus",
+		title: game.i18n.format("SFRPG.Rolls.StarshipAction", {action: stunt.name})
+	});
+	
+	console.log( selectedFormula.formula + systemBonus + " + @additional.modifiers.bonus");
+
+	if (!rollResult) {
+		return;
+	}
+
+	let speakerActor = actor;
+	const roleKey = CONFIG.SFRPG.starshipRoleNames[stunt.system.role];
+	let roleName = game.i18n.format(roleKey);
+
+	const desiredKey = stunt.system.selectorKey;
+	if (desiredKey) {
+		const selectedContext = rollContext.allContexts[desiredKey];
+		if (!selectedContext) {
+			ui.notifications.error(game.i18n.format("SFRPG.Rolls.StarshipActions.NoActorError", {name: desiredKey}));
+			return;
+		}
+
+		speakerActor = selectedContext?.entity || actor;
+
+		const actorRole = actor.getCrewRoleForActor(speakerActor.id);
+		if (actorRole) {
+			const actorRoleKey = CONFIG.SFRPG.starshipRoleNames[actorRole];
+			roleName = game.i18n.format(actorRoleKey);
+		}
+	}
+
+	let flavor = "";
+	flavor += game.i18n.format("SFRPG.Rolls.StarshipActions.Chat.Role", {role: roleName, name: actor.name});
+	flavor += "<br/>";
+	flavor += `<h2>${stunt.name}</h2>`;
+
+	const dc = selectedFormula.dc || stunt.system.dc;
+	if (dc) {
+		if (dc.resolve) {
+			const dcRoll = await DiceSFRPG.createRoll({
+				rollContext: rollContext,
+				rollFormula: dc.value,
+				mainDie: 'd0',
+				title: game.i18n.format("SFRPG.Rolls.StarshipAction", {action: stunt.name}),
+				dialogOptions: { skipUI: true }
+			});
+
+			flavor += `<p><strong>${game.i18n.format("SFRPG.Rolls.StarshipActions.Chat.DC")}: </strong>${dcRoll.roll.total}</p>`;
+		} else {
+			flavor += `<p><strong>${game.i18n.format("SFRPG.Rolls.StarshipActions.Chat.DC")}: </strong>${await TextEditor.enrichHTML(dc.value, {
+				async: true,
+				rollData: this.getRollData() ?? {}
+			})}</p>`;
+		}
+	}
+	console.log(selectedFormula);
+	console.log(selectedFormula.effectNormal || stunt.system.effectNormal);
+	flavor += `<p><strong>${game.i18n.format("SFRPG.Rolls.StarshipActions.Chat.NormalEffect")}: </strong>`;
+	flavor += await TextEditor.enrichHTML(selectedFormula.effectNormal || stunt.system.effectNormal, {
+		async: true,
+		rollData: actor.getRollData() ?? {}
+	});
+	flavor += "</p>";
+
+	if (stunt.system.effectCritical) {
+		const critEffectDisplayState = game.settings.get("sfrpg", "starshipActionsCrit");
+		if (critEffectDisplayState !== 'never') {
+			if (critEffectDisplayState === 'always' || rollResult.roll.dice[0].values[0] === 20) {
+				flavor += `<p><strong>${game.i18n.format("SFRPG.Rolls.StarshipActions.Chat.CriticalEffect")}: </strong>`;
+				flavor += await TextEditor.enrichHTML(selectedFormula.effectCritical || stunt.system.effectCritical, {
+					async: true,
+					rollData: actor.getRollData() ?? {}
+				});
+				flavor += "</p>";
+			}
+		}
+	}
+
+	const rollMode = game.settings.get("core", "rollMode");
+	const preparedRollExplanation = DiceSFRPG.formatFormula(rollResult.formula.formula);
+	const rollContent = await rollResult.roll.render({ breakdown: preparedRollExplanation });
+
+	ChatMessage.create({
+		flavor: flavor,
+		speaker: ChatMessage.getSpeaker({ actor: speakerActor }),
+		content: rollContent,
+		rollMode: rollMode,
+		roll: rollResult.roll,
+		type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+		sound: CONFIG.sounds.dice
+	});
+}
+
+export { getTooltipDetails, ModuleName, firstUpper, useStunt }

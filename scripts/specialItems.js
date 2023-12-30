@@ -1,4 +1,4 @@
-import { ModuleName } from "./utils.js";
+import { ModuleName, useStunt } from "./utils.js";
 
 const ItemReplacementID = "_argonUI_";
 
@@ -279,7 +279,7 @@ async function registerStarfinderECHSItems () {
 		groupflags : {
 			actiontype : "action",
 			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
-			ismaneuver : "true",
+			ismaneuver : true,
 			subtitle : game.i18n.localize(ModuleName+".Titles.MeleeAttack"),
 			onclick : (item) => {
 				const meleeweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "m");
@@ -356,23 +356,30 @@ async function registerStarfinderECHSItems () {
 	StarfinderStunts = {
 		groupflags : {
 			actiontype : "action",
-			//journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
-			ismaneuver : "true",
+			isstunt : true,
 			subtitle : game.i18n.localize(ModuleName+".Titles.PilotManeuver"),
 			onclick : (item) => {
+				useStunt(item);
+				return true;
 			}
 		}
 	}
-	
+
 	for (let i = 0; i < stuntformulas.length; i++) {
-		StarfinderStunts[stuntformulas[i].name.replace(" ", "")] = {
+		let idname = stuntformulas[i].name.replaceAll(" ", "").toLowerCase();
+		
+		StarfinderStunts[idname] = {
 			name : stuntformulas[i].name,
 			type : "base",
 			system : {
+				...stunt.system,
 				description : stuntformulas[i].effectNormal + stuntformulas[i].effectCritical,
 				formula : stuntformulas[i].formula,
-				dc : stuntformulas[i].dc
-			}
+				dc : stuntformulas[i].dc,
+				effectNormal : stuntformulas[i].effectNormal,
+				effectCritical : stuntformulas[i].effectCritical
+			},
+			img : stuntimage(idname)
 		}
 	}
 	
@@ -488,6 +495,10 @@ async function starshipactions(role, actor) {
 			localcopy.img = shipActionImage(localcopy);
 			localcopy.flags = {[ModuleName] : {onclick : shipActionAutomation(localcopy, actor)}};
 
+			if (localcopy._id == "7rt4q9ZonN0GlCXx") {//stunts
+				localcopy.flags[ModuleName].suboption = StarfinderStunts;
+			}
+
 			roleActions.push(localcopy);
 		}
 	}
@@ -558,7 +569,25 @@ function shipActionAutomation(shipAction, actor) {
 	switch(shipAction._id) {
 		default: return () => {
 			actor.useStarshipAction(shipAction._id);
+			return true;
 		};
+	}
+}
+
+function stuntimage(nameid) {
+	switch (nameid) {
+		case "runinterference": return "modules/enhancedcombathud-sfrpg/icons/lightning-frequency.svg";
+		case "flyby": return "modules/enhancedcombathud-sfrpg/icons/strafe.svg";
+		case "flank": return "modules/enhancedcombathud-sfrpg/icons/encirclement.svg";
+		case "rammingspeed": return "modules/enhancedcombathud-sfrpg/icons/siege-ram.svg";
+		case "backoff": return "modules/enhancedcombathud-sfrpg/icons/fast-backward-button.svg";
+		case "barrelroll": return "modules/enhancedcombathud-sfrpg/icons/clockwise-rotation.svg";
+		case "evade": return "modules/enhancedcombathud-sfrpg/icons/sideswipe.svg";
+		case "flipandburn": return "modules/enhancedcombathud-sfrpg/icons/burning-dot.svg";
+		case "slide": return "modules/enhancedcombathud-sfrpg/icons/chess-bishop.svg";
+		case "turninplace": return "modules/enhancedcombathud-sfrpg/icons/arrow-dunk.svg";
+		case "escort": return "modules/enhancedcombathud-sfrpg/icons/team-upgrade.svg";
+		default: return "icons/svg/mystery-man.svg";
 	}
 }
 

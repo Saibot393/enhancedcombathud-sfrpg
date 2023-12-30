@@ -62,6 +62,36 @@ Hooks.once("init", () => {  // game.settings.get(cModuleName, "")
 	onChange: () => {ui.ARGON.render()}
   });
   
+  game.settings.register(ModuleName, "ShowSystemStatus", {
+	name: game.i18n.localize(ModuleName+".Settings.ShowSystemStatus.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.ShowSystemStatus.descrp"),
+	scope: "client",
+	config: true,
+	type: String,
+	choices: {
+		"never": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowSystemStatus.options.never"),
+		"engineer": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowSystemStatus.options.engineer"),
+		"engineer,captain": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowSystemStatus.options.engineercaptain"),
+		"always": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowSystemStatus.options.always"),
+	},
+	default: "engineer"
+  });
+  
+  game.settings.register(ModuleName, "ShowWeaponStatus", {
+	name: game.i18n.localize(ModuleName+".Settings.ShowWeaponStatus.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.ShowWeaponStatus.descrp"),
+	scope: "client",
+	config: true,
+	type: String,
+	choices: {
+		"never": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowWeaponStatus.options.never"),
+		"engineer,gunner": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowWeaponStatus.options.engineergunner"),
+		"engineer,gunner,captain": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowWeaponStatus.options.engineergunnercaptain"),
+		"always": game.i18n.localize("enhancedcombathud-sfrpg.Settings.ShowWeaponStatus.options.always"),
+	},
+	default: "engineer,gunner"
+  });
+  
   game.settings.register(ModuleName, "OwnSpellSlotConsume", {
 	name: game.i18n.localize(ModuleName+".Settings.OwnSpellSlotConsume.name"),
 	hint: game.i18n.localize(ModuleName+".Settings.OwnSpellSlotConsume.descrp"),

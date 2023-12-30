@@ -35,6 +35,8 @@ The following icons are included
 	- gunshot.svg
 	- swan-breeze.svg
 	- daemon-skull.svg
+	- lightning-frequency.svg
+	- burning-dot.svg
 - By [Delapouite](https://delapouite.com/)
 	- high-kick.svg
 	- reload-gun-barrel.svg
@@ -64,12 +66,17 @@ The following icons are included
 	- receive-money.svg
 	- joystick.svg
 	- closed-doors.svg
+	- fast-backward-button.svg
+	- clockwise-rotation.svg
+	- encirclement.svg
+	- team-upgrade.svg
 - By [Skoll](https://game-icons.net/)
 	- machine-gun.svg
 	- drop-weapon.svg
 	- bullseye.svg
 	- hang-glider.svg
 	- teller-mine.svg
+	- siege-ram.svg
 - By [sbed](https://opengameart.org/content/95-game-icons)
 	- shield.svg
 	- vial.svg
@@ -80,3 +87,5 @@ The following icons are included
 - By [Lord Berandas](https://www.deviantart.com/berandas)
 	- amplitude.svg
 	- power-button.svg
+- BY [sideswipe](https://blackdogofdoom.blogspot.com/)
+	- sideswipe.svg

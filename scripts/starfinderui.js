@@ -128,7 +128,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				this._role = game.user.character.getFlag(ModuleName, "starshiprole");
 			}
 			else {
-				this._role = "captain";
+				this._role = "openCrew";
 			}
 		}
 		
@@ -147,6 +147,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			if (this.actor.type == "starship") {
 				ui.ARGON.components.portrait.render();
 				ui.ARGON.components.main[0].render();
+				ui.ARGON.components.weaponSets.render();
 			}
 		}
 
@@ -653,29 +654,36 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						]);
 					}
 					
+					let showsystems = game.settings.get(ModuleName, "ShowSystemStatus") == "always" || game.settings.get(ModuleName, "ShowSystemStatus").split(",").includes(this.role);
+					let showweapons = game.settings.get(ModuleName, "ShowWeaponStatus") == "always" || game.settings.get(ModuleName, "ShowWeaponStatus").split(",").includes(this.role);
+
 					const systems = this.actor.system.attributes.systems;
 					for (const systemkey of Object.keys(systems)) {
+						let weaponsystem = false;
 						let side = "left";
 						if (systemkey.search("weapon") >= 0) {
 							side = "right";
+							weaponsystem = true;
 						}
 						let systemcondition = this.actor.system.attributes.systems[systemkey].value;
 						
-						Blocks[side].unshift([
-							{
-								icon: ["fa-solid", systemicons[systemkey]],
-								id : systemkey,
-								tooltip: game.i18n.localize("SFRPG.StarshipSheet.Critical.Systems." + firstUpper(systemkey))
-							},
-							{
-								text: ":"
-							},
-							{
-								icon: ["fa-solid", systemconditionicons[systemcondition]],
-								color: systemconditioncolor[systemcondition],
-								tooltip: CONFIG.SFRPG.starshipSystemStatus[systemcondition]
-							},
-						]);
+						if (((weaponsystem && showweapons) || (!weaponsystem && showsystems))) {
+							Blocks[side].unshift([
+								{
+									icon: ["fa-solid", systemicons[systemkey]],
+									id : systemkey,
+									tooltip: game.i18n.localize("SFRPG.StarshipSheet.Critical.Systems." + firstUpper(systemkey))
+								},
+								{
+									text: ":"
+								},
+								{
+									icon: ["fa-solid", systemconditionicons[systemcondition]],
+									color: systemconditioncolor[systemcondition],
+									tooltip: CONFIG.SFRPG.starshipSystemStatus[systemcondition]
+								},
+							]);
+						}
 					}
 					break;
 			}
@@ -944,7 +952,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		get label() {
 			switch (this.actor.type) {
 				case "starship":
-					return CONFIG.SFRPG.starshipRoleNames[this.role];
+					return `${CONFIG.SFRPG.starshipRoleNames[this.role]} ${game.i18n.localize("enhancedcombathud-sfrpg.Titles.Action")}`;
 					break;
 				default:
 					return ModuleName+".Titles.StandardAction";
@@ -981,12 +989,25 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				case "starship":
 					specialActions = await starshipactions(this.role, this.actor);
 					
-					for (let i = 1; i <= 10; i++) {
-						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+					if (this.role == "gunner") {
+						for (let i = 1; i <= 10; i++) {
+							buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
+						}
 					}
 					
 					for (let i = 0; i < Math.ceil(specialActions.length/2); i++) {
-						buttons.push(new StarfinderSplitButton(new StarfinderSpecialActionButton(specialActions[i*2]), new StarfinderSpecialActionButton(specialActions[i*2+1])));
+						let twobuttons = [];
+						
+						for (let j = 0; j < 2; j++) {
+							if (specialActions[i*2 + j]?.flags[ModuleName]?.suboption) {
+								twobuttons.push(new StarfinderButtonPanelButton({parent : this, type : "starshipoptions", item: specialActions[i*2 + j]}));
+							}
+							else {
+								twobuttons.push(new StarfinderSpecialActionButton(specialActions[i*2 + j]));
+							}
+						}
+						
+						buttons.push(new StarfinderSplitButton(twobuttons[0], twobuttons[1]));
 					}
 					
 					break;
@@ -1458,6 +1479,14 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		get isvalid() {
 			return true;
 		}
+		
+		get quantity() {
+			if (this.item?.system.resolvePointCost) {
+				return game.user.character?.system ? game.user.character.system.rp.value : 0
+			}
+			
+			return null;
+		}
 
 		get hasTooltip() {
 			return true;
@@ -1474,6 +1503,21 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		async getTooltipData() {
 			const tooltipData = await getTooltipDetails(this.item);
 			return tooltipData;
+		}
+		
+		async getData() {
+			if (!this.visible) return {};
+			const quantity = this.quantity;
+			
+			return {
+			  ...(await super.getData()),
+			  quantity: quantity,
+			  hasQuantity: Number.isNumeric(quantity)
+			}
+		}
+		
+		get template() {
+			return `/modules/${ModuleName}/templates/ActionButton.hbs`;
 		}
 
 		async _onLeftClick(event) {
@@ -1525,6 +1569,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		get icon() {
+			if (this.replacementItem?.img) {
+				return this.replacementItem.img;
+			}
+			
 			switch (this.type) {
 				case "maneuver": return "modules/enhancedcombathud-sfrpg/icons/high-kick.svg";
 				case "spell": return "modules/enhancedcombathud/icons/svg/spell-book.svg";
@@ -1539,6 +1587,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		get validitems() {
+			if (this.replacementItem?.flags[ModuleName]?.suboption) {
+				return Object.values(this.replacementItem.flags[ModuleName].suboption);
+			}
+			
 			if (this.type == "maneuver") {
 				return Object.values(StarfinderManeuvers);
 			}
@@ -1743,6 +1795,10 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			super(...args);
 			
 			//this.fixoldsets();
+		}
+		
+		get role() {
+			return ui.ARGON.components?.portrait.role;
 		}
 		
 		async fixoldsets() {
@@ -1960,6 +2016,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		async _renderInner() {
+			if (this.actor.type == "starship" && this.role != "gunner") return;
+			
 			const sizefactor = 50; //px
 			
 			const sets = this.actor.type == "starship" ? 4 : 3;
