@@ -1,3 +1,6 @@
+## v1.2.0
+- Added HUD for starships (some features are based on a players primary character)
+
 ## v1.1.6
 - Stamina will no longer be shown for drones
 - Plants, undead, constructs and drones now have their own hp bar color (just a bit of visual flair)
