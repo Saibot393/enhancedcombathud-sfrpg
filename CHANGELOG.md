@@ -1,3 +1,6 @@
+## v1.2.1
+- Small bug fix for starship HUD resolve point display
+
 ## v1.2.0
 - Added HUD for starships (some features are based on a players primary character)
 
