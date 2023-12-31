@@ -124,8 +124,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		constructor(...args) {
 			super(...args);
 
-			if (game.user.character?.getFlag(ModuleName, "starshiprole")) {
-				this._role = game.user.character.getFlag(ModuleName, "starshiprole");
+			if (game.user.getFlag(ModuleName, "starshiprole")) {
+				this._role = game.user.getFlag(ModuleName, "starshiprole");
 			}
 			else {
 				this._role = "openCrew";
@@ -133,16 +133,13 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 		
 		get role() {
-			if (game.user.character?.getFlag(ModuleName, "starshiprole")) {
-				return game.user.character.getFlag(ModuleName, "starshiprole");
-			}
 			return this._role;
 		}
 		
 		set role(value) {
 			this._role = value;
 			
-			game.user.character?.setFlag(ModuleName, "starshiprole", value)
+			game.user.setFlag(ModuleName, "starshiprole", value);
 			
 			if (this.actor.type == "starship") {
 				ui.ARGON.components.portrait.render();
@@ -2020,7 +2017,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			const sizefactor = 50; //px
 			
-			const sets = this.actor.type == "starship" ? 4 : 3;
+			const sets = this.actor.type == "starship" ? Object.values(StarfinderShipWeapons).length : 3;
 			
 			const arms = armsof(this.actor);
 			const setdata = await this._getSets();

@@ -70,6 +70,7 @@ The following icons are included
 	- clockwise-rotation.svg
 	- encirclement.svg
 	- team-upgrade.svg
+	- plain-circle.svg
 - By [Skoll](https://game-icons.net/)
 	- machine-gun.svg
 	- drop-weapon.svg

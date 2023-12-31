@@ -425,6 +425,16 @@ async function registerStarfinderECHSItems () {
 			system : {
 				descriptionHeader : "starboard"
 			}
+		},
+		turret : {
+			img: "modules/enhancedcombathud-sfrpg/icons/plain-circle.svg",
+			imgrotation: "0deg",
+			name: game.i18n.localize(ModuleName+".Titles.turret"),
+			type : "base",
+			direction : "turret",
+			system : {
+				descriptionHeader : "turret"
+			}
 		}
 	}
 
