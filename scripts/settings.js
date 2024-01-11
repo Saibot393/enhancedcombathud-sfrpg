@@ -32,6 +32,25 @@ Hooks.once("init", () => {  // game.settings.get(cModuleName, "")
 	onChange: () => {ui.ARGON.render()}
   });
   
+  game.settings.register(ModuleName, "Showintegratedweapons", {
+	name: game.i18n.localize(ModuleName+".Settings.Showintegratedweapons.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.Showintegratedweapons.descrp"),
+	scope: "client",
+	config: true,
+	type: Boolean,
+	default: false,
+	onChange: () => {ui.ARGON.render()}
+  });
+  
+  game.settings.register(ModuleName, "allowallItemsinItemslots", {
+	name: game.i18n.localize(ModuleName+".Settings.allowallItemsinItemslots.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.allowallItemsinItemslots.descrp"),
+	scope: "client",
+	config: true,
+	type: Boolean,
+	default: false
+  });
+  
   game.settings.register(ModuleName, "HealthBarWidthScale", {
 	name: game.i18n.localize(ModuleName+".Settings.HealthBarWidthScale.name"),
 	hint: game.i18n.localize(ModuleName+".Settings.HealthBarWidthScale.descrp"),

@@ -49,7 +49,15 @@
 			},
 			"ShowFullActions" : {
 				"name"					: "Show full actions",
-				"descrp"				: "If a panel for full actions should be shown "
+				"descrp"				: "If a panel for full actions should be shown"
+			},
+			"Showintegratedweapons" : {
+				"name"					: "Show integrated weapons",
+				"descrp"				: "If weapons integrated into the worn armor should be shown in the action bars"
+			},
+			"allowallItemsinItemslots" : {
+				"name"					: "Allow all items in item sets",
+				"descrp"				: "If all items should be placeable in the item set slots"
 			},
 			"HealthBarWidthScale" : {
 				"name"					: "Status bar width",

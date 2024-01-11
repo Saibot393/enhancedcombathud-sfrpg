@@ -1017,6 +1017,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
 					}
 					
+					if (game.settings.get(ModuleName, "Showintegratedweapons")) {
+						for (let i = 1; i <= 10; i++) {
+							buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i, isintegratedweapon: true}));
+						}
+					}
+					
 					buttons.push(new StarfinderSplitButton(new StarfinderButtonPanelButton({parent : this, type: "maneuver", item : specialActions[0]}), new StarfinderSpecialActionButton(specialActions[1])));
 					
 					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
@@ -1186,6 +1192,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i}));
 					}
 					
+					if (game.settings.get(ModuleName, "Showintegratedweapons")) {
+						for (let i = 1; i <= 10; i++) {
+							buttons.push(new StarfinderItemButton({ parent : this, item: null, isWeaponSet : true, slotnumber: i, isintegratedweapon: true}));
+						}
+					}
+					
 					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "spell"}));
 					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "feat"}));
 					buttons.push(new StarfinderButtonPanelButton({parent : this, type: "augmentation"}));
@@ -1260,6 +1272,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			}
 			
 			this.slotnumber = args.slotnumber;
+			this.isintegratedweapon = args.isintegratedweapon;
 		}
 
 		get hasTooltip() {
@@ -1336,7 +1349,21 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					item = items[this.slotnumber-1];
 					break;
 				default:
-					item = activeSet[this.slotnumber];
+					if (this.isintegratedweapon) {
+						let armoritems = this.actor.items.filter(item => item.system.armor?.type && item.system.equipped);
+						
+						let integratedweapons = [];
+						
+						for (let i = 0; i < armoritems.length; i++) {
+							console.log((armoritems[i].system.container.contents.map(entry => this.actor.items.get(entry.id))));
+							integratedweapons = integratedweapons.push(armoritems[i].system.container.contents.map(entry => this.actor.items.get(entry.id)).filter(item => item.type == "weapon"));
+						}
+						
+						item = integratedweapons[this.slotnumber];
+					}
+					else {
+						item = activeSet[this.slotnumber];
+					}
 					break;
 			}
 			
@@ -1381,31 +1408,20 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}
 			}
 			else {
-				if (item.type == "weapon" || item.type == "starshipWeapon") {
-					item?.roll();
-					
-					used = true;
-				}
-				
-				if (item.type == "consumable") {
-					item?.roll();
-					
-					used = true;
-				}
-				
-				if (item.type == "feat") {
-					item?.roll();
-					
-					used = true;
-				}
-				
-				if (item.type == "spell") {
-					this.actor.useSpell(item, {configureDialog: !game.settings.get(ModuleName, "OwnSpellSlotConsume")});
-					if (game.settings.get(ModuleName, "OwnSpellSlotConsume")) {
-						this.consumeSpellSlot(item.system.level);
-					}
-					
-					used = true;
+				switch (item.type) {
+					case "spell":
+						this.actor.useSpell(item, {configureDialog: !game.settings.get(ModuleName, "OwnSpellSlotConsume")});
+						if (game.settings.get(ModuleName, "OwnSpellSlotConsume")) {
+							this.consumeSpellSlot(item.system.level);
+						}
+						
+						used = true;
+						break;
+					default:
+						item?.roll();
+						
+						used = true;
+						break;
 				}	
 			}
 			
@@ -1901,23 +1917,18 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
 
 		async _onDrop(event) {
-				event.preventDefault();
-				event.stopPropagation();
-				if (this.actor.type == "starship") return;
-				const data = JSON.parse(event.dataTransfer.getData("text/plain"));
-				if(data?.type !== "Item") return;
-				const set = event.currentTarget.dataset.set;
-				const slot = event.currentTarget.dataset.slot;
-				const sets = this.actor.getFlag("enhancedcombathud", "weaponSets") || {};
-				sets[set] = sets[set] || {};
-				sets[set][slot] = data.uuid;
-				await this.setfixedsets(sets, set, slot);
-				await this.render();
-			try {      
-
-			} catch (error) {
-			  
-			}
+			event.preventDefault();
+			event.stopPropagation();
+			if (this.actor.type == "starship") return;
+			const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+			if(data?.type !== "Item") return;
+			const set = event.currentTarget.dataset.set;
+			const slot = event.currentTarget.dataset.slot;
+			const sets = this.actor.getFlag("enhancedcombathud", "weaponSets") || {};
+			sets[set] = sets[set] || {};
+			sets[set][slot] = data.uuid;
+			await this.setfixedsets(sets, set, slot);
+			await this.render();
 		}
 		
 		async setfixedsets(sets, set, slot) {
@@ -1945,9 +1956,11 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}
 
 				//handle equipability
-				if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
-					items[slot] = null;
-					slots[slot] = null;
+				if (!game.settings.get(ModuleName, "allowallItemsinItemslots")) {
+					if (!(items[slot]?.system.equippable || items[slot]?.type == "weapon")) {
+						items[slot] = null;
+						slots[slot] = null;
+					}
 				}
 				
 				//handle 2H/1H placement validity
