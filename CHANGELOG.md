@@ -1,3 +1,6 @@
+## v1.2.3
+- Added client settings "Show integrated weapons" and "Allow all items in item sets"
+
 ## v1.2.2
 - Added turret to starship weapon choice
 - The chosen role is no saved per user instead of per actor
