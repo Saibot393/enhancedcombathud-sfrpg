@@ -1,3 +1,7 @@
+## v1.2.2
+- Added turret to starship weapon choice
+- The chosen role is no saved per user instead of per actor
+
 ## v1.2.1
 - Small bug fix for starship HUD resolve point display
 
