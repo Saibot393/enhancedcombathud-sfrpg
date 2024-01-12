@@ -1304,6 +1304,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				case "magic":
 				case "hybrid":
 				case "technological":
+				case "equipment":
 					if (this.item.system?.container?.contents[0]?.id) {
 						const ammunition = this.actor.items.get(this.item.system.container.contents[0].id);
 						
@@ -1355,11 +1356,14 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						let integratedweapons = [];
 						
 						for (let i = 0; i < armoritems.length; i++) {
-							console.log((armoritems[i].system.container.contents.map(entry => this.actor.items.get(entry.id))));
-							integratedweapons = integratedweapons.push(armoritems[i].system.container.contents.map(entry => this.actor.items.get(entry.id)).filter(item => item.type == "weapon"));
+							if (armoritems[i].system.actionType) {
+								integratedweapons.push(armoritems[i]);
+							}
+							
+							integratedweapons = integratedweapons.concat(armoritems[i].system.container.contents.map(entry => this.actor.items.get(entry.id)).filter(item => item.type == "weapon"));
 						}
 						
-						item = integratedweapons[this.slotnumber];
+						item = integratedweapons[this.slotnumber-1];
 					}
 					else {
 						item = activeSet[this.slotnumber];
