@@ -1,3 +1,6 @@
+## v1.2.4
+- Added armor actions to weapon actions (only if "Show integrated weapons" is activated)
+
 ## v1.2.3
 - Added client settings "Show integrated weapons" and "Allow all items in item sets"
 
