@@ -1319,7 +1319,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 					}
 					
 					if (this.item?.system.uses?.max && this.item?.system.uses?.max > 0) {
-						return this.item.system.capacity.value;
+						return this.item.system.uses.value;
 					}
 					
 					return null;

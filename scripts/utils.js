@@ -352,8 +352,7 @@ async function useStunt(stunt) {
 			})}</p>`;
 		}
 	}
-	console.log(selectedFormula);
-	console.log(selectedFormula.effectNormal || stunt.system.effectNormal);
+	
 	flavor += `<p><strong>${game.i18n.format("SFRPG.Rolls.StarshipActions.Chat.NormalEffect")}: </strong>`;
 	flavor += await TextEditor.enrichHTML(selectedFormula.effectNormal || stunt.system.effectNormal, {
 		async: true,
