@@ -1,3 +1,6 @@
+## v1.2.5
+- Small bug fix
+
 ## v1.2.4
 - Added armor actions to weapon actions (only if "Show integrated weapons" is activated)
 
