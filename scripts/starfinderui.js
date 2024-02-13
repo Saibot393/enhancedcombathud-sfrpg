@@ -2117,17 +2117,22 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		}
     }
 	*/
-  
-    CoreHUD.definePortraitPanel(StarfinderPortraitPanel);
-    CoreHUD.defineDrawerPanel(StarfinderDrawerPanel);
-    CoreHUD.defineMainPanels([
+	let panels = [
 		StarfinderStandardActionPanel,
 		StarfinderMovementActionPanel,
 		StarfinderSwiftActionPanel,
 		StarfinderReactionActionPanel,
 		StarfinderFullActionPanel,
 		ARGON.PREFAB.PassTurnPanel
-    ]);  
+    ];
+	
+	if (game.settings.get(ModuleName, "showmacrocategory")) {
+		panels.push(ARGON.PREFAB.MacroPanel);
+	}
+  
+    CoreHUD.definePortraitPanel(StarfinderPortraitPanel);
+    CoreHUD.defineDrawerPanel(StarfinderDrawerPanel);
+    CoreHUD.defineMainPanels(panels);  
 	CoreHUD.defineMovementHud(StarfinderMovementHud);
 	CoreHUD.defineButtonHud(StarfinderButtonHud);
     CoreHUD.defineWeaponSets(StarfinderWeaponSets);

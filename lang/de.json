@@ -70,6 +70,10 @@
 			"OwnSpellSlotConsume" : {
 				"name"					: "Angepasster Zauberplatz Verbrauch",
 				"descrp"				: "Ob Argon - Starfinder den Zauberplatz Verbrauch verwalten soll (wenn via Argon verursacht) um den Zauberplatz Verbrauch Bug zu umgehen"
+			},
+			"showmacrocategory" : {
+				"name"					: "Zeige Macro Kategorie",
+				"descrp"				: "Ob eine Macro Sektion im HUD angezeigt werden soll (basiert auf Macros in der Foundry Macro Leiste)"
 			}
 		}
 	},

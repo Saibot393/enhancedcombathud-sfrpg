@@ -119,4 +119,15 @@ Hooks.once("init", () => {  // game.settings.get(cModuleName, "")
 	type: Boolean,
 	default: true
   });
+  
+	
+	game.settings.register(ModuleName, "showmacrocategory", {
+		name: game.i18n.localize(`${ModuleName}.Settings.showmacrocategory.name`),
+		hint: game.i18n.localize(`${ModuleName}.Settings.showmacrocategory.descrp`),
+		scope: "client",
+		config: true,
+		type: Boolean,
+		default: false,
+		requiresReload : true
+	});
 });

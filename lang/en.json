@@ -90,6 +90,10 @@
 			"OwnSpellSlotConsume" : {
 				"name"					: "Custom spell slot consume",
 				"descrp"				: "If Argon - Starfinder should take care of spell slot consumption (if triggered via Argon) to circumvent the spellslot consumption bug"
+			},
+			"showmacrocategory" : {
+				"name"					: "Show macro category",
+				"descrp"				: "If a macro category should be shown in the HUD (based on the macros in the Foundry macro bar)"
 			}
 		}
 	},
