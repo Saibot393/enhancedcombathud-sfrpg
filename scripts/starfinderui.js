@@ -27,6 +27,14 @@ const systemconditioncolor = {
 	wrecked : "red"
 }
 
+//for ammunition updates
+Hooks.on("updateItem", (item) => {
+	if (item.parent !== ui.ARGON._actor) return;
+	for (const itemButton of ui.ARGON.itemButtons) {
+		if (itemButton.item?.system?.container?.contents[0]?.id == item.id) itemButton.render();
+	}
+});
+
 Hooks.on("argonInit", async (CoreHUD) => {
     const ARGON = CoreHUD.ARGON;
   
@@ -110,15 +118,6 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				return 1;
 		}
 	}
-	
-	//for ammunition updates
-	function onUpdateItemadditional(item) {
-		if (item.parent !== ui.ARGON._actor) return;
-		for (const itemButton of ui.ARGON.itemButtons) {
-			if (itemButton.item?.system?.container?.contents[0]?.id == item.id) itemButton.render();
-		}
-	}
-	Hooks.on("updateItem", onUpdateItemadditional.bind(CoreHUD));
   
     class StarfinderPortraitPanel extends ARGON.PORTRAIT.PortraitPanel {
 		constructor(...args) {
