@@ -1,3 +1,6 @@
+## v1.3.1
+- Small performance improvement
+
 ## v1.3.0
 - Added option to show the new Macro panel added by [CORE](https://foundryvtt.com/packages/enhancedcombathud)
 
