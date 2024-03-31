@@ -74,6 +74,10 @@
 			"showmacrocategory" : {
 				"name"					: "Zeige Macro Kategorie",
 				"descrp"				: "Ob eine Macro Sektion im HUD angezeigt werden soll (basiert auf Macros in der Foundry Macro Leiste)"
+			},
+			"itemacroCompatibility" : {
+				"name"					: "Item Macro Kompatibilität",
+				"descrp"				: "Aktiviert die Integration mit dem Item Macros Modul um die Macros von Gegenständen beim Klicken von Gegenstandsknöpfen zu aktivieren"
 			}
 		}
 	},

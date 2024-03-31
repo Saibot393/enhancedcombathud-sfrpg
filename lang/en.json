@@ -94,6 +94,10 @@
 			"showmacrocategory" : {
 				"name"					: "Show macro category",
 				"descrp"				: "If a macro category should be shown in the HUD (based on the macros in the Foundry macro bar)"
+			},
+			"itemacroCompatibility" : {
+				"name"					: "Item Macro compatibility",
+				"descrp"				: "Enables integration with the Item Macro module, to activate the macros whenitem buttons are clicked"
 			}
 		}
 	},

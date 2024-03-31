@@ -1428,6 +1428,14 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}	
 			}
 			
+			if (item.hasMacro()) {
+				if (game.settings.get(ModuleName, "itemacroCompatibility")) {
+					if (game.user.isGM || game.settings.get("itemacro", "visibilty")) {
+						item.executeMacro();
+					}
+				}
+			}
+			
 			if (used) {
 				useAction(this.actionType);
 			}

@@ -130,4 +130,13 @@ Hooks.once("init", () => {  // game.settings.get(cModuleName, "")
 		default: false,
 		requiresReload : true
 	});
+	
+  game.settings.register(ModuleName, "itemacroCompatibility", {
+	name: game.i18n.localize(ModuleName+".Settings.itemacroCompatibility.name"),
+	hint: game.i18n.localize(ModuleName+".Settings.itemacroCompatibility.descrp"),
+	scope: "client",
+	config: game.modules.get("itemacro")?.active,
+	type: Boolean,
+	default: false
+  });
 });
