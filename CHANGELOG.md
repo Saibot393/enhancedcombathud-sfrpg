@@ -1,3 +1,6 @@
+## v1.4.1
+- Bug fix for ships with Deflector Shields
+
 ## v1.4.0
 - Added compatibility with [Item Macro](https://foundryvtt.com/packages/itemacro), enabled via the setting Item Macro compatibility
 
