@@ -449,6 +449,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			const directionbackground = {};
 			const shieldsubbar = {};
+
 			for (const direction of ["aft", "forward", "port", "starboard"]) {
 				directionbackground[direction] = document.createElement("div");
 				directionbackground[direction].style.position = "absolute";
@@ -472,39 +473,42 @@ Hooks.on("argonInit", async (CoreHUD) => {
 						directionbackground[direction].style.clipPath = `polygon(0% 67%, 50% 83.5%, 100% 67%, 100% 33%, 50% 16.5%, 0% 33%, 0% 67%)`;
 						break;
 				}
-				
-				let percentage = directions[direction].shields.value/shields.limit;
-				let color = "#3498DB"; //shiled blue
-				
-				if (directions[direction].shields.value <= 0 && directions[direction].ablative.max > 0) {
-					percentage = directions[direction].ablative.value/directions[direction].ablative.max;
-					color = "#43464B"; //dark grey
+			
+				if (shields) {
+					let percentage = directions[direction].shields.value/shields.limit;
+					let color = "#3498DB"; //shiled blue
+					
+					if (directions[direction].shields.value <= 0 && directions[direction].ablative.max > 0) {
+						percentage = directions[direction].ablative.value/directions[direction].ablative.max;
+						color = "#43464B"; //dark grey
+					}
+					
+					shieldsubbar[direction] = document.createElement("div");
+					shieldsubbar[direction].style.top = "0";
+					shieldsubbar[direction].style.left = "0";
+					shieldsubbar[direction].style.position = "absolute";
+					shieldsubbar[direction].style.backgroundColor = color;
+					shieldsubbar[direction].style.opacity = "1";
+					switch (direction) {
+						case "forward":
+							shieldsubbar[direction].style.top = "";
+							shieldsubbar[direction].style.bottom = "0";
+						case "aft":
+							shieldsubbar[direction].style.width = "100%";
+							shieldsubbar[direction].style.height = `${percentage * 100}%`;
+							break;
+						case "port":
+							shieldsubbar[direction].style.left = "";
+							shieldsubbar[direction].style.right = "0";
+						case "starboard":
+							shieldsubbar[direction].style.width = `${percentage * 100}%`;
+							shieldsubbar[direction].style.height = "100%";
+							break;
+					}
+					
+					directionbackground[direction].appendChild(shieldsubbar[direction]);
 				}
 				
-				shieldsubbar[direction] = document.createElement("div");
-				shieldsubbar[direction].style.top = "0";
-				shieldsubbar[direction].style.left = "0";
-				shieldsubbar[direction].style.position = "absolute";
-				shieldsubbar[direction].style.backgroundColor = color;
-				shieldsubbar[direction].style.opacity = "1";
-				switch (direction) {
-					case "forward":
-						shieldsubbar[direction].style.top = "";
-						shieldsubbar[direction].style.bottom = "0";
-					case "aft":
-						shieldsubbar[direction].style.width = "100%";
-						shieldsubbar[direction].style.height = `${percentage * 100}%`;
-						break;
-					case "port":
-						shieldsubbar[direction].style.left = "";
-						shieldsubbar[direction].style.right = "0";
-					case "starboard":
-						shieldsubbar[direction].style.width = `${percentage * 100}%`;
-						shieldsubbar[direction].style.height = "100%";
-						break;
-				}
-				
-				directionbackground[direction].appendChild(shieldsubbar[direction]);
 				shieldbar.append(directionbackground[direction]);
 			}
 			
@@ -555,28 +559,30 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			hplabel.style.textShadow = "1px  1px 1px black, 1px -1px 1px black, -1px  1px 1px black, -1px -1px 1px black";
 			hpbar.appendChild(hplabel);
 			
-			for (const direction of ["aft", "forward", "port", "starboard"]) {
-				let labelname = "SHL";
-				let labelvalue = directions[direction].shields.value;
+			if (shields) {
+				for (const direction of ["aft", "forward", "port", "starboard"]) {
+					let labelname = "SHL";
+					let labelvalue = directions[direction].shields.value;
 
-				if (directions[direction].shields.value <= 0 && directions[direction].ablative.max > 0) {
-					labelname = "ABL";
-					labelvalue = directions[direction].ablative.value;
+					if (directions[direction].shields.value <= 0 && directions[direction].ablative.max > 0) {
+						labelname = "ABL";
+						labelvalue = directions[direction].ablative.value;
+					}
+					
+					const shieldlabel = document.createElement("span");
+					shieldlabel.innerHTML = `${labelvalue} ${labelname}`;
+					shieldlabel.style.position = "absolute";
+					shieldlabel.style.zIndex = "20";
+					shieldlabel.style.width = "100%";
+					shieldlabel.style.height = "100%";
+					shieldlabel.style.textAlign = "center";
+					shieldlabel.style.top = `calc(50% - 0.55em)`;
+					shieldlabel.style.fontSize = `${fontsize * minscale}em`;
+					shieldlabel.style.color = "white";
+					//shieldlabel.style.textShadow = "grey 1px 1px 10px";
+					shieldlabel.style.textShadow = "1px  1px 1px black, 1px -1px 1px black, -1px  1px 1px black, -1px -1px 1px black";
+					directionbackground[direction].appendChild(shieldlabel);
 				}
-				
-				const shieldlabel = document.createElement("span");
-				shieldlabel.innerHTML = `${labelvalue} ${labelname}`;
-				shieldlabel.style.position = "absolute";
-				shieldlabel.style.zIndex = "20";
-				shieldlabel.style.width = "100%";
-				shieldlabel.style.height = "100%";
-				shieldlabel.style.textAlign = "center";
-				shieldlabel.style.top = `calc(50% - 0.55em)`;
-				shieldlabel.style.fontSize = `${fontsize * minscale}em`;
-				shieldlabel.style.color = "white";
-				//shieldlabel.style.textShadow = "grey 1px 1px 10px";
-				shieldlabel.style.textShadow = "1px  1px 1px black, 1px -1px 1px black, -1px  1px 1px black, -1px -1px 1px black";
-				directionbackground[direction].appendChild(shieldlabel);
 			}
 			
 			//bottom middle
