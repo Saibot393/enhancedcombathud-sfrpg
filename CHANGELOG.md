@@ -1,3 +1,6 @@
+## v2.0.0
+- v12 compatibility
+
 ## v1.4.1
 - Bug fix for ships with Deflector Shields
 
