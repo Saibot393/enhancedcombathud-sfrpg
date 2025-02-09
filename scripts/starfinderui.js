@@ -1434,7 +1434,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				}	
 			}
 			
-			if (item.hasMacro()) {
+			if (item.hasMacro && item.hasMacro()) {
 				if (game.settings.get(ModuleName, "itemacroCompatibility")) {
 					if (game.user.isGM || game.settings.get("itemacro", "visibilty")) {
 						item.executeMacro();
@@ -1444,6 +1444,85 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			if (used) {
 				useAction(this.actionType);
+			}
+		}
+		
+		async _onRightClick(event) {
+			if (event.target.classList.contains("specialAction")) return;
+			
+			if (this.item?.sheet) {
+				this.item?.sheet?.render(true);
+			}
+			else {
+				if (this.item?.system?.item?.sheet) {
+					this.item.system.item.sheet.render(true);
+				}
+			}
+		}
+		
+		async _onTooltipMouseEnter(event, locked = false) {
+			await super._onTooltipMouseEnter(event, locked);
+			if (this.element.querySelector(".specialAction")) {
+				if (this.element.querySelector(".titleoverride")) {
+					let element = this.element.querySelector("span.action-element-title") || this.element.querySelector("span.feature-element-title");
+					
+					if (element) element.style.visibility = "hidden"; 
+				}
+				for (const specialelement of this.element.querySelectorAll(".specialAction")) {
+					//specialelement.style.visibility = "";
+					specialelement.style.display = "";
+				}
+			}
+		}
+
+		async _onTooltipMouseLeave(event) {
+			await super._onTooltipMouseLeave(event);
+			
+			if (this.element.querySelector(".specialAction")) {
+				if (this.element.querySelector(".titleoverride")) {
+					let element = this.element.querySelector("span.action-element-title") || this.element.querySelector("span.feature-element-title");
+					
+					if (element) element.style.visibility = ""; 
+				}
+				for (const specialelement of this.element.querySelectorAll(".specialAction")) {
+					//specialelement.style.visibility = "hidden";
+					specialelement.style.display = "none";
+				}
+			}
+		}
+		
+		async _renderInner() {
+			await super._renderInner();
+			
+			if (this.item?.rollAttack && this.item?.rollDamage) {
+				this.element.querySelector("span").id = "maintitle";
+				
+				let actions = ["Attack", "Damage"];
+				
+				for (let i = 0; i < actions.length; i++) {
+					let ActionTitle = document.createElement("span");
+					ActionTitle.classList.add("specialAction");
+					ActionTitle.classList.add("titleoverride");
+					ActionTitle.classList.add("action-element-title");
+					ActionTitle.innerHTML = game.i18n.localize("SFRPG.ItemMacro." + actions[i]);
+					switch (actions[i]) {
+						case "Attack":
+							ActionTitle.onclick = (event) => {this.item.rollAttack(event)};
+							break;
+						case "Damage":
+							ActionTitle.onclick = (event) => {this.item.rollDamage(event)};
+							break;
+					}
+					ActionTitle.style.display = "none";
+					
+					ActionTitle.style.width = `${100/actions.length}%`;
+					ActionTitle.style.left = `${i * 100/actions.length}%`;
+					
+					ActionTitle.onmouseenter = () => {ActionTitle.style.filter = "brightness(66%)"}
+					ActionTitle.onmouseleave = () => {ActionTitle.style.filter = ""}
+					
+					this.element.appendChild(ActionTitle);
+				}
 			}
 		}
 
