@@ -1,3 +1,8 @@
+## v2.1.0
+- Added functionality to item buttons:
+  - Right clicking will now open the item sheet
+  - Weapons will now display dedicated attack and damage buttons on mouse over
+
 ## v2.0.0
 - v12 compatibility
 
