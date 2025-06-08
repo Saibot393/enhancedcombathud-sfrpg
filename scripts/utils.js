@@ -1,7 +1,7 @@
-import { DiceSFRPG } from "/systems/sfrpg/module/dice.js";
-import RollContext from "/systems/sfrpg/module/rolls/rollcontext.js";
-
 const ModuleName = "enhancedcombathud-sfrpg";
+
+const DiceSFRPG = sfrpg.dice;
+const RollContext = sfrpg.rolls.RollContext;
 
 async function getTooltipDetails(item) {
 	let description, footerText, itemType, category, subtitle, subtitlecolor, range, area, ammunitionType, attackbonus, save, target, actarget, duration, damage, level, spellschool, featType, specialAbilityType, weaponproperties, descriptors, role;
@@ -122,7 +122,7 @@ async function getTooltipDetails(item) {
 		let damageparts = damage.parts.map(part => {return{formula : part.formula, types : part.types}});
 		
 		for (const part of damageparts) {
-			const roll = new Roll(part.formula, {actor, abilities, details : actordetails});
+			const roll = new Roll(part.formula, {actor, abilities, details : actordetails, classes : actor.system.classes});
 			
 			await roll.evaluate();
 			
