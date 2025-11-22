@@ -772,10 +772,12 @@ Hooks.on("argonInit", async (CoreHUD) => {
 				roleselect.style.color = "white";
 				roleselect.style.zIndex = "10";
 				
-				for (const role of Object.keys(CONFIG.SFRPG.starshipRoleNames)) {
+				let roles = CONFIG.SFRPG.starshipRoleNames || CONFIG.SFRPG.starshipCrewRoles;
+				
+				for (const role of Object.keys(roles)) {
 					const roleoption = document.createElement("option");
 					roleoption.value = role;
-					roleoption.innerHTML = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
+					roleoption.innerHTML = game.i18n.localize(roles[role]);
 					roleoption.selected = (role == this.role);
 					roleoption.style.boxShadow = "0 0 50vw var(--color-shadow-dark) inset";
 					roleoption.style.width = "200px";
@@ -954,7 +956,8 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		get label() {
 			switch (this.actor.type) {
 				case "starship":
-					return `${CONFIG.SFRPG.starshipRoleNames[this.role]} ${game.i18n.localize("enhancedcombathud-sfrpg.Titles.Action")}`;
+					let roles = CONFIG.SFRPG.starshipRoleNames || CONFIG.SFRPG.starshipCrewRoles;
+					return `${game.i18n.localize(roles[this.role])} ${game.i18n.localize("enhancedcombathud-sfrpg.Titles.Action")}`;
 					break;
 				default:
 					return ModuleName+".Titles.StandardAction";

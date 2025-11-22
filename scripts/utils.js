@@ -63,7 +63,9 @@ async function getTooltipDetails(item) {
 			}
 			else {
 				if (role) {
-					subtitle = game.i18n.localize(CONFIG.SFRPG.starshipRoleNames[role]);
+					let roles = CONFIG.SFRPG.starshipRoleNames || CONFIG.SFRPG.starshipCrewRoles;
+					
+					subtitle = game.i18n.localize(roles[role]);
 				}
 				else {
 					if (itemType != "base") {
@@ -308,7 +310,8 @@ async function useStunt(stunt) {
 	}
 
 	let speakerActor = actor;
-	const roleKey = CONFIG.SFRPG.starshipRoleNames[stunt.system.role];
+	let roles = CONFIG.SFRPG.starshipRoleNames || CONFIG.SFRPG.starshipCrewRoles;
+	const roleKey = roles[stunt.system.role];
 	let roleName = game.i18n.format(roleKey);
 
 	const desiredKey = stunt.system.selectorKey;
@@ -323,7 +326,7 @@ async function useStunt(stunt) {
 
 		const actorRole = actor.getCrewRoleForActor(speakerActor.id);
 		if (actorRole) {
-			const actorRoleKey = CONFIG.SFRPG.starshipRoleNames[actorRole];
+			const actorRoleKey = roles[actorRole];
 			roleName = game.i18n.format(actorRoleKey);
 		}
 	}
