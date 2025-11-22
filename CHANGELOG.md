@@ -1,3 +1,6 @@
+## v2.1.1
+- Bug fix
+
 ## v2.1.0
 - Added functionality to item buttons:
   - Right clicking will now open the item sheet
