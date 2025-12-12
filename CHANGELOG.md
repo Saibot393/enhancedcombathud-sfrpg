@@ -1,3 +1,6 @@
+## v3.0.1
+- Fix for combat maneuvers
+
 ## v3.0.0
 - v13 update
 - Fix for new ship role translation paths
