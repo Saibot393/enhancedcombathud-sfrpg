@@ -281,11 +281,11 @@ async function registerStarfinderECHSItems () {
 			journalid : "Compendium.sfrpg.rules.JournalEntry.U37n5tY5hn1ctzQL.JournalEntryPage.R33uiOMesYP0ISWl",
 			ismaneuver : true,
 			subtitle : game.i18n.localize(ModuleName+".Titles.MeleeAttack"),
-			onclick : (item) => {
+			onclick : (item, event = {}) => {
 				const meleeweapon = item.parent?.items.find(item => item.type == "weapon" && item.system.equipped && item.system.actionType[0] == "m");
 				
 				if (meleeweapon) {
-					meleeweapon.rollAttack();
+					meleeweapon.rollAttack({event});
 					
 					return true;
 				}

@@ -1413,7 +1413,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			if (item?.flags[ModuleName]?.specialaction) {
 				if (item?.flags[ModuleName]?.onclick) {
-					used = item.flags[ModuleName].onclick(item);
+					used = item.flags[ModuleName].onclick(item, event);
 				}
 				else {
 					used = true;
