@@ -1,3 +1,6 @@
+## v4.0.0
+- Basic v14 compatibility
+
 ## v3.0.1
 - Fix for combat maneuvers
 
