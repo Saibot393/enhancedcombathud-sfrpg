@@ -1915,7 +1915,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 		
 		async fixoldsets() {
 			//for backwards compatibility
-			let sets = deepClone(this.actor?.getFlag("enhancedcombathud", "weaponSets"));
+			let sets = (foundry.utils?.deepClone || deepClone)(this.actor?.getFlag("enhancedcombathud", "weaponSets"));
 			if (sets) {
 				let update = false;
 				
@@ -1955,7 +1955,7 @@ Hooks.on("argonInit", async (CoreHUD) => {
 			
 			const arms = armsof(this.actor);
 			
-			const sets = mergeObject(await this.getDefaultSets(), deepClone(this.actor.getFlag("enhancedcombathud", "weaponSets") || {}));
+			const sets = (foundry.utils?.mergeObject || mergeObject)(await this.getDefaultSets(), (foundry.utils?.deepClone || deepClone)(this.actor.getFlag("enhancedcombathud", "weaponSets") || {}));
 
 			for (const [set, slots] of Object.entries(sets)) {
 				for (let i = 1; i <= arms; i++) {
