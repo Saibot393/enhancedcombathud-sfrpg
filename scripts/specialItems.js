@@ -501,7 +501,7 @@ async function starshipactions(role, actor) {
 		const action = await starshipActionsPack.getDocument(index._id);
 		
 		if (action.system?.role == role) {
-			const localcopy = duplicate(action); //copy to modify
+			const localcopy = foundry.utils.duplicate(action); //copy to modify
 			localcopy.img = shipActionImage(localcopy);
 			localcopy.flags = {[ModuleName] : {onclick : shipActionAutomation(localcopy, actor)}};
 
