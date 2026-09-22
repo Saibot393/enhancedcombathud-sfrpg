@@ -1,3 +1,6 @@
+## v4.0.1
+- Fixed problem with displaying HUD for starships
+
 ## v4.0.0
 - Basic v14 compatibility
 
